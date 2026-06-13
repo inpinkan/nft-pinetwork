@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Pi Network NFT Center (Beta)</title>
+  <title>Pi Network NFT Center (Beta) v2.9.0</title>
   <style>
     :root{--purple:#5b2d82;--gold:#f5b041;--bg:#f7f4fb;--card:#fff;--text:#19151f;--muted:#8b8195;--border:#e5d8ef;--green:#2ecc71;--red:#ff5c5c;--blue:#2f80ed}
     body.dark{--bg:#111017;--card:#1d1826;--text:#f7f1ff;--muted:#b7a9c6;--border:#3b2c4c}
@@ -1507,7 +1507,75 @@ function searchPNC(){
   if(items.length){box.innerHTML=items.join("");box.classList.add("show")}else{box.innerHTML='<div class="search-item">No results</div>';box.classList.add("show")}
 }
 
+
+// v2.9.0: Public on-chain Genesis NFT seed.
+// This makes DDREAM Genesis #1 visible to every visitor even when localStorage is empty.
+// On-chain source: Sepolia PNCNFT contract 0xeD5789fd878BC72138a015b7929407ced04Cc687 / tokenId 2.
+const PNC_ONCHAIN_GENESIS = {
+  collection: {
+    id: "COL-ONCHAIN-DDREAM",
+    name: "DDREAM Genesis",
+    creator: "Pi NFT Center",
+    icon: "🏆",
+    image: "https://ipfs.io/ipfs/bafybeiclpv7r7kyw5nzxo2r5f5olsr6juc7hrmdwsegnnezctnv6ymodfu",
+    description: "Genesis collection minted by Pi NFT Center on Sepolia Testnet.",
+    verified: true,
+    volume: "0 Pi",
+    verification: "Sepolia Verified"
+  },
+  nft: {
+    pncId: "PNC-ONCHAIN-000002",
+    name: "DDREAM Genesis #1",
+    collection: "DDREAM Genesis",
+    collectionId: "COL-ONCHAIN-DDREAM",
+    icon: "🏆",
+    image: "https://ipfs.io/ipfs/bafybeiclpv7r7kyw5nzxo2r5f5olsr6juc7hrmdwsegnnezctnv6ymodfu",
+    price: "Not For Sale",
+    status: "Not For Sale",
+    saleStatus: "Not For Sale",
+    ownershipStatus: "On-chain Owned",
+    verified: true,
+    creator: "Pi NFT Center",
+    creatorWallet: "0x4a45Cd6Aa78C7AB51b0d9ba0e36E035A47a0BC1b",
+    originalOwner: "0x4a45Cd6Aa78C7AB51b0d9ba0e36E035A47a0BC1b",
+    owner: "0x4a45Cd6Aa78C7AB51b0d9ba0e36E035A47a0BC1b",
+    currentOwner: "0x4a45Cd6Aa78C7AB51b0d9ba0e36E035A47a0BC1b",
+    chainStatus: "Sepolia On-chain",
+    transferNetwork: "Sepolia Testnet",
+    metadataUri: "ipfs://bafkreifcs56q372vxihjshypu7brxeielsf7b7k3eknjjz2hnop7qj2hlq",
+    chainTokenId: "2",
+    contractAddress: "0xeD5789fd878BC72138a015b7929407ced04Cc687",
+    description: "The first Genesis NFT minted by Pi NFT Center. A commemorative NFT marking the beginning of the PNC project.",
+    utilityType: "Genesis / Proof of Build",
+    utility: "Commemorative on-chain Genesis NFT for PNC. Display only for now.",
+    createdAt: "2026/06/13",
+    ownershipHistory: [
+      {from:"PNCNFT Contract", to:"0x4a45Cd6Aa78C7AB51b0d9ba0e36E035A47a0BC1b", action:"Minted on Sepolia", at:"2026/06/13"}
+    ]
+  }
+};
+
+function ensureOnchainGenesisSeed(){
+  const c = PNC_ONCHAIN_GENESIS.collection;
+  const n = PNC_ONCHAIN_GENESIS.nft;
+
+  const existingCollectionIndex = collections.findIndex(x => x.id === c.id || String(x.name).toLowerCase() === c.name.toLowerCase());
+  if(existingCollectionIndex >= 0){
+    collections[existingCollectionIndex] = {...collections[existingCollectionIndex], ...c};
+  }else{
+    collections.unshift({...c});
+  }
+
+  const existingNftIndex = vaultNfts.findIndex(x => x.pncId === n.pncId || (x.contractAddress === n.contractAddress && String(x.chainTokenId) === String(n.chainTokenId)));
+  if(existingNftIndex >= 0){
+    vaultNfts[existingNftIndex] = {...vaultNfts[existingNftIndex], ...n};
+  }else{
+    vaultNfts.unshift({...n});
+  }
+}
+
 loadState();
+ensureOnchainGenesisSeed();
 setupAdminMode();
 renderAll();
 </script>
