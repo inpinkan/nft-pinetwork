@@ -1,53 +1,111 @@
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-};
-
-async function readRequestBody(req) {
-  const chunks = [];
-  for await (const chunk of req) chunks.push(chunk);
-  return Buffer.concat(chunks);
-}
-
 export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
   if (req.method === "OPTIONS") return res.status(200).end();
+
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
   try {
     const jwt = process.env.PINATA_JWT;
+
     if (!jwt) {
       return res.status(500).json({ error: "PINATA_JWT is not configured" });
     }
 
-    const contentType = req.headers["content-type"] || "";
-    const body = await readRequestBody(req);
+    const { fileName, mimeType, base64, name, description, collection, utilityType, utility } = req.body || {};
 
-    const pinataRes = await fetch("https://api.pinata.cloud/pinning/pinFileToIPFS", {
+    if (!base64) {
+      return res.status(400).json({ error: "base64 image is required" });
+    }
+
+    const safeFileName = fileName || "pnc-nft-image.png";
+    const safeMimeType = mimeType || "image/png";
+
+    const imageBuffer = Buffer.from(base64, "base64");
+    const imageBlob = new Blob([imageBuffer], { type: safeMimeType });
+
+    const imageForm = new FormData();
+    imageForm.append("file", imageBlob, safeFileName);
+    imageForm.append(
+      "pinataMetadata",
+      JSON.stringify({
+        name: safeFileName,
+      })
+    );
+
+    const imageRes = await fetch("https://api.pinata.cloud/pinning/pinFileToIPFS", {
       method: "POST",
       headers: {
         Authorization: `Bearer ${jwt}`,
-        "Content-Type": contentType,
       },
-      body,
+      body: imageForm,
     });
 
-    const data = await pinataRes.json();
+    const imageData = await imageRes.json();
 
-    if (!pinataRes.ok) {
-      return res.status(pinataRes.status).json({
-        error: "Pinata upload failed",
-        detail: data,
+    if (!imageRes.ok) {
+      return res.status(imageRes.status).json({
+        error: "Image upload failed",
+        detail: imageData,
       });
     }
 
-    return res.status(200).json(data);
+    const imageUri = `ipfs://${imageData.IpfsHash}`;
+
+    const metadata = {
+      name: name || safeFileName,
+      description: description || "",
+      image: imageUri,
+      attributes: [
+        { trait_type: "Collection", value: collection || "" },
+        { trait_type: "Utility Type", value: utilityType || "General" },
+        { trait_type: "Utility", value: utility || "" },
+        { trait_type: "Platform", value: "Pi NFT Center" },
+      ],
+    };
+
+    const metadataBlob = new Blob([JSON.stringify(metadata, null, 2)], {
+      type: "application/json",
+    });
+
+    const metadataForm = new FormData();
+    metadataForm.append("file", metadataBlob, "metadata.json");
+    metadataForm.append(
+      "pinataMetadata",
+      JSON.stringify({
+        name: `${metadata.name || "PNC NFT"} metadata.json`,
+      })
+    );
+
+    const metadataRes = await fetch("https://api.pinata.cloud/pinning/pinFileToIPFS", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${jwt}`,
+      },
+      body: metadataForm,
+    });
+
+    const metadataData = await metadataRes.json();
+
+    if (!metadataRes.ok) {
+      return res.status(metadataRes.status).json({
+        error: "Metadata upload failed",
+        detail: metadataData,
+      });
+    }
+
+    return res.status(200).json({
+      ok: true,
+      imageIpfsHash: imageData.IpfsHash,
+      imageUri,
+      metadataIpfsHash: metadataData.IpfsHash,
+      metadataUri: `ipfs://${metadataData.IpfsHash}`,
+      metadata,
+    });
   } catch (err) {
     return res.status(500).json({
       error: "Server error",
