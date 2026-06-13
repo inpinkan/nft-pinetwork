@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Pi Network NFT Center (Beta) v2.9.5</title>
+  <title>Pi Network NFT Center (Beta) v2.11.2</title>
   <style>
     :root{--purple:#5b2d82;--gold:#f5b041;--bg:#f7f4fb;--card:#fff;--text:#19151f;--muted:#8b8195;--border:#e5d8ef;--green:#2ecc71;--red:#ff5c5c;--blue:#2f80ed}
     body.dark{--bg:#111017;--card:#1d1826;--text:#f7f1ff;--muted:#b7a9c6;--border:#3b2c4c}
@@ -2237,7 +2237,7 @@ function renderNFTs(){
 // === /v2.10.4 ===
 
 
-// === v2.11.1 Cross-device collection cleanup / canonical display ===
+// === v2.11.2 Cross-device collection cleanup / canonical display ===
 // Purpose: keep search/collection display consistent after on-chain sync.
 // Drafts can still be browser-local, but on-chain collections are normalized in every browser.
 const PNC_COLLECTION_ALIASES = {
@@ -2307,30 +2307,115 @@ const pncOriginalPncEnsureOnchainCollection = pncEnsureOnchainCollection;
 pncEnsureOnchainCollection = function(collectionName, image){
   return pncOriginalPncEnsureOnchainCollection(pncCanonicalCollectionName(collectionName), image);
 };
+function pncEscapeHtml(value){
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+function pncCloseSearchResults(){
+  const box = document.getElementById("searchResults");
+  if(box){ box.classList.remove("show"); box.innerHTML = ""; }
+}
+
+function pncSelectSearchResult(kind, key){
+  if(kind === "collection"){
+    openCollection(key);
+  }else if(kind === "nft"){
+    showDetailById(key);
+  }
+  const input = document.getElementById("searchInput");
+  if(input) input.blur();
+  pncCloseSearchResults();
+}
+
 function searchPNC(){
   normalizeCollectionLinks();
-  const q = document.getElementById('searchInput').value.trim().toLowerCase();
-  const box = document.getElementById('searchResults');
-  if(!q){ box.classList.remove('show'); box.innerHTML=''; return; }
+
+  const input = document.getElementById("searchInput");
+  const box = document.getElementById("searchResults");
+  const q = (input?.value || "").trim().toLowerCase();
+
+  if(!q){
+    pncCloseSearchResults();
+    return;
+  }
+
   const colSeen = new Set();
   const colMatches = collections
-    .filter(c=>String(c.name||'').toLowerCase().startsWith(q))
-    .filter(c=>{ const k=String(c.name||'').toLowerCase(); if(colSeen.has(k)) return false; colSeen.add(k); return true; });
+    .filter(c => String(c.name || "").toLowerCase().startsWith(q))
+    .filter(c => {
+      const k = String(c.name || "").toLowerCase();
+      if(colSeen.has(k)) return false;
+      colSeen.add(k);
+      return true;
+    });
+
   const nftSeen = new Set();
   const nftMatches = vaultNfts
-    .map(n=>pncApplyOnchainOverride(n))
-    .filter(n=>n && !pncIsHiddenOnchain(n))
-    .filter(n=>String(n.name||'').toLowerCase().startsWith(q) || String(n.collection||'').toLowerCase().startsWith(q))
-    .filter(n=>{ const k=String(n.pncId||n.name||'').toLowerCase(); if(nftSeen.has(k)) return false; nftSeen.add(k); return true; })
-    .slice(0,8);
-  const items = [
-    ...colMatches.map(c=>`<div class="search-item" onclick='openCollection("${safe(c.name)}")'>🏪 ${c.name}<div class="meta">Collection</div></div>`),
-    ...nftMatches.map(n=>`<div class="search-item" onclick='showDetailById("${n.pncId}")'>🖼 ${n.name}<div class="meta">${n.collection} / ${n.status}</div></div>`)
-  ];
-  if(items.length){ box.innerHTML=items.join(''); box.classList.add('show'); }
-  else{ box.innerHTML='<div class="search-item">No results</div>'; box.classList.add('show'); }
+    .map(n => pncApplyOnchainOverride(n))
+    .filter(n => n && !pncIsHiddenOnchain(n))
+    .filter(n => {
+      const collectionName = nftCollectionName(n);
+      return String(n.name || "").toLowerCase().startsWith(q) ||
+             String(collectionName || "").toLowerCase().startsWith(q);
+    })
+    .filter(n => {
+      const k = String(n.pncId || n.name || "").toLowerCase();
+      if(nftSeen.has(k)) return false;
+      nftSeen.add(k);
+      return true;
+    })
+    .slice(0, 8);
+
+  const html = [
+    ...colMatches.map(c => `
+      <div class="search-item" role="button" tabindex="0"
+           data-search-kind="collection"
+           data-search-key="${pncEscapeHtml(c.id)}">
+        🏪 ${pncEscapeHtml(c.name)}
+        <div class="meta">Collection</div>
+      </div>
+    `),
+    ...nftMatches.map(n => `
+      <div class="search-item" role="button" tabindex="0"
+           data-search-kind="nft"
+           data-search-key="${pncEscapeHtml(n.pncId)}">
+        🖼 ${pncEscapeHtml(n.name)}
+        <div class="meta">${pncEscapeHtml(nftCollectionName(n))} / ${pncEscapeHtml(n.status)}</div>
+      </div>
+    `)
+  ].join("");
+
+  box.innerHTML = html || '<div class="search-item">No results</div>';
+  box.classList.add("show");
+
+  box.querySelectorAll("[data-search-kind]").forEach(item => {
+    const activate = () => pncSelectSearchResult(item.dataset.searchKind, item.dataset.searchKey);
+    item.addEventListener("click", activate);
+    item.addEventListener("touchend", (e) => {
+      e.preventDefault();
+      activate();
+    }, { passive:false });
+    item.addEventListener("keydown", (e) => {
+      if(e.key === "Enter" || e.key === " "){
+        e.preventDefault();
+        activate();
+      }
+    });
+  });
 }
-// === /v2.11.1 ===
+
+// v2.11.2: close search dropdown when tapping outside it.
+document.addEventListener("click", (e) => {
+  const wrap = document.querySelector(".search-wrap");
+  if(wrap && !wrap.contains(e.target)) pncCloseSearchResults();
+});
+
+// === /v2.11.2 ===
 
 loadState();
 ensureOnchainGenesisSeed();
