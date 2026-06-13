@@ -1574,10 +1574,190 @@ function ensureOnchainGenesisSeed(){
   }
 }
 
+
+// v2.9.1: Auto-scan Sepolia PNCNFT contract and display minted tokens.
+// This reads ownerOf(tokenId) and tokenURI(tokenId) directly from the deployed contract.
+const PNC_ONCHAIN_SCAN_CONFIG = {
+  contractAddress: "0xeD5789fd878BC72138a015b7929407ced04Cc687",
+  collectionId: "COL-ONCHAIN-DDREAM",
+  collectionName: "DDREAM Genesis",
+  chainLabel: "Sepolia On-chain",
+  maxTokenIdToScan: 30,
+  rpcUrls: [
+    "https://ethereum-sepolia-rpc.publicnode.com",
+    "https://sepolia.drpc.org"
+  ]
+};
+
+function pncIpfsToHttp(uri){
+  if(!uri) return "";
+  const u = String(uri).trim();
+  if(u.startsWith("ipfs://")) return "https://ipfs.io/ipfs/" + u.replace("ipfs://", "");
+  if(u.startsWith("https://") || u.startsWith("http://")) return u;
+  return u;
+}
+
+function pncPadUint256(value){
+  const hex = BigInt(value).toString(16);
+  return hex.padStart(64, "0");
+}
+
+function pncOwnerOfData(tokenId){ return "0x6352211e" + pncPadUint256(tokenId); }
+function pncTokenURIData(tokenId){ return "0xc87b56dd" + pncPadUint256(tokenId); }
+
+function pncDecodeAddress(hex){
+  if(!hex || hex === "0x" || hex.length < 42) return "";
+  return "0x" + hex.slice(-40);
+}
+
+function pncDecodeString(hex){
+  try{
+    if(!hex || hex === "0x") return "";
+    const clean = hex.replace(/^0x/, "");
+    if(clean.length < 128) return "";
+    const len = parseInt(clean.slice(64, 128), 16);
+    const strHex = clean.slice(128, 128 + len * 2);
+    let out = "";
+    for(let i=0;i<strHex.length;i+=2){
+      const code = parseInt(strHex.slice(i,i+2),16);
+      if(code) out += String.fromCharCode(code);
+    }
+    try{return decodeURIComponent(escape(out));}catch(e){return out;}
+  }catch(e){return "";}
+}
+
+async function pncRpcCall(rpcUrl, method, params){
+  const res = await fetch(rpcUrl, {
+    method: "POST",
+    headers: {"Content-Type":"application/json"},
+    body: JSON.stringify({jsonrpc:"2.0", id: Date.now(), method, params})
+  });
+  if(!res.ok) throw new Error("RPC HTTP " + res.status);
+  const data = await res.json();
+  if(data.error) throw new Error(data.error.message || "RPC error");
+  return data.result;
+}
+
+async function pncEthCall(data){
+  const to = PNC_ONCHAIN_SCAN_CONFIG.contractAddress;
+  let lastErr = null;
+  for(const rpc of PNC_ONCHAIN_SCAN_CONFIG.rpcUrls){
+    try{
+      return await pncRpcCall(rpc, "eth_call", [{to, data}, "latest"]);
+    }catch(e){
+      lastErr = e;
+      console.warn("PNC RPC failed", rpc, e);
+    }
+  }
+  throw lastErr || new Error("All RPC calls failed");
+}
+
+async function pncFetchMetadata(uri){
+  const url = pncIpfsToHttp(uri);
+  if(!url || url === uri && !/^https?:\/\//.test(url)) return null;
+  try{
+    const res = await fetch(url);
+    if(!res.ok) throw new Error("metadata HTTP " + res.status);
+    return await res.json();
+  }catch(e){
+    console.warn("PNC metadata fetch failed", uri, e);
+    return null;
+  }
+}
+
+function pncUpsertOnchainCollection(){
+  const cfg = PNC_ONCHAIN_SCAN_CONFIG;
+  const base = {
+    id: cfg.collectionId,
+    name: cfg.collectionName,
+    creator: "Pi NFT Center",
+    icon: "🏆",
+    image: "https://ipfs.io/ipfs/bafybeiclpv7r7kyw5nzxo2r5f5olsr6juc7hrmdwsegnnezctnv6ymodfu",
+    description: "Auto-synced NFTs from the Sepolia PNCNFT contract.",
+    verified: true,
+    volume: "0 Pi",
+    verification: "Sepolia Auto-sync"
+  };
+  const idx = collections.findIndex(c => c.id === base.id || String(c.name).toLowerCase() === base.name.toLowerCase());
+  if(idx >= 0) collections[idx] = {...collections[idx], ...base};
+  else collections.unshift(base);
+}
+
+function pncUpsertOnchainNFT(nft){
+  const idx = vaultNfts.findIndex(x =>
+    x.pncId === nft.pncId ||
+    (String(x.contractAddress).toLowerCase() === String(nft.contractAddress).toLowerCase() && String(x.chainTokenId) === String(nft.chainTokenId))
+  );
+  if(idx >= 0) vaultNfts[idx] = {...vaultNfts[idx], ...nft};
+  else vaultNfts.unshift(nft);
+}
+
+async function syncOnchainPNCNFTs(){
+  const cfg = PNC_ONCHAIN_SCAN_CONFIG;
+  pncUpsertOnchainCollection();
+  const found = [];
+
+  for(let tokenId = 1; tokenId <= cfg.maxTokenIdToScan; tokenId++){
+    try{
+      const ownerRaw = await pncEthCall(pncOwnerOfData(tokenId));
+      const owner = pncDecodeAddress(ownerRaw);
+      if(!owner || /^0x0{40}$/i.test(owner)) continue;
+
+      const uriRaw = await pncEthCall(pncTokenURIData(tokenId));
+      const tokenUri = pncDecodeString(uriRaw);
+      const meta = await pncFetchMetadata(tokenUri);
+      const displayName = (meta && meta.name) ? meta.name : `PNCNFT #${tokenId}`;
+      const image = meta && meta.image ? pncIpfsToHttp(meta.image) : "";
+      const desc = meta && meta.description ? meta.description : (tokenUri && !tokenUri.startsWith("ipfs://") ? `Raw tokenURI: ${tokenUri}` : "On-chain PNCNFT token.");
+
+      found.push({tokenId, owner, tokenUri, meta});
+      pncUpsertOnchainNFT({
+        pncId: `PNC-ONCHAIN-${String(tokenId).padStart(6,"0")}`,
+        name: displayName,
+        collection: cfg.collectionName,
+        collectionId: cfg.collectionId,
+        icon: "🏆",
+        image,
+        price: "Not Set",
+        status: "Not For Sale",
+        saleStatus: "Not For Sale",
+        ownershipStatus: "On-chain Owned",
+        verified: !!meta,
+        creator: "Pi NFT Center",
+        creatorWallet: owner,
+        originalOwner: owner,
+        owner,
+        currentOwner: owner,
+        chainStatus: cfg.chainLabel,
+        transferNetwork: "Sepolia Testnet",
+        metadataUri: tokenUri || "",
+        chainTokenId: String(tokenId),
+        contractAddress: cfg.contractAddress,
+        description: desc,
+        utilityType: tokenId === 2 ? "Genesis / Proof of Build" : "On-chain PNCNFT",
+        utility: "Read directly from the Sepolia PNCNFT contract by PNC v2.9.1.",
+        createdAt: "On-chain synced",
+        ownershipHistory: [
+          {from:"PNCNFT Contract", to:owner, action:"Detected on Sepolia", at:new Date().toLocaleString()}
+        ],
+        onchainSynced: true
+      });
+    }catch(e){
+      console.warn("PNC token scan skipped", tokenId, e);
+    }
+  }
+
+  normalizeCollectionLinks();
+  renderAll();
+  console.log("PNC on-chain sync complete", found);
+  return found;
+}
+
 loadState();
 ensureOnchainGenesisSeed();
 setupAdminMode();
 renderAll();
+syncOnchainPNCNFTs().catch(e => console.warn('PNC on-chain sync failed', e));
 </script>
 </body>
 </html>
