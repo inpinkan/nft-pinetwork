@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Pi Network NFT Center (Beta) v2.9.0</title>
+  <title>Pi Network NFT Center (Beta) v2.9.2</title>
   <style>
     :root{--purple:#5b2d82;--gold:#f5b041;--bg:#f7f4fb;--card:#fff;--text:#19151f;--muted:#8b8195;--border:#e5d8ef;--green:#2ecc71;--red:#ff5c5c;--blue:#2f80ed}
     body.dark{--bg:#111017;--card:#1d1826;--text:#f7f1ff;--muted:#b7a9c6;--border:#3b2c4c}
@@ -163,6 +163,9 @@
 .quick-collection-tools.show{display:block}
 .quick-collection-tools .meta{margin-bottom:8px}
 
+
+.onchain-mint-box{margin-top:16px;padding:14px;border:1px solid rgba(47,128,237,.45);border-radius:18px;background:rgba(47,128,237,.08)}
+.onchain-mint-box .primary-btn{background:#2f80ed;color:#fff}
 </style>
 </head>
 
@@ -904,7 +907,7 @@ ${opts}
   <input id="quickCollectionImage" type="file" accept="image/*" onchange="previewCollectionImage(event)" />
   <div id="collectionPreviewBox" class="preview-box"><img id="collectionPreview" /></div>
 </div>
-<textarea id="newNftDescription" placeholder="NFT Description"></textarea><select id="newNftUtilityType"><option value="General">🎁 Utility Type: General</option><option value="Access">🔑 Access / Gated Content</option><option value="Membership">🎫 Membership</option><option value="Event">🎪 Event / Ticket</option><option value="Game Item">🎮 Game Item</option><option value="Battle">⚔️ Battle / Game Bonus</option><option value="Coupon">🏷 Coupon / Discount</option><option value="Airdrop">🎁 Airdrop Eligible</option><option value="Voting">🗳 Voting / Governance</option><option value="Other">✨ Other</option></select><textarea id="newNftUtility" placeholder="Utility / Holder Benefits&#10;Example: Holders can join a private community, receive future airdrops, or use this NFT in future PNC apps."></textarea><input id="newNftImage" type="file" accept="image/*" onchange="previewNFTImage(event)" /><div id="imagePreviewBox" class="preview-box"><img id="imagePreview" /></div><select id="newNftIcon"><option value="🖼">🖼 Default</option><option value="👾">👾 Monster</option><option value="🐱">🐱 Cat</option><option value="⚔️">⚔️ Samurai</option><option value="💎">💎 Gem</option><option value="🎫">🎫 Membership</option></select><input id="newNftPrice" placeholder="Price number only, e.g. 1500" /><select id="newNftStatus"><option value="">Select Status</option><option value="Draft">Draft</option><option value="Not For Sale">Not For Sale</option><option value="Listed">Listed</option><option value="Sold Out">Sold Out</option></select><button class="primary-btn" onclick="submitNFT()">Add NFT to My Vault</button></div>`;
+<textarea id="newNftDescription" placeholder="NFT Description"></textarea><select id="newNftUtilityType"><option value="General">🎁 Utility Type: General</option><option value="Access">🔑 Access / Gated Content</option><option value="Membership">🎫 Membership</option><option value="Event">🎪 Event / Ticket</option><option value="Game Item">🎮 Game Item</option><option value="Battle">⚔️ Battle / Game Bonus</option><option value="Coupon">🏷 Coupon / Discount</option><option value="Airdrop">🎁 Airdrop Eligible</option><option value="Voting">🗳 Voting / Governance</option><option value="Other">✨ Other</option></select><textarea id="newNftUtility" placeholder="Utility / Holder Benefits&#10;Example: Holders can join a private community, receive future airdrops, or use this NFT in future PNC apps."></textarea><input id="newNftImage" type="file" accept="image/*" onchange="previewNFTImage(event)" /><div id="imagePreviewBox" class="preview-box"><img id="imagePreview" /></div><select id="newNftIcon"><option value="🖼">🖼 Default</option><option value="👾">👾 Monster</option><option value="🐱">🐱 Cat</option><option value="⚔️">⚔️ Samurai</option><option value="💎">💎 Gem</option><option value="🎫">🎫 Membership</option></select><input id="newNftPrice" placeholder="Price number only, e.g. 1500" /><select id="newNftStatus"><option value="">Select Status</option><option value="Draft">Draft</option><option value="Not For Sale">Not For Sale</option><option value="Listed">Listed</option><option value="Sold Out">Sold Out</option></select><button class="primary-btn" onclick="submitNFT()">Save Draft to My Vault</button><div class="onchain-mint-box"><div class="detail-section-title">⛓ On-chain Mint / Sepolia</div><p class="meta">Pinataで作ったmetadata.jsonのURIを貼ると、MetaMaskでPNCNFTコントラクトへmintします。例: ipfs://...</p><input id="onchainMetadataUri" placeholder="Metadata URI, e.g. ipfs://bafk..." /><button class="primary-btn" onclick="mintNFTOnchainFromForm()">Create & Mint On-chain</button><p class="meta">※画像/metadataの自動Pinataアップロードはまだ未対応。まずはURI貼り付け方式です。</p></div></div>`;
   }
   if(type==="verify"){
     const opts=collections.map(c=>`<option value="${c.name}">${c.name}</option>`).join("");
@@ -1428,7 +1431,7 @@ function showCreatorForm(type){
   }
   if(type==="nft"){
     const opts=collections.map(c=>`<option value="${c.id}">${c.name}</option>`).join("");
-    box.innerHTML=`<h2>🖼 Create NFT</h2><p class="meta">Existing shops are locked by Collection ID. Same shop names cannot be used to enter another creator's shop.</p><div class="form-grid"><input id="newNftName" placeholder="NFT Name" /><select id="newNftCollection" onchange="toggleNewCollectionInput()"><option value="">Select Collection</option><option value="__new__">＋ Create New Collection</option>${opts}</select><input id="quickCollectionName" class="hidden" placeholder="New Collection / Shop Name" /><div id="quickCollectionTools" class="quick-collection-tools"><div class="meta"><strong>Shop / Collection Image</strong><br>Optional. This becomes the shop face image. If empty, the NFT image will be used automatically.</div><input id="quickCollectionImage" type="file" accept="image/*" onchange="previewCollectionImage(event)" /><div id="collectionPreviewBox" class="preview-box"><img id="collectionPreview" /></div></div><textarea id="newNftDescription" placeholder="NFT Description"></textarea><select id="newNftUtilityType"><option value="General">🎁 Utility Type: General</option><option value="Access">🔑 Access / Gated Content</option><option value="Membership">🎫 Membership</option><option value="Event">🎪 Event / Ticket</option><option value="Game Item">🎮 Game Item</option><option value="Battle">⚔️ Battle / Game Bonus</option><option value="Coupon">🏷 Coupon / Discount</option><option value="Airdrop">🎁 Airdrop Eligible</option><option value="Voting">🗳 Voting / Governance</option><option value="Other">✨ Other</option></select><textarea id="newNftUtility" placeholder="Utility / Holder Benefits&#10;Example: Holders can join a private community, receive future airdrops, or use this NFT in future PNC apps."></textarea><input id="newNftImage" type="file" accept="image/*" onchange="previewNFTImage(event)" /><div id="imagePreviewBox" class="preview-box"><img id="imagePreview" /></div><select id="newNftIcon"><option value="🖼">🖼 Default</option><option value="👾">👾 Monster</option><option value="🐱">🐱 Cat</option><option value="⚔️">⚔️ Samurai</option><option value="💎">💎 Gem</option><option value="🎫">🎫 Membership</option></select><input id="newNftPrice" placeholder="Price number only, e.g. 1500" /><select id="newNftStatus"><option value="">Select Status</option><option value="Draft">Draft</option><option value="Not For Sale">Not For Sale</option><option value="Listed">Listed</option><option value="Sold Out">Sold Out</option></select><button class="primary-btn" onclick="submitNFT()">Add NFT to My Vault</button></div>`;
+    box.innerHTML=`<h2>🖼 Create NFT</h2><p class="meta">Existing shops are locked by Collection ID. Same shop names cannot be used to enter another creator's shop.</p><div class="form-grid"><input id="newNftName" placeholder="NFT Name" /><select id="newNftCollection" onchange="toggleNewCollectionInput()"><option value="">Select Collection</option><option value="__new__">＋ Create New Collection</option>${opts}</select><input id="quickCollectionName" class="hidden" placeholder="New Collection / Shop Name" /><div id="quickCollectionTools" class="quick-collection-tools"><div class="meta"><strong>Shop / Collection Image</strong><br>Optional. This becomes the shop face image. If empty, the NFT image will be used automatically.</div><input id="quickCollectionImage" type="file" accept="image/*" onchange="previewCollectionImage(event)" /><div id="collectionPreviewBox" class="preview-box"><img id="collectionPreview" /></div></div><textarea id="newNftDescription" placeholder="NFT Description"></textarea><select id="newNftUtilityType"><option value="General">🎁 Utility Type: General</option><option value="Access">🔑 Access / Gated Content</option><option value="Membership">🎫 Membership</option><option value="Event">🎪 Event / Ticket</option><option value="Game Item">🎮 Game Item</option><option value="Battle">⚔️ Battle / Game Bonus</option><option value="Coupon">🏷 Coupon / Discount</option><option value="Airdrop">🎁 Airdrop Eligible</option><option value="Voting">🗳 Voting / Governance</option><option value="Other">✨ Other</option></select><textarea id="newNftUtility" placeholder="Utility / Holder Benefits&#10;Example: Holders can join a private community, receive future airdrops, or use this NFT in future PNC apps."></textarea><input id="newNftImage" type="file" accept="image/*" onchange="previewNFTImage(event)" /><div id="imagePreviewBox" class="preview-box"><img id="imagePreview" /></div><select id="newNftIcon"><option value="🖼">🖼 Default</option><option value="👾">👾 Monster</option><option value="🐱">🐱 Cat</option><option value="⚔️">⚔️ Samurai</option><option value="💎">💎 Gem</option><option value="🎫">🎫 Membership</option></select><input id="newNftPrice" placeholder="Price number only, e.g. 1500" /><select id="newNftStatus"><option value="">Select Status</option><option value="Draft">Draft</option><option value="Not For Sale">Not For Sale</option><option value="Listed">Listed</option><option value="Sold Out">Sold Out</option></select><button class="primary-btn" onclick="submitNFT()">Save Draft to My Vault</button><div class="onchain-mint-box"><div class="detail-section-title">⛓ On-chain Mint / Sepolia</div><p class="meta">Pinataで作ったmetadata.jsonのURIを貼ると、MetaMaskでPNCNFTコントラクトへmintします。例: ipfs://...</p><input id="onchainMetadataUri" placeholder="Metadata URI, e.g. ipfs://bafk..." /><button class="primary-btn" onclick="mintNFTOnchainFromForm()">Create & Mint On-chain</button><p class="meta">※画像/metadataの自動Pinataアップロードはまだ未対応。まずはURI貼り付け方式です。</p></div></div>`;
   }
   if(type==="verify"){
     const opts=collections.map(c=>`<option value="${c.id}">${c.name}</option>`).join("");
@@ -1505,6 +1508,70 @@ function searchPNC(){
   const nftMatches=vaultNfts.filter(n=>n.name.toLowerCase().startsWith(q)||nftCollectionName(n).toLowerCase().startsWith(q)).slice(0,8);
   const items=[...colMatches.map(c=>`<div class="search-item" onclick='openCollection("${safeId(c.id)}")'>🏪 ${c.name}<div class="meta">Collection</div></div>`),...nftMatches.map(n=>`<div class="search-item" onclick='showDetailById("${n.pncId}")'>🖼 ${n.name}<div class="meta">${nftCollectionName(n)} / ${n.status}</div></div>`)];
   if(items.length){box.innerHTML=items.join("");box.classList.add("show")}else{box.innerHTML='<div class="search-item">No results</div>';box.classList.add("show")}
+}
+
+
+// v2.9.2: Create NFT -> On-chain mint by metadata URI.
+// Browser-only safety design: no Pinata API key is stored in this file.
+// User uploads image/metadata to Pinata, then pastes metadata URI here.
+function pncUtf8ToHex(str){
+  const bytes = new TextEncoder().encode(String(str));
+  return Array.from(bytes).map(b => b.toString(16).padStart(2,"0")).join("");
+}
+function pncPadHexTo32Bytes(hex){
+  const clean = String(hex).replace(/^0x/, "");
+  const rem = clean.length % 64;
+  return rem === 0 ? clean : clean + "0".repeat(64 - rem);
+}
+function pncEncodeMintData(to, uri){
+  const selector = "d0def521"; // mint(address,string)
+  const addr = String(to).replace(/^0x/, "").toLowerCase().padStart(64, "0");
+  const offset = BigInt(64).toString(16).padStart(64, "0");
+  const strHex = pncUtf8ToHex(uri);
+  const len = BigInt(strHex.length / 2).toString(16).padStart(64, "0");
+  return "0x" + selector + addr + offset + len + pncPadHexTo32Bytes(strHex);
+}
+async function pncEnsureSepolia(){
+  if(!window.ethereum) throw new Error("MetaMask not found");
+  const chainId = await ethereum.request({method:"eth_chainId"});
+  if(String(chainId).toLowerCase() === "0xaa36a7") return;
+  try{
+    await ethereum.request({method:"wallet_switchEthereumChain", params:[{chainId:"0xaa36a7"}]});
+  }catch(e){
+    if(e && e.code === 4902){
+      await ethereum.request({method:"wallet_addEthereumChain", params:[{
+        chainId:"0xaa36a7",
+        chainName:"Sepolia Test Network",
+        nativeCurrency:{name:"SepoliaETH", symbol:"ETH", decimals:18},
+        rpcUrls:["https://ethereum-sepolia-rpc.publicnode.com"],
+        blockExplorerUrls:["https://sepolia.etherscan.io"]
+      }]});
+    }else{ throw e; }
+  }
+}
+async function mintNFTOnchainFromForm(){
+  try{
+    const uriEl = document.getElementById("onchainMetadataUri");
+    const uri = uriEl ? uriEl.value.trim() : "";
+    if(!uri){ alert("metadata.json のURIを入力してください。\n例: ipfs://bafk..."); return; }
+    if(!(uri.startsWith("ipfs://") || uri.startsWith("https://") || uri.startsWith("data:"))){
+      alert("URIは ipfs:// または https:// で始めてください。"); return;
+    }
+    await pncEnsureSepolia();
+    const accounts = await ethereum.request({method:"eth_requestAccounts"});
+    const from = accounts && accounts[0];
+    if(!from) throw new Error("No wallet account selected");
+    const contract = PNC_ONCHAIN_SCAN_CONFIG.contractAddress;
+    const data = pncEncodeMintData(from, uri);
+    const ok = confirm("SepoliaでNFTをmintします。\n\nTo: "+from+"\nMetadata: "+uri+"\n\nMetaMaskで確認しますか？");
+    if(!ok) return;
+    const txHash = await ethereum.request({method:"eth_sendTransaction", params:[{from, to:contract, value:"0x0", data}]});
+    alert("Mintトランザクションを送信しました。\n\n"+txHash+"\n\n反映まで少し待ってから、ページを再読み込みしてください。");
+    setTimeout(()=>syncOnchainPNCNFTs().catch(e=>console.warn(e)), 8000);
+  }catch(e){
+    console.warn("PNC on-chain mint failed", e);
+    alert("Mintできませんでした。\n" + (e && e.message ? e.message : String(e)));
+  }
 }
 
 
