@@ -2907,7 +2907,7 @@ function pncDebouncedSaveWalletState(){
 async function loadWalletState(walletAddress){
   walletAddress = String(walletAddress || pncCurrentWalletAddress()).trim();
   if(!walletAddress) return;
-  if(pncLastCloudLoadedWallet === walletAddress.toLowerCase()) return;
+  // if(pncLastCloudLoadedWallet === walletAddress.toLowerCase()) return;
 
   try{
     const res = await fetch("/api/load-state?walletAddress=" + encodeURIComponent(walletAddress));
