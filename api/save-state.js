@@ -48,16 +48,8 @@ export default async function handler(req, res) {
       });
     }
 
-    return res.status(200).json({
-      ok: true,
-      key,
-      result: data,
-    });
+    return res.status(200).json({ ok: true, key, result: data });
   } catch (err) {
-    return res.status(500).json({
-      ok: false,
-      error: "Server error",
-      detail: String(err),
-    });
+    return res.status(500).json({ ok: false, error: "Server error", detail: String(err) });
   }
 }
