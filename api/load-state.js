@@ -29,7 +29,7 @@ export default async function handler(req, res) {
       });
     }
 
-    const key = `pncwallet:${String(walletAddress).toLowerCase()}`;
+    const key = `pnc:wallet:${String(walletAddress).toLowerCase()}`;
 
     const kvRes = await fetch(
       `${url}/get/${encodeURIComponent(key)}`,
