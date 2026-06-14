@@ -2723,7 +2723,7 @@ function dashboardHtml(){
 // === /v2.12.2 ===
 
 
-// === v2.12.3 Listing State Fix / Local Draft Delete Fix ===
+// === v2.13.1 Listing State Fix / Local Draft Delete Fix ===
 // Purpose:
 // - On-chain NFTs keep marketplace state (Listed / Not For Sale / price) in PNC display overrides.
 // - Sepolia auto-sync must not overwrite local marketplace display state.
@@ -2847,7 +2847,7 @@ renderAll = function(){
   pnc123OriginalRenderAll();
 };
 
-// === /v2.12.3 ===
+// === /v2.13.1 ===
 
 // === v2.13.0 Wallet Sync Foundation ===
 let pncCloudSyncTimer = null;
@@ -2886,7 +2886,7 @@ function pncCloudPayload(){
 
   return {
     app: "PNC",
-    version: "2.13.0",
+    version: "2.13.1",
     updatedAt: new Date().toISOString(),
     collections,
     vaultNfts,
@@ -3012,6 +3012,72 @@ try{
   };
 }catch(e){}
 // === /v2.13.0 ===
+
+
+// === v2.13.1 Public Display Action Scope Fix ===
+// Public HOME / shop / collection pages should not expose owner-management controls.
+// Owner controls (List / Unlist / Edit Display / Remove from PNC) are limited to My Vault cards.
+const pnc2131OwnerActionButtons = pncMarketplaceActionButtons;
+
+function pncPublicActionButtons(n){
+  const listed = saleStatusValue(n) === 'Listed';
+  const mine = pncCanManageOnchain(n) || isLocalEditableNFT(n);
+  let buttons = `<button class="small-btn buy-btn" onclick='showDetailById("${n.pncId}")'>View</button>`;
+  if(listed && !mine){
+    buttons += `<button class="small-btn buy-btn" onclick='buyNFT("${n.pncId}")'>Buy Now</button>`;
+  }
+  return `<div class="actions">${buttons}</div>`;
+}
+
+function pncOwnerActionButtons(n,index){
+  return pnc2131OwnerActionButtons(n,index);
+}
+
+vaultCard = function(n,index){
+  pncApplyOnchainOverride(n);
+  if(pncIsHiddenOnchain(n)) return '';
+  return `<div class="nft-card">${mediaBox(n,"nft-img")}<div class="nft-body"><div class="nft-name">${pncEscapeHtml(n.name)} ${n.verified?'<span class="verified">✔</span>':''}${n.pncDisplayEdited?' <span class="verified">✎</span>':''}</div><div class="meta">${pncEscapeHtml(nftCollectionName(n))}</div>${priceBlock(n)}<span class="status-badge ${statusClass(n.status)}">${n.status}</span><br><span class="chain-badge">${n.pncId} / ${n.chainStatus}</span><br><span class="owner-badge">Owner: ${pncEscapeHtml(n.currentOwner || n.owner || "PNC Vault")}</span>${n.createdAt ? `<div class="meta">Created: ${pncEscapeHtml(n.createdAt)}</div>` : ""}${pncOwnerActionButtons(n,index)}</div></div>`;
+};
+
+purchasedVaultCard = function(n,index){
+  return vaultCard(n,index);
+};
+
+nftCard = function(n){
+  pncApplyOnchainOverride(n);
+  if(pncIsHiddenOnchain(n)) return '';
+  return `<div class="nft-card">${mediaBox(n,"nft-img")}<div class="nft-body"><div class="nft-name">${pncEscapeHtml(n.name)} ${n.verified?'<span class="verified">✔</span>':''}${n.pncDisplayEdited?' <span class="verified">✎</span>':''}</div><div class="meta">${pncEscapeHtml(nftCollectionName(n))}</div>${priceBlock(n)}<span class="status-badge ${statusClass(n.status)}">${n.status}</span><br><span class="chain-badge">${n.pncId} / ${n.chainStatus}</span><br><span class="owner-badge">Owner: ${pncEscapeHtml(n.currentOwner || n.owner || "PNC Vault")}</span>${n.createdAt ? `<div class="meta">Created: ${pncEscapeHtml(n.createdAt)}</div>` : ""}${pncPublicActionButtons(n)}</div></div>`;
+};
+
+const pnc2131OriginalShowDetailById = showDetailById;
+showDetailById = function(id, shouldScroll=true){
+  let n = vaultNfts.find(x=>x.pncId===id);
+  if(!n) return;
+  pncApplyOnchainOverride(n);
+  if(pncIsHiddenOnchain(n)) return alert('This NFT is removed from PNC display.');
+  const explorer=pncExplorerLink(n), metaLink=pncUriLink(n.metadataUri), imageLink=pncUriLink(n.image);
+  const listed=saleStatusValue(n)==='Listed';
+  showPage('homePage');
+  const p=document.getElementById('detailPanel'); p.classList.add('show'); p.dataset.currentId=id;
+  p.innerHTML=`<div class="detail-toolbar"><button class="detail-close" onclick="hideDetailPanel()" title="Close">×</button></div>
+    <div class="detail-head">${mediaBox(n,'detail-image')}<div><div class="detail-title">${pncEscapeHtml(n.name)} ${n.verified?'<span class="verified">✔</span>':''}${n.pncDisplayEdited?' <span class="verified">✎</span>':''}</div><div class="meta">${pncEscapeHtml(nftCollectionName(n))}</div><span class="status-badge ${statusClass(n.status)}">${n.status}</span><br><span class="chain-badge">${n.pncId} / ${n.chainStatus}</span></div></div>
+    <div class="detail-price-box">${priceBlock(n)}</div>${listed?pncMarketplaceBuyPreview(n):''}
+    <div class="detail-section"><div class="detail-section-title">🧾 NFT Details</div><div class="info-grid">
+      <div class="info-row"><span class="info-label">Owner</span><span class="info-value">${pncEscapeHtml(n.currentOwner||n.owner||'PNC Vault')}</span></div>
+      <div class="info-row"><span class="info-label">Creator</span><span class="info-value">${pncEscapeHtml(n.creator||n.creatorWallet||'Unknown')}</span></div>
+      <div class="info-row"><span class="info-label">Collection</span><span class="info-value">${pncEscapeHtml(nftCollectionName(n))}</span></div>
+      <div class="info-row"><span class="info-label">Token ID</span><span class="info-value">${pncEscapeHtml(n.chainTokenId||'Not minted')}</span></div>
+      <div class="info-row"><span class="info-label">Contract</span><span class="info-value">${pncEscapeHtml(n.contractAddress||'-')}</span></div>
+      <div class="info-row"><span class="info-label">Metadata URI</span><span class="info-value">${metaLink?`<a href="${metaLink}" target="_blank">Open metadata</a>`:'-'}</span></div>
+      <div class="info-row"><span class="info-label">Image/IPFS</span><span class="info-value">${imageLink?`<a href="${imageLink}" target="_blank">Open image</a>`:'-'}</span></div>
+      <div class="info-row"><span class="info-label">Explorer</span><span class="info-value">${explorer?`<a href="${explorer}" target="_blank">Open Sepolia</a>`:'-'}</span></div>
+    </div></div>
+    <div class="detail-section"><div class="detail-section-title">📝 Description</div><div class="meta">${pncEscapeHtml(n.description||'No description.').replace(/\n/g,'<br>')}</div></div>
+    <div class="detail-section"><div class="detail-section-title">🧭 Ownership History</div><div class="history-list">${ownershipHistoryHtml(n)}</div></div>
+    ${marketplaceRulesHtml()}${pncPublicActionButtons(n)}`;
+  if(shouldScroll) p.scrollIntoView({behavior:'smooth'});
+};
+// === /v2.13.1 ===
 
 loadState();
 ensureOnchainGenesisSeed();
