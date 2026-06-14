@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Pi Network NFT Center (Beta) v2.11.2</title>
+  <title>Pi Network NFT Center (Beta) v2.13.0</title>
   <style>
     :root{--purple:#5b2d82;--gold:#f5b041;--bg:#f7f4fb;--card:#fff;--text:#19151f;--muted:#8b8195;--border:#e5d8ef;--green:#2ecc71;--red:#ff5c5c;--blue:#2f80ed}
     body.dark{--bg:#111017;--card:#1d1826;--text:#f7f1ff;--muted:#b7a9c6;--border:#3b2c4c}
@@ -2852,17 +2852,35 @@ renderAll = function(){
 // === v2.13.0 Wallet Sync Foundation ===
 let pncCloudSyncTimer = null;
 let pncCloudLoading = false;
-let pncLastCloudLoadedWallet = "";
 
 function pncCurrentWalletAddress(){
-  return String(window.pncConnectedAccount || pncConnectedAccount || "").trim();
+  try{
+    return String(window.pncConnectedAccount || pncConnectedAccount || localStorage.getItem(PNC_CONNECTED_WALLET_KEY) || "").trim();
+  }catch(e){
+    return String(window.pncConnectedAccount || "").trim();
+  }
 }
 
 function pncCloudPayload(){
   let marketSettings = {};
+  let onchainOverrides = {};
+  let hiddenOnchain = [];
+
   try{
     if(typeof PNC_MARKET_SETTINGS_KEY !== "undefined"){
       marketSettings = pncLoadJson(PNC_MARKET_SETTINGS_KEY, {});
+    }
+  }catch(e){}
+
+  try{
+    if(typeof PNC_ONCHAIN_OVERRIDES_KEY !== "undefined"){
+      onchainOverrides = pncLoadJson(PNC_ONCHAIN_OVERRIDES_KEY, {});
+    }
+  }catch(e){}
+
+  try{
+    if(typeof PNC_HIDDEN_ONCHAIN_KEY !== "undefined"){
+      hiddenOnchain = pncLoadJson(PNC_HIDDEN_ONCHAIN_KEY, []);
     }
   }catch(e){}
 
@@ -2873,7 +2891,9 @@ function pncCloudPayload(){
     collections,
     vaultNfts,
     nextId,
-    marketSettings
+    marketSettings,
+    onchainOverrides,
+    hiddenOnchain
   };
 }
 
@@ -2907,10 +2927,9 @@ function pncDebouncedSaveWalletState(){
 async function loadWalletState(walletAddress){
   walletAddress = String(walletAddress || pncCurrentWalletAddress()).trim();
   if(!walletAddress) return;
-  // if(pncLastCloudLoadedWallet === walletAddress.toLowerCase()) return;
 
   try{
-    const res = await fetch("/api/load-state?walletAddress=" + encodeURIComponent(walletAddress));
+    const res = await fetch("/api/load-state?walletAddress=" + encodeURIComponent(walletAddress) + "&t=" + Date.now());
     const data = await res.json();
 
     if(!data.ok){
@@ -2934,11 +2953,22 @@ async function loadWalletState(walletAddress){
       }
     }catch(e){}
 
+    try{
+      if(state.onchainOverrides && typeof PNC_ONCHAIN_OVERRIDES_KEY !== "undefined"){
+        localStorage.setItem(PNC_ONCHAIN_OVERRIDES_KEY, JSON.stringify(state.onchainOverrides));
+      }
+    }catch(e){}
+
+    try{
+      if(Array.isArray(state.hiddenOnchain) && typeof PNC_HIDDEN_ONCHAIN_KEY !== "undefined"){
+        localStorage.setItem(PNC_HIDDEN_ONCHAIN_KEY, JSON.stringify(state.hiddenOnchain));
+      }
+    }catch(e){}
+
     saveState();
     ensureOnchainGenesisSeed();
     renderAll();
 
-    pncLastCloudLoadedWallet = walletAddress.toLowerCase();
     console.log("PNC cloud state loaded:", walletAddress);
   }catch(e){
     console.warn("PNC cloud load error", e);
@@ -2957,6 +2987,23 @@ try{
 }catch(e){}
 
 try{
+  const pnc213OriginalSaveJson = pncSaveJson;
+  pncSaveJson = function(key, value){
+    const result = pnc213OriginalSaveJson.apply(this, arguments);
+    try{
+      if(
+        key === PNC_ONCHAIN_OVERRIDES_KEY ||
+        key === PNC_HIDDEN_ONCHAIN_KEY ||
+        key === PNC_MARKET_SETTINGS_KEY
+      ){
+        pncDebouncedSaveWalletState();
+      }
+    }catch(e){}
+    return result;
+  };
+}catch(e){}
+
+try{
   const pnc213OriginalUpdateWalletUI = updateWalletUI;
   updateWalletUI = function(account){
     const result = pnc213OriginalUpdateWalletUI.apply(this, arguments);
@@ -2965,7 +3012,7 @@ try{
   };
 }catch(e){}
 // === /v2.13.0 ===
-  
+
 loadState();
 ensureOnchainGenesisSeed();
 setupAdminMode();
