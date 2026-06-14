@@ -2849,13 +2849,135 @@ renderAll = function(){
 
 // === /v2.12.3 ===
 
+// === v2.13.0 Wallet Sync Foundation ===
+let pncCloudSyncTimer = null;
+let pncCloudLoading = false;
+let pncLastCloudLoadedWallet = "";
+
+function pncCurrentWalletAddress(){
+  return String(window.pncConnectedAccount || pncConnectedAccount || "").trim();
+}
+
+function pncCloudPayload(){
+  let marketSettings = {};
+  try{
+    if(typeof PNC_MARKET_SETTINGS_KEY !== "undefined"){
+      marketSettings = pncLoadJson(PNC_MARKET_SETTINGS_KEY, {});
+    }
+  }catch(e){}
+
+  return {
+    app: "PNC",
+    version: "2.13.0",
+    updatedAt: new Date().toISOString(),
+    collections,
+    vaultNfts,
+    nextId,
+    marketSettings
+  };
+}
+
+async function saveWalletState(){
+  const walletAddress = pncCurrentWalletAddress();
+  if(!walletAddress) return;
+
+  try{
+    const res = await fetch("/api/save-state", {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({
+        walletAddress,
+        state: pncCloudPayload()
+      })
+    });
+
+    const data = await res.json();
+    if(!data.ok) console.warn("PNC cloud save failed", data);
+  }catch(e){
+    console.warn("PNC cloud save error", e);
+  }
+}
+
+function pncDebouncedSaveWalletState(){
+  if(pncCloudLoading) return;
+  clearTimeout(pncCloudSyncTimer);
+  pncCloudSyncTimer = setTimeout(saveWalletState, 800);
+}
+
+async function loadWalletState(walletAddress){
+  walletAddress = String(walletAddress || pncCurrentWalletAddress()).trim();
+  if(!walletAddress) return;
+  if(pncLastCloudLoadedWallet === walletAddress.toLowerCase()) return;
+
+  try{
+    const res = await fetch("/api/load-state?walletAddress=" + encodeURIComponent(walletAddress));
+    const data = await res.json();
+
+    if(!data.ok){
+      console.warn("PNC cloud load failed", data);
+      return;
+    }
+
+    if(!data.state) return;
+
+    const state = typeof data.state === "string" ? JSON.parse(data.state) : data.state;
+
+    pncCloudLoading = true;
+
+    if(Array.isArray(state.collections)) collections = state.collections;
+    if(Array.isArray(state.vaultNfts)) vaultNfts = state.vaultNfts;
+    if(Number(state.nextId)) nextId = Number(state.nextId);
+
+    try{
+      if(state.marketSettings && typeof PNC_MARKET_SETTINGS_KEY !== "undefined"){
+        localStorage.setItem(PNC_MARKET_SETTINGS_KEY, JSON.stringify(state.marketSettings));
+      }
+    }catch(e){}
+
+    saveState();
+    ensureOnchainGenesisSeed();
+    renderAll();
+
+    pncLastCloudLoadedWallet = walletAddress.toLowerCase();
+    console.log("PNC cloud state loaded:", walletAddress);
+  }catch(e){
+    console.warn("PNC cloud load error", e);
+  }finally{
+    pncCloudLoading = false;
+  }
+}
+
+try{
+  const pnc213OriginalSaveState = saveState;
+  saveState = function(){
+    const result = pnc213OriginalSaveState.apply(this, arguments);
+    pncDebouncedSaveWalletState();
+    return result;
+  };
+}catch(e){}
+
+try{
+  const pnc213OriginalUpdateWalletUI = updateWalletUI;
+  updateWalletUI = function(account){
+    const result = pnc213OriginalUpdateWalletUI.apply(this, arguments);
+    if(account) setTimeout(()=>loadWalletState(account), 500);
+    return result;
+  };
+}catch(e){}
+// === /v2.13.0 ===
+  
 loadState();
 ensureOnchainGenesisSeed();
 setupAdminMode();
 renderAll();
 syncOnchainPNCNFTs().catch(e => console.warn('PNC on-chain sync failed', e));
 
-try{ setTimeout(()=>updateWalletUI(pncConnectedAccount), 500); }catch(e){}
+try{
+  setTimeout(()=>{
+    updateWalletUI(pncConnectedAccount);
+    loadWalletState(pncConnectedAccount);
+  }, 500);
+}catch(e){}
 </script>
 </body>
 </html>
