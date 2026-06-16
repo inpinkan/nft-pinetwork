@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Pi Network NFT Center (Beta) v2.16.6</title>
+  <title>Pi Network NFT Center (Beta) v2.16.9</title>
   <style>
     :root{--purple:#5b2d82;--gold:#f5b041;--bg:#f7f4fb;--card:#fff;--text:#19151f;--muted:#8b8195;--border:#e5d8ef;--green:#2ecc71;--red:#ff5c5c;--blue:#2f80ed}
     body.dark{--bg:#111017;--card:#1d1826;--text:#f7f1ff;--muted:#b7a9c6;--border:#3b2c4c}
@@ -6411,6 +6411,321 @@ try{
 const PNC2166_ADVANCED_TOOLS_UI_VERSION = '2.16.6';
 console.log('PNC v2.16.6 Advanced Tools UI hidden loaded');
 // === /v2.16.6 ===
+</script>
+
+
+
+<script>
+// === v2.16.9 Stable merge: v2.16.6 base + Sepolia labels + Mint safety + banner persistence ===
+const PNC2169_STABLE_VERSION = '2.16.9';
+const PNC2169_PRICE_UNIT = 'SepoliaETH';
+const PNC2169_CHAIN_LABEL = 'Sepolia';
+let pnc2169MintInProgress = false;
+let pnc2169LastMintTxHash = '';
+let pnc2169PendingCollectionId = '';
+
+function pnc2169Esc(v){
+  try{ return (typeof pncEscapeHtml === 'function') ? pncEscapeHtml(v) : String(v ?? '').replace(/[&<>"']/g, ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch])); }
+  catch(e){ return String(v ?? ''); }
+}
+function pnc2169PriceText(n){
+  const v = (typeof formatPiPrice === 'function') ? formatPiPrice(n) : String((n && n.price) || 'Not Set').replace(/\s*Pi\s*$/i,'');
+  return v === 'Not Set' ? `Not Set (${PNC2169_PRICE_UNIT})` : `${v} ${PNC2169_PRICE_UNIT}`;
+}
+try{
+  priceBlock = function(n){
+    return `<div class="price-block"><span class="price-label">PRICE</span><span class="price-line">${piPriceIcon()} ${pnc2169Esc(pnc2169PriceText(n))}</span></div>`;
+  };
+}catch(e){ console.warn('PNC v2.16.9 priceBlock override failed', e); }
+
+function pnc2169CollectionImage(c){
+  return (c && (c.bannerImage || c.image || c.shopBannerImage || c.collectionImage)) || '';
+}
+try{
+  collectionMediaBox = function(c){
+    const img = pnc2169CollectionImage(c);
+    if(img) return `<div class="collection-banner has-image" style="background-image:url('${pnc2169Esc(img)}')"></div>`;
+    return `<div class="collection-banner">${(c && c.icon) || '🏪'}</div>`;
+  };
+  collectionDetailBanner = function(c){
+    const img = pnc2169CollectionImage(c);
+    if(img) return `<div class="collection-detail-banner has-image" style="background-image:url('${pnc2169Esc(img)}')"></div>`;
+    return `<div class="collection-detail-banner">${(c && c.icon) || '🏪'}</div>`;
+  };
+}catch(e){ console.warn('PNC v2.16.9 banner override failed', e); }
+
+function pnc2169EnsurePendingCollectionForMint(){
+  try{
+    const selected = document.getElementById('newNftCollection')?.value || '';
+    if(selected === '__new__'){
+      const name = (document.getElementById('quickCollectionName')?.value || '').trim();
+      if(!name) throw new Error('New Collection / Shop Nameを入力してください。');
+      let c = (collections || []).find(x => String(x.name || '').toLowerCase() === name.toLowerCase());
+      if(!c){
+        c = {id: nextCollectionId(), name, creator:'You', icon:'🏪', image: uploadedCollectionImage || uploadedImageData || null, bannerImage: uploadedCollectionImage || null, description:'Creator shop created from Create NFT.', verified:false, volume:'0 Pi', verification:'Unverified'};
+        collections.unshift(c);
+      }else if(uploadedCollectionImage){
+        c.image = c.image || uploadedCollectionImage;
+        c.bannerImage = uploadedCollectionImage;
+      }
+      pnc2169PendingCollectionId = c.id;
+      const sel = document.getElementById('newNftCollection');
+      if(sel){
+        const exists = Array.from(sel.options).some(o => o.value === c.id);
+        if(!exists) sel.add(new Option(c.name, c.id));
+        sel.value = c.id;
+      }
+      try{ toggleNewCollectionInput(); }catch(e){}
+      try{ saveState(); }catch(e){}
+      return c;
+    }
+    const c = collectionById(selected);
+    if(c && uploadedCollectionImage){
+      c.image = c.image || uploadedCollectionImage;
+      c.bannerImage = uploadedCollectionImage;
+      try{ saveState(); }catch(e){}
+    }
+    return c;
+  }catch(e){ throw e; }
+}
+
+try{
+  const pnc2169PrevEnsureOnchainCollection = typeof pncEnsureOnchainCollection === 'function' ? pncEnsureOnchainCollection : null;
+  pncEnsureOnchainCollection = function(collectionName, image){
+    const name = String(collectionName || (PNC_ONCHAIN_SCAN_CONFIG && PNC_ONCHAIN_SCAN_CONFIG.collectionName) || 'PNC On-chain').trim();
+    let c = (collections || []).find(x => String(x.name || '').toLowerCase() === name.toLowerCase());
+    if(c){
+      if(!c.image && image) c.image = image;
+      if(!c.bannerImage && c.image) c.bannerImage = c.image;
+      c.verification = c.verification || 'Sepolia On-chain';
+      return c;
+    }
+    if(pnc2169PrevEnsureOnchainCollection) c = pnc2169PrevEnsureOnchainCollection(collectionName, image);
+    else{
+      c = {id:'ONCHAIN-COL-' + String(name).toLowerCase().replace(/[^a-z0-9]+/g,'-'), name, creator:'On-chain Creator', icon:'🏪', image:image||null, bannerImage:image||null, description:'Auto-created from on-chain NFT metadata.', verified:false, volume:'0 Pi', verification:'Sepolia On-chain'};
+      collections.unshift(c);
+    }
+    return c;
+  };
+}catch(e){ console.warn('PNC v2.16.9 onchain collection override failed', e); }
+
+function pnc2169CreatorNftFormHtml(opts){
+  return `<h2>🖼 Create NFT</h2>
+  <p class="meta">通常は入力して <strong>Upload to Pinata & Mint</strong> だけ押せばOKです。画像とmetadataはVercel経由でPinataへ保存され、Sepoliaでmintします。</p>
+  <div class="form-grid pnc-create-form-v2165">
+    <div class="pnc-form-section">
+      <div class="detail-section-title">🏪 1. Shop / Collection</div>
+      <select id="newNftCollection" onchange="toggleNewCollectionInput()"><option value="">Select Collection / Shop</option><option value="__new__">＋ Create New Collection / Shop</option>${opts}</select>
+      <input id="quickCollectionName" class="hidden" placeholder="New Collection / Shop Name" />
+      <div id="quickCollectionTools" class="quick-collection-tools"><div class="meta"><strong>Shop Banner Image</strong><br>この画像はCollection / Shopのバナーとして表示されます。未選択の場合はNFT画像を仮表示します。</div><input id="quickCollectionImage" type="file" accept="image/*" onchange="previewCollectionImage(event)" /><div id="collectionPreviewBox" class="preview-box"><img id="collectionPreview" /></div></div>
+    </div>
+    <div class="pnc-form-section">
+      <div class="detail-section-title">🎨 2. NFT Information</div>
+      <input id="newNftName" placeholder="NFT Name" />
+      <textarea id="newNftDescription" placeholder="NFT Description"></textarea>
+      <input id="newNftImage" type="file" accept="image/*" onchange="previewNFTImage(event)" />
+      <div id="imagePreviewBox" class="preview-box"><img id="imagePreview" /></div>
+    </div>
+    <div class="pnc-form-section">
+      <div class="detail-section-title">🎁 3. Utility</div>
+      <select id="newNftUtilityType"><option value="General">🎁 Utility Type: General</option><option value="Access">🔑 Access / Gated Content</option><option value="Membership">🎫 Membership</option><option value="Event">🎪 Event / Ticket</option><option value="Game Item">🎮 Game Item</option><option value="Battle">⚔️ Battle / Game Bonus</option><option value="Coupon">🏷 Coupon / Discount</option><option value="Airdrop">🎁 Airdrop Eligible</option><option value="Voting">🗳 Voting / Governance</option><option value="Other">✨ Other</option></select>
+      <textarea id="newNftUtility" placeholder="Utility / Holder Benefits&#10;Example: Holders can join a private community, receive future airdrops, or use this NFT in future PNC apps."></textarea>
+    </div>
+    <div class="pnc-form-section">
+      <div class="detail-section-title">💰 4. Market Settings</div>
+      <input id="newNftPrice" placeholder="Price in SepoliaETH" />
+      <select id="newNftStatus"><option value="Not For Sale">Not For Sale</option><option value="Listed">Listed</option><option value="Draft">Draft</option><option value="Sold Out">Sold Out</option></select>
+      <input id="newNftIcon" type="hidden" value="🖼" />
+      <p class="secondary-note">Genesis Era は SepoliaETH 建てで開発中です。将来のゴールは Pi Mainnet / Pi 建てローンチです。</p>
+    </div>
+    <div class="creator-actions-clean"><button id="pnc2169MintButton" class="primary-btn" onclick="oneClickPinataUploadAndMint()">🚀 Upload to Pinata & Mint</button><button id="saveDraftBtn" class="small-btn ghost-btn" onclick="submitNFT()">💾 Save Draft / Update Draft</button><div id="onchainMintStatus" class="address-box">Mint status: Ready</div><p class="secondary-note">Pinata JWT/APIキーは入力不要です。Vercelサーバー側のEnvironment Variableだけで使います。</p></div>
+    <details class="advanced-tools"><summary>Advanced tools（開発者向け）</summary><p class="meta"><strong>Step 1:</strong> 画像URI/CIDからmetadata.jsonを手動生成します。</p><input id="onchainImageUri" placeholder="Image URI or CID, e.g. ipfs://bafy... / bafy... / https://..." /><button class="small-btn edit-btn" onclick="generateOnchainMetadataFromForm()">Generate metadata.json</button><textarea id="onchainMetadataJson" class="onchain-metadata-json" placeholder="Generated metadata.json will appear here."></textarea><div class="onchain-tool-row"><button class="small-btn" onclick="copyOnchainMetadataJson()">Copy JSON</button><button class="small-btn" onclick="downloadOnchainMetadataJson()">Download metadata.json</button></div><p class="meta"><strong>Step 2:</strong> 既にmetadata URIを持っている場合だけ使います。</p><input id="onchainMetadataUri" placeholder="Metadata URI, e.g. ipfs://bafk..." /><button class="primary-btn" onclick="mintNFTOnchainFromForm()">Create & Mint On-chain</button></details>
+  </div>`;
+}
+try{
+  const pnc2169BaseShowCreatorForm = showCreatorForm;
+  showCreatorForm = function(type){
+    if(type !== 'nft') return pnc2169BaseShowCreatorForm(type);
+    uploadedImageData = null;
+    uploadedCollectionImage = null;
+    const box=document.getElementById('creatorForm');
+    const opts=(collections||[]).map(c=>`<option value="${pnc2169Esc(c.id)}">${pnc2169Esc(c.name)}</option>`).join('');
+    box.innerHTML = pnc2169CreatorNftFormHtml(opts);
+    try{ toggleNewCollectionInput(); }catch(e){}
+  };
+}catch(e){ console.warn('PNC v2.16.9 creator form override failed', e); }
+
+function pnc2169TransferTokenIdFromReceipt(receipt, contract){
+  try{
+    const transferTopic = '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef';
+    const zeroTopic = '0x' + '0'.repeat(64);
+    const logs = receipt && Array.isArray(receipt.logs) ? receipt.logs : [];
+    for(const log of logs){
+      if(String(log.address || '').toLowerCase() !== String(contract || '').toLowerCase()) continue;
+      const topics = log.topics || [];
+      if(String(topics[0] || '').toLowerCase() !== transferTopic) continue;
+      if(String(topics[1] || '').toLowerCase() !== zeroTopic) continue;
+      if(topics[3]) return String(BigInt(topics[3]));
+    }
+  }catch(e){ console.warn('PNC v2.16.9 Transfer parse failed', e); }
+  return '';
+}
+async function pnc2169WaitForOwnerOfToken(tokenId, expectedOwner, tries=12){
+  let lastOwner = '';
+  for(let i=0;i<tries;i++){
+    try{
+      const raw = await pncEthCall(pncOwnerOfData(tokenId));
+      lastOwner = pncDecodeAddress(raw);
+      if(String(lastOwner).toLowerCase() === String(expectedOwner).toLowerCase()) return {ok:true, owner:lastOwner};
+    }catch(e){ console.warn('PNC v2.16.9 ownerOf wait failed', e); }
+    await new Promise(r=>setTimeout(r,2500));
+  }
+  return {ok:false, owner:lastOwner};
+}
+function pnc2169SetMintButtonLocked(locked){
+  const btn = document.getElementById('pnc2169MintButton') || document.querySelector('.creator-actions-clean .primary-btn');
+  if(btn){ btn.disabled = !!locked; btn.style.opacity = locked ? '0.6' : ''; btn.style.pointerEvents = locked ? 'none' : ''; }
+}
+
+async function mintNFTOnchainFromForm(){
+  if(pnc2169MintInProgress){
+    alert('Mint処理中です。MetaMask確認後は再度押さず、この画面のStatus更新を待ってください。');
+    return;
+  }
+  pnc2169MintInProgress = true;
+  pnc2169SetMintButtonLocked(true);
+  try{
+    const uri = (document.getElementById('onchainMetadataUri')?.value || '').trim();
+    if(!uri) throw new Error('metadata.json のURIがありません。Pinata upload完了後にMintしてください。');
+    if(!(uri.startsWith('ipfs://') || uri.startsWith('https://') || uri.startsWith('data:'))) throw new Error('URIは ipfs:// または https:// で始めてください。');
+    const provider = getPncEthereumProvider();
+    if(!provider) throw new Error('MetaMaskが見つかりません。MetaMaskアプリ内ブラウザ、またはPCのMetaMaskで開いてください。');
+    pncSetMintStatus('Mint status: Connecting MetaMask...');
+    await pncEnsureSepolia();
+    const accounts = await provider.request({method:'eth_requestAccounts'});
+    const from = accounts && accounts[0];
+    updateWalletUI(from);
+    if(!from) throw new Error('No wallet account selected');
+    const contract = PNC_ONCHAIN_SCAN_CONFIG.contractAddress;
+    const data = pncEncodeMintData(from, uri);
+    const ok = confirm('SepoliaでNFTをmintします。\n\nTo: '+from+'\nMetadata: '+uri+'\n\nMetaMaskで確認しますか？\n\n※MetaMask確認後は、このボタンを再度押さずStatus更新を待ってください。');
+    if(!ok){ pncSetMintStatus('Mint status: Cancelled'); return; }
+    const txParams = {from, to:contract, value:'0x0', data};
+    pncSetMintStatus('Mint status: Estimating gas before MetaMask confirmation...');
+    let gas;
+    try{
+      gas = await provider.request({method:'eth_estimateGas', params:[txParams]});
+    }catch(gasErr){
+      console.error('PNC v2.16.9 gas estimate failed', gasErr);
+      throw new Error('Gas見積もりに失敗したため、送信前に中止しました。NFTは発行されていません。\n' + (gasErr && gasErr.message ? gasErr.message : String(gasErr)));
+    }
+    txParams.gas = gas;
+    pncSetMintStatus('Mint status: Waiting for MetaMask confirmation...<br>MetaMask確認後は再度Mintを押さないでください。');
+    const txHash = await provider.request({method:'eth_sendTransaction', params:[txParams]});
+    pnc2169LastMintTxHash = txHash;
+    pncSetMintStatus(`Mint status: Sent ✅<br>Tx: <a href="${pncEtherscanTxLink(txHash)}" target="_blank" style="color:var(--gold);word-break:break-all">${txHash}</a><br>Confirming on Sepolia...`);
+    const receipt = await pncWaitForReceipt(txHash, 60);
+    if(!receipt){
+      pncSetMintStatus(`Mint status: Sent, receipt not found yet ⚠️<br>Tx: <a href="${pncEtherscanTxLink(txHash)}" target="_blank" style="color:var(--gold);word-break:break-all">${txHash}</a><br>再Mintせず、少し待ってから再読み込みしてください。`);
+      alert('トランザクションは送信済みですが、まだ確認できていません。\n再Mintせず、少し待ってから確認してください。\n\nTxHash:\n'+txHash);
+      return;
+    }
+    if(String(receipt.status).toLowerCase() !== '0x1'){
+      pncSetMintStatus(`Mint status: Failed ❌<br>Tx: <a href="${pncEtherscanTxLink(txHash)}" target="_blank" style="color:var(--gold);word-break:break-all">${txHash}</a><br>NFT未発行です。ガスはSepolia側仕様で消費される場合があります。`);
+      alert('Mintトランザクションは失敗しました。NFTは発行されていません。\nガスはSepolia側仕様で消費される場合があります。\n\nTxHash:\n'+txHash);
+      return;
+    }
+    const tokenId = pnc2169TransferTokenIdFromReceipt(receipt, contract);
+    let ownerCheck = {ok:false, owner:''};
+    if(tokenId){
+      pncSetMintStatus(`Mint status: Receipt success ✅<br>Token ID: ${tokenId}<br>ownerOf確認中...`);
+      ownerCheck = await pnc2169WaitForOwnerOfToken(tokenId, from, 12);
+    }
+    if(tokenId && !ownerCheck.ok){
+      pncSetMintStatus(`Mint status: Receipt success, ownerOf未確認 ⚠️<br>Token ID: ${tokenId}<br>Tx: <a href="${pncEtherscanTxLink(txHash)}" target="_blank" style="color:var(--gold);word-break:break-all">${txHash}</a><br>再Mintせず、少し待って再読み込みしてください。`);
+      alert('Txは成功しましたが、ownerOf確認がまだ取れていません。\n再Mintせず、少し待って再読み込みしてください。\n\nTxHash:\n'+txHash);
+    }else{
+      pncSetMintStatus(`Mint status: Success ✅<br>${tokenId ? 'Token ID: '+tokenId+'<br>' : ''}Tx: <a href="${pncEtherscanTxLink(txHash)}" target="_blank" style="color:var(--gold);word-break:break-all">${txHash}</a><br>同期後、New NFTsとMy Vaultに表示されます。`);
+      alert('Mint成功です。\n\n'+(tokenId ? 'Token ID: '+tokenId+'\n' : '')+'TxHash:\n'+txHash+'\n\n同期後、New NFTsとMy Vaultに表示されます。');
+    }
+    try{ await syncOnchainPNCNFTs(); }catch(e){ console.warn('PNC v2.16.9 sync after mint failed', e); }
+    try{ renderAll(); saveState(); }catch(e){}
+  }catch(e){
+    console.warn('PNC v2.16.9 mint failed', e);
+    const msg = e && e.message ? e.message : String(e);
+    pncSetMintStatus('Mint status: Error / stopped ❌<br>' + pnc2169Esc(msg));
+    alert('Mintできませんでした。\n' + msg);
+  }finally{
+    pnc2169MintInProgress = false;
+    pnc2169SetMintButtonLocked(false);
+  }
+}
+
+async function oneClickPinataUploadAndMint(){
+  if(pnc2169MintInProgress){
+    alert('Mint処理中です。MetaMask確認後は再度押さず、この画面のStatus更新を待ってください。');
+    return;
+  }
+  const file = document.getElementById('newNftImage')?.files?.[0];
+  try{
+    pnc2169EnsurePendingCollectionForMint();
+    // One-click flow keeps only the mint confirmation before MetaMask.
+    // This avoids an extra browser dialog that can confuse mobile MetaMask recovery.
+    pnc2169MintInProgress = true;
+    pnc2169SetMintButtonLocked(true);
+    pncSetMintStatus('One-click status: Uploading image & metadata to Pinata via Vercel...');
+    const data = await uploadImageAndMetadataViaVercel(file);
+    const imageInput = document.getElementById('onchainImageUri');
+    if(imageInput) imageInput.value = data.imageUri || '';
+    const area = document.getElementById('onchainMetadataJson');
+    if(area) area.value = JSON.stringify(data.metadata || {}, null, 2);
+    const uriInput = document.getElementById('onchainMetadataUri');
+    if(uriInput) uriInput.value = data.metadataUri || '';
+    pncSetMintStatus('One-click status: Metadata uploaded. Starting mint...');
+    pnc2169MintInProgress = false;
+    pnc2169SetMintButtonLocked(false);
+    await mintNFTOnchainFromForm();
+  }catch(e){
+    pnc2169MintInProgress = false;
+    pnc2169SetMintButtonLocked(false);
+    console.warn('PNC v2.16.9 one-click upload & mint failed', e);
+    const msg = e && e.message ? e.message : String(e);
+    pncSetMintStatus('One-click status: Error / stopped ❌<br>' + pnc2169Esc(msg));
+    alert('Upload & Mintできませんでした。\n' + msg);
+  }
+}
+
+try{
+  const pnc2169PrevSubmitNFT = submitNFT;
+  submitNFT = function(){
+    try{ pnc2169EnsurePendingCollectionForMint(); }catch(e){}
+    return pnc2169PrevSubmitNFT.apply(this, arguments);
+  };
+}catch(e){ console.warn('PNC v2.16.9 submitNFT wrapper failed', e); }
+
+try{
+  const pnc2169PrevShowDetail = showDetailById;
+  showDetailById = function(id, shouldScroll=true){
+    pnc2169PrevShowDetail(id, shouldScroll);
+    const p = document.getElementById('detailPanel');
+    if(!p || !p.classList.contains('show')) return;
+    let html = p.innerHTML;
+    html = html.replace(/<span class="info-label">Price<\/span><span class="info-value">[^<]*<\/span>/, `<span class="info-label">Price</span><span class="info-value">${pnc2169Esc(pnc2169PriceText((vaultNfts||[]).find(n=>String(n.pncId)===String(id)) || {}))}</span>`);
+    if(!html.includes('<span class="info-label">Chain</span>')){
+      html = html.replace(/(<span class="info-label">Price<\/span><span class="info-value">[^<]*<\/span><\/div>)/, `$1<div class="info-row"><span class="info-label">Chain</span><span class="info-value">${PNC2169_CHAIN_LABEL}</span></div>`);
+    }
+    html = html.replace(/<span class="info-label">Verification<\/span><span class="info-value">([^<]*)<\/span>/, `<span class="info-label">Verification</span><span class="info-value">${PNC2169_CHAIN_LABEL} On-chain</span>`);
+    p.innerHTML = html;
+  };
+}catch(e){ console.warn('PNC v2.16.9 detail label override failed', e); }
+
+try{
+  const oldTitle = document.title || 'Pi Network NFT Center';
+  document.title = oldTitle.replace(/v2\.16\.6|v2\.16\.7|v2\.16\.8/g, 'v2.16.9');
+  renderAll();
+}catch(e){}
+console.log('PNC v2.16.9 stable merge loaded');
+// === /v2.16.9 ===
 </script>
 
 </body>
