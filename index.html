@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Pi Network NFT Center (Beta) v2.16.11</title>
+  <title>Pi Network NFT Center (Beta) v2.16.14</title>
   <style>
     :root{--purple:#5b2d82;--gold:#f5b041;--bg:#f7f4fb;--card:#fff;--text:#19151f;--muted:#8b8195;--border:#e5d8ef;--green:#2ecc71;--red:#ff5c5c;--blue:#2f80ed}
     body.dark{--bg:#111017;--card:#1d1826;--text:#f7f1ff;--muted:#b7a9c6;--border:#3b2c4c}
@@ -7016,6 +7016,107 @@ console.log('PNC v2.16.6 Advanced Tools UI hidden loaded');
   try{ renderAll(); }catch(e){}
 })();
 
+</script>
+
+
+
+<script>
+/* === v2.16.14 DDREAM Genesis shop item restore ONLY ===
+   Checked against v2.16.12/2.16.13 behavior.
+   Goal: restore product visibility without burning, deleting, reminting, or moving NFTs.
+   - DDREAM Genesis and DDREAM Genesis shop remain separate collections.
+   - Collection filtering now matches AFTER display overrides, because legacy display edits
+     such as "DDREAM genesis no.1" -> "DDREAM Genesis shop" may live in PNC overrides.
+   - No Dashboard / Creator / Mint / Buy / Sell changes.
+*/
+(function(){
+  function esc(v){
+    try{ return pncEscapeHtml(v); }catch(e){ return String(v||'').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch])); }
+  }
+  function safeUrl(v){
+    try{ return pncSafeUrl(v); }catch(e){ return String(v||'').replace(/'/g, '%27'); }
+  }
+  function norm(v){ return String(v||'').trim().toLowerCase().replace(/\s+/g,' '); }
+  function getCol(idOrName){
+    return (typeof collectionById==='function' ? collectionById(idOrName) : null) ||
+      (collections||[]).find(c => c && (c.id===idOrName || c.name===idOrName || norm(c.name)===norm(idOrName)));
+  }
+  function applyDisplay(n){
+    try{ return (typeof pncApplyOnchainOverride==='function') ? Object.assign({}, n, pncApplyOnchainOverride(Object.assign({}, n))) : Object.assign({}, n); }
+    catch(e){ return Object.assign({}, n); }
+  }
+  function exactCollectionMatchAfterOverride(raw,c){
+    if(!raw || !c) return false;
+    const n = applyDisplay(raw);
+    const targetName = norm(c.name);
+    const targetId = String(c.id||'');
+
+    // If the display override has an explicit collection/shop name, trust that exact name first.
+    const displayNames = [n.collection, n.collectionName, n.shopName].map(norm).filter(Boolean);
+    if(displayNames.includes(targetName)) return true;
+
+    // Exact collectionId is valid only when no display collection override contradicts it.
+    if(n.collectionId && targetId && n.collectionId === targetId && !displayNames.length) return true;
+
+    // Safety fallback for the legacy display NFT only. This does not mix DDREAM Genesis items.
+    if(targetName === 'ddream genesis shop'){
+      const nm = norm(n.name);
+      const pid = String(n.pncId||'');
+      if(nm === 'ddream genesis no.1' || pid === 'PNC-ONCHAIN-000003') return true;
+    }
+    return false;
+  }
+  function visibleForCollection(raw, onlyPublic){
+    const n = applyDisplay(raw);
+    if(typeof pncIsHiddenOnchain==='function' && pncIsHiddenOnchain(n)) return false;
+    if(onlyPublic && n.status === 'Draft') return false;
+    return true;
+  }
+  function preferredBanner(c){ return (c && (c.bannerImage || c.shopBannerImage || c.coverImage || c.image || c.shopImage)) || ''; }
+
+  window.collectionMediaBox = function(c){
+    const img = preferredBanner(c);
+    if(img) return `<div class="collection-banner has-image" style="background-image:url('${safeUrl(img)}')"></div>`;
+    return `<div class="collection-banner">${(c&&c.icon)||'🏪'}</div>`;
+  };
+  window.collectionDetailBanner = function(c){
+    const img = preferredBanner(c);
+    if(img) return `<div class="collection-detail-banner has-image" style="background-image:url('${safeUrl(img)}')"></div>`;
+    return `<div class="collection-detail-banner">${(c&&c.icon)||'🏪'}</div>`;
+  };
+  window.getCollectionNFTsById = function(collectionId, onlyPublic=false){
+    const c = getCol(collectionId);
+    if(!c) return [];
+    return (vaultNfts||[])
+      .filter(raw => exactCollectionMatchAfterOverride(raw,c) && visibleForCollection(raw, onlyPublic))
+      .map(raw => applyDisplay(raw));
+  };
+  window.openCollection = function(collectionId){
+    const c = getCol(collectionId);
+    if(!c) return;
+    const all = getCollectionNFTsById(c.id,false).filter(n=>!(typeof pncIsHiddenOnchain==='function' && pncIsHiddenOnchain(n)));
+    const items = getCollectionNFTsById(c.id,true).filter(n=>!(typeof pncIsHiddenOnchain==='function' && pncIsHiddenOnchain(n)));
+    const listedCount = items.filter(n=>(typeof saleStatusValue==='function'?saleStatusValue(n):n.status)==='Listed').length;
+    const st = (typeof pncMarketplaceStats==='function') ? pncMarketplaceStats(items) : {items:items.length, listed:listedCount, owners:0, floor:0, volume:0};
+    const cur = (typeof PNC_CURRENCY_LABEL !== 'undefined') ? PNC_CURRENCY_LABEL : 'SepoliaETH';
+    const priceFmt = v => v ? ((typeof pncPi==='function'?pncPi(v):v)+' '+cur) : '-';
+    const html = `${collectionDetailBanner(c)}
+      <div class="hero"><h1>🏪 ${esc(c.name)} ${c.verified?'<span class="verified">✔</span>':''}</h1><p>${esc(c.description||'')}</p></div>
+      <div class="market-dashboard">
+        <div class="market-stat"><strong>${items.length}</strong><span>Items</span></div>
+        <div class="market-stat"><strong>${st.listed ?? listedCount}</strong><span>Listed</span></div>
+        <div class="market-stat"><strong>${st.owners ?? '-'}</strong><span>Owners</span></div>
+        <div class="market-stat"><strong>${priceFmt(st.floor)}</strong><span>Floor</span></div>
+        <div class="market-stat"><strong>${st.volume ? priceFmt(st.volume) : '0 '+cur}</strong><span>Volume</span></div>
+      </div>
+      <div class="panel"><strong>Creator:</strong> ${esc(c.creator||'-')}<br><span class="meta">Public NFTs: ${items.length} / All NFTs in PNC: ${all.length} / ${esc(c.verification||'Unverified')}</span></div>
+      <section><div class="section-title">🖼 ${esc(c.name)} NFTs</div><div class="grid">${items.length?items.map(n=>nftCard(n)).join(''):'<div class="panel">No public NFTs yet.</div>'}</div></section>`;
+    const el=document.getElementById('collectionDetail');
+    if(el) el.innerHTML = html;
+    showPage('collectionPage');
+  };
+  try{ renderAll(); }catch(e){}
+})();
 </script>
 
 </body>
