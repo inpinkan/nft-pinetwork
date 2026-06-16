@@ -6936,6 +6936,86 @@ console.log('PNC v2.16.6 Advanced Tools UI hidden loaded');
 
   try{ renderAll(); }catch(e){}
 })();
+
+
+/* === v2.16.13 Product Restore Patch ===
+   Purpose: restore collection/product mapping without touching Dashboard UI.
+   - DDREAM Genesis shop and DDREAM Genesis are separate shops/collections.
+   - Do NOT alias "xxx shop" to "xxx".
+   - Collection cards and detail banners use Banner Image first, then image fallback.
+   - Collection detail shows NFTs by exact collectionId OR exact collection/shop name only.
+*/
+(function(){
+  function esc(v){
+    try{ return pncEscapeHtml(v); }catch(e){ return String(v||'').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch])); }
+  }
+  function safeUrl(v){
+    try{ return pncSafeUrl(v); }catch(e){ return String(v||'').replace(/'/g, '%27'); }
+  }
+  function norm(v){ return String(v||'').trim().toLowerCase().replace(/\s+/g,' '); }
+  function getCol(idOrName){
+    return (typeof collectionById==='function' ? collectionById(idOrName) : null) ||
+      (collections||[]).find(c => c && (c.id===idOrName || c.name===idOrName || norm(c.name)===norm(idOrName)));
+  }
+  function nftExactCollectionMatch(n,c){
+    if(!n || !c) return false;
+    // Exact ID is trusted, but do not use name-stripping aliases.
+    if(n.collectionId && c.id && n.collectionId === c.id) return true;
+    const target = norm(c.name);
+    return [n.collection, n.collectionName, n.shopName].some(v => norm(v) === target);
+  }
+  function visibleForCollection(n, onlyPublic){
+    const a = (typeof pncApplyOnchainOverride==='function') ? pncApplyOnchainOverride(n) : n;
+    if(typeof pncIsHiddenOnchain==='function' && pncIsHiddenOnchain(a)) return false;
+    if(onlyPublic && a.status === 'Draft') return false;
+    // Keep Legacy / Display Only visible in collections. It is public display, not marketplace listing.
+    return true;
+  }
+  function preferredBanner(c){ return (c && (c.bannerImage || c.shopBannerImage || c.coverImage || c.image || c.shopImage)) || ''; }
+
+  window.collectionMediaBox = function(c){
+    const img = preferredBanner(c);
+    if(img) return `<div class="collection-banner has-image" style="background-image:url('${safeUrl(img)}')"></div>`;
+    return `<div class="collection-banner">${(c&&c.icon)||'🏪'}</div>`;
+  };
+  window.collectionDetailBanner = function(c){
+    const img = preferredBanner(c);
+    if(img) return `<div class="collection-detail-banner has-image" style="background-image:url('${safeUrl(img)}')"></div>`;
+    return `<div class="collection-detail-banner">${(c&&c.icon)||'🏪'}</div>`;
+  };
+  window.getCollectionNFTsById = function(collectionId, onlyPublic=false){
+    const c = getCol(collectionId);
+    if(!c) return [];
+    return (vaultNfts||[]).filter(n => nftExactCollectionMatch(n,c) && visibleForCollection(n, onlyPublic));
+  };
+  window.openCollection = function(collectionId){
+    const c = getCol(collectionId);
+    if(!c) return;
+    const all = getCollectionNFTsById(c.id,false).map(n=> typeof pncApplyOnchainOverride==='function' ? pncApplyOnchainOverride(n) : n)
+      .filter(n=>!(typeof pncIsHiddenOnchain==='function' && pncIsHiddenOnchain(n)));
+    const items = getCollectionNFTsById(c.id,true).map(n=> typeof pncApplyOnchainOverride==='function' ? pncApplyOnchainOverride(n) : n)
+      .filter(n=>!(typeof pncIsHiddenOnchain==='function' && pncIsHiddenOnchain(n)));
+    const st = (typeof pncMarketplaceStats==='function') ? pncMarketplaceStats(items) : {items:items.length, listed:items.filter(n=>(typeof saleStatusValue==='function'?saleStatusValue(n):n.status)==='Listed').length, owners:0, floor:0, volume:0};
+    const cur = (typeof PNC_CURRENCY_LABEL !== 'undefined') ? PNC_CURRENCY_LABEL : 'SepoliaETH';
+    const priceFmt = v => v ? ((typeof pncPi==='function'?pncPi(v):v)+' '+cur) : '-';
+    const html = `${collectionDetailBanner(c)}
+      <div class="hero"><h1>🏪 ${esc(c.name)} ${c.verified?'<span class="verified">✔</span>':''}</h1><p>${esc(c.description||'')}</p></div>
+      <div class="market-dashboard">
+        <div class="market-stat"><strong>${items.length}</strong><span>Items</span></div>
+        <div class="market-stat"><strong>${st.listed ?? items.filter(n=>(typeof saleStatusValue==='function'?saleStatusValue(n):n.status)==='Listed').length}</strong><span>Listed</span></div>
+        <div class="market-stat"><strong>${st.owners ?? '-'}</strong><span>Owners</span></div>
+        <div class="market-stat"><strong>${priceFmt(st.floor)}</strong><span>Floor</span></div>
+        <div class="market-stat"><strong>${st.volume ? priceFmt(st.volume) : '0 '+cur}</strong><span>Volume</span></div>
+      </div>
+      <div class="panel"><strong>Creator:</strong> ${esc(c.creator||'-')}<br><span class="meta">Public NFTs: ${items.length} / All NFTs in PNC: ${all.length} / ${esc(c.verification||'Unverified')}</span></div>
+      <section><div class="section-title">🖼 ${esc(c.name)} NFTs</div><div class="grid">${items.length?items.map(n=>nftCard(n)).join(''):'<div class="panel">No public NFTs yet.</div>'}</div></section>`;
+    const el=document.getElementById('collectionDetail');
+    if(el) el.innerHTML = html;
+    showPage('collectionPage');
+  };
+  try{ renderAll(); }catch(e){}
+})();
+
 </script>
 
 </body>
