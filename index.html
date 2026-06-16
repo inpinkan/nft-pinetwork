@@ -217,6 +217,12 @@
    Only the visible Advanced tools panel is removed from the Create NFT screen. */
 .advanced-tools{display:none!important}
 
+
+
+/* v2.16.8 Mint safety guard - UI only, keeps v2.16.7 layout intact */
+.pnc-mint-warning{margin-top:8px;padding:10px;border:1px solid rgba(245,176,65,.45);border-radius:12px;background:rgba(245,176,65,.10);color:var(--muted);font-size:13px;line-height:1.45}
+.pnc-mint-danger{border-color:rgba(255,92,92,.55);background:rgba(255,92,92,.10)}
+.pnc-mint-success{border-color:rgba(46,204,113,.55);background:rgba(46,204,113,.10)}
 </style>
 </head>
 
@@ -6533,230 +6539,204 @@ try{
 try{ renderAll(); }catch(e){}
 console.log('PNC v2.16.7 SepoliaETH price + chain display loaded');
 // === /v2.16.7 ===
-</script>
 
 
+// === v2.16.8 Mint Safety Guard - patched from v2.16.7 without changing UI/layout ===
+(function(){
+  const TRANSFER_TOPIC = "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef";
+  let mintBusy = false;
 
-<script>
-// === v2.16.8 Mint Safety Guard ===
-// Purpose: reduce accidental gas loss / unclear mint state on MetaMask Mobile.
-// UI / mint-flow only. Buy / Sell / Marketplace distribution logic is untouched.
-const PNC2168_MINT_SAFETY_VERSION = '2.16.8';
-let pnc2168MintBusy = false;
-let pnc2168LastMintTx = null;
-
-function pnc2168Esc(s){
-  return String(s || '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
-}
-function pnc2168ShortTx(tx){
-  const t = String(tx || '');
-  return t.length > 18 ? t.slice(0,10) + '...' + t.slice(-8) : t;
-}
-function pnc2168SetBusy(on){
-  pnc2168MintBusy = !!on;
-  try{
-    document.querySelectorAll('button').forEach(btn=>{
-      const oc = String(btn.getAttribute('onclick') || '');
-      if(oc.includes('oneClickPinataUploadAndMint') || oc.includes('mintNFTOnchainFromForm')){
-        btn.disabled = !!on;
-        btn.style.opacity = on ? '.62' : '';
-        btn.style.pointerEvents = on ? 'none' : '';
-      }
-    });
-  }catch(e){}
-}
-function pnc2168TxStatusHtml(label, txHash, extra){
-  const link = txHash ? `<br>Tx: <a href="${pncEtherscanTxLink(txHash)}" target="_blank" style="color:var(--gold);word-break:break-all">${pnc2168Esc(txHash)}</a>` : '';
-  return `${label}${link}${extra ? '<br>' + extra : ''}`;
-}
-function pnc2168OpenLastTx(){
-  if(pnc2168LastMintTx) window.open(pncEtherscanTxLink(pnc2168LastMintTx), '_blank');
-}
-
-function pnc2168ExtractTokenIdFromReceipt(receipt){
-  try{
-    const contract = String(PNC_ONCHAIN_SCAN_CONFIG.contractAddress || '').toLowerCase();
-    const transferTopic = '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef';
-    const zeroTopicSuffix = '0000000000000000000000000000000000000000';
-    const logs = Array.isArray(receipt && receipt.logs) ? receipt.logs : [];
-    for(const log of logs){
-      const addr = String(log.address || '').toLowerCase();
-      const topics = Array.isArray(log.topics) ? log.topics : [];
-      if(addr !== contract) continue;
-      if(String(topics[0] || '').toLowerCase() !== transferTopic) continue;
-      // ERC721 mint Transfer: from == zero address, tokenId is indexed topic[3]
-      if(String(topics[1] || '').toLowerCase().endsWith(zeroTopicSuffix) && topics[3]){
-        return String(BigInt(topics[3])).trim();
-      }
-    }
-  }catch(e){ console.warn('PNC v2.16.8 tokenId extract failed', e); }
-  return '';
-}
-async function pnc2168VerifyMintedToken(tokenId, expectedOwner, expectedUri){
-  if(!tokenId) return {ok:false, reason:'Token ID not detected from receipt'};
-  try{
-    const ownerRaw = await pncEthCall(pncOwnerOfData(tokenId));
-    const owner = pncDecodeAddress(ownerRaw);
-    const uriRaw = await pncEthCall(pncTokenURIData(tokenId));
-    const tokenUri = pncDecodeString(uriRaw);
-    const ownerOk = String(owner || '').toLowerCase() === String(expectedOwner || '').toLowerCase();
-    const uriOk = !expectedUri || String(tokenUri || '').trim() === String(expectedUri || '').trim();
-    return {ok: ownerOk && uriOk, owner, tokenUri, ownerOk, uriOk, reason: ownerOk ? (uriOk ? '' : 'Metadata URI mismatch') : 'Owner mismatch'};
-  }catch(e){
-    return {ok:false, reason: e && e.message ? e.message : String(e)};
+  function provider(){ return getPncEthereumProvider() || window.ethereum; }
+  function normAddr(a){ return String(a||"").toLowerCase(); }
+  function strip0x(v){ return String(v||"").replace(/^0x/i,""); }
+  function pad32(hex){ return strip0x(hex).padStart(64,"0"); }
+  function tokenIdHex(tokenId){ return BigInt(tokenId).toString(16).padStart(64,"0"); }
+  function setStatus(msg){
+    const box=document.getElementById("onchainMintStatus");
+    if(box) box.innerHTML = msg;
   }
-}
-async function pnc2168SyncAndFindMint(tokenId, owner, metadataUri){
-  try{
-    if(tokenId){
-      const n = Number(tokenId);
-      if(Number.isFinite(n) && n > (PNC_ONCHAIN_SCAN_CONFIG.maxTokenIdToScan || 0)){
-        PNC_ONCHAIN_SCAN_CONFIG.maxTokenIdToScan = n;
-      }
+  function setBusy(on){
+    mintBusy = !!on;
+    const selectors = [
+      'button[onclick="oneClickPinataUploadAndMint()"]',
+      'button[onclick="mintNFTOnchainFromForm()"]',
+      'button[onclick="submitNFT()"]'
+    ];
+    selectors.forEach(sel=>document.querySelectorAll(sel).forEach(btn=>{
+      btn.disabled = !!on;
+      btn.style.opacity = on ? ".55" : "";
+      btn.style.pointerEvents = on ? "none" : "";
+    }));
+  }
+  function txLink(txHash){
+    try{ return pncEtherscanTxLink(txHash); }catch(e){ return 'https://sepolia.etherscan.io/tx/'+txHash; }
+  }
+  function detectMintTransfer(receipt, contract, to){
+    const logs = Array.isArray(receipt && receipt.logs) ? receipt.logs : [];
+    const contractAddr = normAddr(contract);
+    const toAddr = normAddr(to);
+    for(const log of logs){
+      const topics = log && Array.isArray(log.topics) ? log.topics : [];
+      if(normAddr(log.address) !== contractAddr) continue;
+      if(normAddr(topics[0]) !== TRANSFER_TOPIC) continue;
+      if(topics.length < 4) continue;
+      const fromTopic = strip0x(topics[1]);
+      const toTopic = '0x' + strip0x(topics[2]).slice(-40);
+      if(!/^0+$/.test(fromTopic)) continue; // mint should be from zero address
+      if(normAddr(toTopic) !== toAddr) continue;
+      try{ return BigInt(topics[3]).toString(10); }catch(e){ return null; }
     }
-    await syncOnchainPNCNFTs();
-    const ownerNorm = String(owner || '').toLowerCase();
-    const uriNorm = String(metadataUri || '').trim();
-    const found = vaultNfts.find(n =>
-      (tokenId && String(n.chainTokenId || n.tokenId || '') === String(tokenId)) ||
-      (uriNorm && String(n.metadataUri || '').trim() === uriNorm) ||
-      (ownerNorm && String(n.currentOwner || n.owner || '').toLowerCase() === ownerNorm && uriNorm && String(n.metadataUri || '').trim() === uriNorm)
-    );
-    try{ renderAll(); }catch(e){}
-    return found || null;
-  }catch(e){
-    console.warn('PNC v2.16.8 sync after mint failed', e);
     return null;
   }
-}
-
-async function pnc2168SendMintTransaction({skipLocalConfirm=false}={}){
-  if(pnc2168MintBusy){
-    alert('Mint処理中です。\n二重送信防止のため、完了または失敗表示が出るまで再度押さないでください。');
-    return;
+  async function ethCall(to, data){
+    return await provider().request({method:'eth_call', params:[{to, data}, 'latest']});
   }
-  try{
-    const uriEl = document.getElementById('onchainMetadataUri');
-    const uri = uriEl ? uriEl.value.trim() : '';
-    if(!uri){ alert('metadata.json のURIがありません。\nUpload to Pinata & Mint をやり直す前に、Status欄を確認してください。'); return; }
-    if(!(uri.startsWith('ipfs://') || uri.startsWith('https://') || uri.startsWith('data:'))){
-      alert('URIは ipfs:// または https:// で始めてください。'); return;
-    }
-    const provider = getPncEthereumProvider();
-    if(!provider){
-      alert('MetaMaskが見つかりません。PCのChrome拡張MetaMask、またはMetaMaskアプリ内ブラウザで開いてください。');
+  async function ownerOf(contract, tokenId){
+    const data = '0x6352211e' + tokenIdHex(tokenId); // ownerOf(uint256)
+    const res = await ethCall(contract, data);
+    if(!res || strip0x(res).length < 64) return '';
+    return '0x' + strip0x(res).slice(-40);
+  }
+  async function tokenURI(contract, tokenId){
+    // tokenURI(uint256). Best-effort only. Dynamic string decoding is intentionally simple.
+    const data = '0xc87b56dd' + tokenIdHex(tokenId);
+    const res = await ethCall(contract, data);
+    return res || '';
+  }
+
+  window.oneClickPinataUploadAndMint = async function(){
+    if(mintBusy){
+      alert("Mint処理中です。\nMetaMask確認後は、完了・失敗の表示が出るまで再度押さないでください。");
       return;
     }
-
-    pnc2168SetBusy(true);
-    pncSetMintStatus('Mint safety: Wallet / Sepolia確認中...');
-    await pncEnsureSepolia();
-    const accounts = await provider.request({method:'eth_requestAccounts'});
-    const from = accounts && accounts[0];
-    updateWalletUI(from);
-    if(!from) throw new Error('No wallet account selected');
-
-    const contract = PNC_ONCHAIN_SCAN_CONFIG.contractAddress;
-    const data = pncEncodeMintData(from, uri);
-    const txParams = {from, to:contract, value:'0x0', data};
-
-    if(!skipLocalConfirm){
-      const ok = confirm('SepoliaでNFTをmintします。\n\nMetaMaskで1回だけ確認してください。\n確認後はPNCのStatus欄が更新されるまで再送信しないでください。\n\nTo: '+from+'\nMetadata: '+uri+'\n\n続けますか？');
-      if(!ok){ pncSetMintStatus('Mint status: Cancelled'); pnc2168SetBusy(false); return; }
-    }
-
-    pncSetMintStatus('Mint safety: ガス見積もり中...');
+    const file = document.getElementById("newNftImage")?.files?.[0];
     try{
-      const gas = await provider.request({method:'eth_estimateGas', params:[txParams]});
-      txParams.gas = gas;
-    }catch(gasErr){
-      console.warn('Gas estimate failed; sending without explicit gas', gasErr);
-      pncSetMintStatus('Mint safety: ガス見積もりに失敗しました。MetaMask側の見積もりで続行します。');
+      if(!confirm("画像とmetadataをPinataへアップロードし、その後Sepoliaでmintします。\n\nMetaMask確認後は、完了表示が出るまで再度Mintを押さないでください。\n続けますか？")) return;
+      setBusy(true);
+      setStatus("One-click status: Uploading image & metadata to Pinata via Vercel...");
+      const data = await uploadImageAndMetadataViaVercel(file);
+      const imageInput = document.getElementById("onchainImageUri");
+      if(imageInput) imageInput.value = data.imageUri || "";
+      const area = document.getElementById("onchainMetadataJson");
+      if(area) area.value = JSON.stringify(data.metadata || {}, null, 2);
+      const uriInput = document.getElementById("onchainMetadataUri");
+      if(uriInput) uriInput.value = data.metadataUri || "";
+      setBusy(false); // mintNFTOnchainFromForm will lock again after validation
+      setStatus("One-click status: Metadata uploaded. Starting mint...");
+      await window.mintNFTOnchainFromForm();
+    }catch(e){
+      console.warn("One-click upload & mint failed", e);
+      const msg = e && e.message ? e.message : String(e);
+      setStatus("One-click status: Error ❌<br>" + msg);
+      alert("Upload & Mintできませんでした。\n" + msg);
+      setBusy(false);
     }
+  };
 
-    pncSetMintStatus('Mint safety: MetaMask確認待ち...<br>確認画面では1回だけConfirmしてください。');
-    const txHash = await provider.request({method:'eth_sendTransaction', params:[txParams]});
-    pnc2168LastMintTx = txHash;
-    pncSetMintStatus(pnc2168TxStatusHtml('Mint safety: 送信済み。Sepolia確定待ち...', txHash, 'ここで再送信しないでください。'));
-
-    const receipt = await pncWaitForReceipt(txHash, 60);
-    if(!receipt){
-      pncSetMintStatus(pnc2168TxStatusHtml('Mint safety: 送信済み / まだ未確定です ⚠️', txHash, 'EtherscanでPending/Confirmedを確認してください。未確定中は再Mintしないでください。'));
-      alert('Mintトランザクションは送信済みですが、まだ確定確認が取れていません。\n\n再度Mintを押さず、Etherscanまたは少し時間を置いて確認してください。\n\nTxHash:\n'+txHash);
-      return;
+  window.mintNFTOnchainFromForm = async function(){
+    if(mintBusy){
+      alert("Mint処理中です。\nMetaMask確認後は、完了・失敗の表示が出るまで再度押さないでください。");
+      return null;
     }
-    if(String(receipt.status).toLowerCase() !== '0x1'){
-      pncSetMintStatus(pnc2168TxStatusHtml('Mint safety: Sepolia上で失敗しました ❌', txHash, 'ガスは戻りません。入力内容・残高・ネットワークを確認してください。'));
-      alert('MintトランザクションはSepolia上で失敗しました。\nガス代はチェーン仕様上戻りません。\n\nTxHash:\n'+txHash);
-      return;
+    let txHash = "";
+    try{
+      const uriEl = document.getElementById("onchainMetadataUri");
+      const uri = uriEl ? uriEl.value.trim() : "";
+      if(!uri){ alert("metadata.json のURIを入力してください。\n例: ipfs://bafk..."); return null; }
+      if(!(uri.startsWith("ipfs://") || uri.startsWith("https://") || uri.startsWith("data:"))){
+        alert("URIは ipfs:// または https:// で始めてください。"); return null;
+      }
+      const p = provider();
+      if(!p){
+        alert("MetaMaskが見つかりません。PCのChrome拡張MetaMask、またはMetaMaskアプリ内ブラウザで開いてください。");
+        return null;
+      }
+      setBusy(true);
+      setStatus("Mint status: Connecting MetaMask...");
+      await pncEnsureSepolia();
+      const accounts = await p.request({method:"eth_requestAccounts"});
+      const from = accounts && accounts[0];
+      updateWalletUI(from);
+      if(!from) throw new Error("No wallet account selected");
+
+      const contract = PNC_ONCHAIN_SCAN_CONFIG.contractAddress;
+      const data = pncEncodeMintData(from, uri);
+      const ok = confirm("SepoliaでNFTをmintします。\n\nTo: "+from+"\nMetadata: "+uri+"\n\nMetaMaskで確認しますか？");
+      if(!ok){ setStatus("Mint status: Cancelled"); return null; }
+
+      const txParams = {from, to:contract, value:"0x0", data};
+      setStatus("Mint status: Estimating gas...");
+      try{
+        const gas = await p.request({method:"eth_estimateGas", params:[txParams]});
+        txParams.gas = gas;
+      }catch(gasErr){
+        console.warn("Mint gas estimate failed", gasErr);
+        const gm = gasErr && gasErr.message ? gasErr.message : String(gasErr);
+        setStatus("Mint status: Gas estimate failed ❌<br>トランザクションは送信していません。<br>"+gm);
+        alert("Gas見積もりに失敗したため、Mintを中止しました。\nトランザクションは送信していません。\n\n" + gm);
+        return null;
+      }
+
+      setStatus("Mint status: Waiting for MetaMask confirmation...<br><div class='pnc-mint-warning'>MetaMask確認後は、この画面に戻っても再度押さずに待ってください。</div>");
+      txHash = await p.request({method:"eth_sendTransaction", params:[txParams]});
+      setStatus(`Mint status: Sent to Sepolia<br>Tx: <a href="${txLink(txHash)}" target="_blank" style="color:var(--gold);word-break:break-all">${txHash}</a><br><div class="pnc-mint-warning">Confirming on Sepolia... 再送信しないでください。</div>`);
+
+      const receipt = await pncWaitForReceipt(txHash, 50);
+      if(!receipt){
+        setStatus(`Mint status: Sent, but confirmation not detected yet ⚠️<br>Tx: <a href="${txLink(txHash)}" target="_blank" style="color:var(--gold);word-break:break-all">${txHash}</a><br><div class="pnc-mint-warning">まだ確定を検出できていません。再Mintせず、Etherscanで確認するか少し待って再読み込みしてください。</div>`);
+        alert("Mintトランザクションは送信済みですが、まだ確定を検出できません。\n\n再度Mintせず、Etherscanで確認してください。\n\nTxHash:\n"+txHash);
+        return txHash;
+      }
+      const statusOk = String(receipt.status || "").toLowerCase() === "0x1";
+      if(!statusOk){
+        setStatus(`Mint status: Failed on Sepolia ❌<br>Tx: <a href="${txLink(txHash)}" target="_blank" style="color:var(--gold);word-break:break-all">${txHash}</a><br><div class="pnc-mint-warning pnc-mint-danger">NFTはmintされていません。失敗したトランザクションのガス代はネットワーク仕様上戻りません。</div>`);
+        alert("MintトランザクションはSepolia上で失敗しました。\nNFTは発行されていません。\n\n失敗したトランザクションのガス代はネットワーク仕様上戻りません。\n\nTxHash:\n"+txHash);
+        return txHash;
+      }
+
+      const tokenId = detectMintTransfer(receipt, contract, from);
+      if(!tokenId){
+        setStatus(`Mint status: Confirmed, but NFT mint event not detected ⚠️<br>Tx: <a href="${txLink(txHash)}" target="_blank" style="color:var(--gold);word-break:break-all">${txHash}</a><br><div class="pnc-mint-warning">Txは成功ですが、Transferイベントを検出できませんでした。再Mintせず、EtherscanとMy Vaultを確認してください。</div>`);
+        alert("Txは成功しましたが、NFTのTransferイベントを検出できませんでした。\n再度Mintせず、EtherscanとMy Vaultを確認してください。\n\nTxHash:\n"+txHash);
+        setTimeout(()=>syncOnchainPNCNFTs().catch(e=>console.warn(e)), 3000);
+        return txHash;
+      }
+
+      let ownerOk = false;
+      try{
+        const ow = await ownerOf(contract, tokenId);
+        ownerOk = normAddr(ow) === normAddr(from);
+        await tokenURI(contract, tokenId).catch(()=>null);
+      }catch(checkErr){ console.warn("Mint owner/tokenURI check failed", checkErr); }
+
+      if(ownerOk){
+        setStatus(`Mint status: Success ✅<br>Token ID: ${tokenId}<br>Tx: <a href="${txLink(txHash)}" target="_blank" style="color:var(--gold);word-break:break-all">${txHash}</a><br><div class="pnc-mint-warning pnc-mint-success">ownerOf確認済み。同期後、New NFTsとMy Vaultに表示されます。</div>`);
+        alert("Mint成功です。\n\nToken ID: "+tokenId+"\nTxHash:\n"+txHash+"\n\n同期後、New NFTsとMy Vaultに表示されます。");
+      }else{
+        setStatus(`Mint status: Confirmed ✅ / Owner check pending ⚠️<br>Token ID: ${tokenId}<br>Tx: <a href="${txLink(txHash)}" target="_blank" style="color:var(--gold);word-break:break-all">${txHash}</a><br><div class="pnc-mint-warning">TxとTransferイベントは成功です。ownerOf確認だけ取得できませんでした。再Mintせず、同期を待ってください。</div>`);
+        alert("MintトランザクションとTransferイベントは成功しました。\nownerOf確認だけ取得できませんでした。\n再度Mintせず、My Vault同期を待ってください。\n\nToken ID: "+tokenId+"\nTxHash:\n"+txHash);
+      }
+      setTimeout(()=>syncOnchainPNCNFTs().catch(e=>console.warn(e)), 3000);
+      return txHash;
+    }catch(e){
+      console.warn("PNC on-chain mint failed", e);
+      const msg = e && e.message ? e.message : String(e);
+      if(txHash){
+        setStatus(`Mint status: Error after tx sent ⚠️<br>Tx: <a href="${txLink(txHash)}" target="_blank" style="color:var(--gold);word-break:break-all">${txHash}</a><br>${msg}<br><div class="pnc-mint-warning">Tx送信後のエラーです。再Mintせず、Etherscanで結果を確認してください。</div>`);
+        alert("Mint送信後にエラーが出ました。\n再度Mintせず、Etherscanで確認してください。\n\nTxHash:\n"+txHash+"\n\n"+msg);
+      }else{
+        setStatus("Mint status: Error ❌<br>"+msg);
+        alert("Mintできませんでした。\n" + msg);
+      }
+      return txHash || null;
+    }finally{
+      setBusy(false);
     }
-
-    const tokenId = pnc2168ExtractTokenIdFromReceipt(receipt);
-    pncSetMintStatus(pnc2168TxStatusHtml('Mint safety: Tx成功。NFT所有確認中...', txHash, tokenId ? 'Detected Token ID: '+pnc2168Esc(tokenId) : 'Token IDを検出中...'));
-
-    const verified = await pnc2168VerifyMintedToken(tokenId, from, uri);
-    if(!verified.ok){
-      pncSetMintStatus(pnc2168TxStatusHtml('Mint safety: Tx成功。ただしPNC側でNFT確認が未完了です ⚠️', txHash, '理由: '+pnc2168Esc(verified.reason)+'<br>再Mintせず、EtherscanのNFT TransfersとMy Vaultを確認してください。'));
-      alert('トランザクションは成功しましたが、PNC側でNFT確認が完了していません。\n\n再Mintはまだ押さないでください。\nEtherscanとMy Vaultを確認してください。\n\nTxHash:\n'+txHash);
-      return;
-    }
-
-    const found = await pnc2168SyncAndFindMint(tokenId, from, uri);
-    const idText = tokenId ? `\nToken ID: ${tokenId}` : '';
-    pncSetMintStatus(pnc2168TxStatusHtml('Mint status: Success ✅', txHash, `${idText ? 'Token ID: '+pnc2168Esc(tokenId)+'<br>' : ''}ownerOf確認OK。New NFTsとMy Vaultに同期しました。`));
-    alert('Mint成功です。\n\nTxHash:\n'+txHash+idText+'\n\nownerOf確認OK。New NFTsとMy Vaultに同期しました。');
-  }catch(e){
-    console.warn('PNC v2.16.8 guarded mint failed', e);
-    const code = e && (e.code || e.error && e.error.code);
-    const msg = e && e.message ? e.message : String(e);
-    if(code === 4001 || /user rejected|denied|cancel/i.test(msg)){
-      pncSetMintStatus('Mint status: Cancelled by user');
-      alert('MetaMask確認がキャンセルされました。ガスは消費されていません。');
-    }else{
-      pncSetMintStatus('Mint safety: Error ❌<br>'+pnc2168Esc(msg)+'<br>送信済みTxが表示されていない場合、通常ガスは消費されていません。');
-      alert('Mint処理を完了できませんでした。\n\n'+msg+'\n\nTxHashが表示されていない場合、通常ガスは消費されていません。');
-    }
-  }finally{
-    pnc2168SetBusy(false);
-  }
-}
-
-async function mintNFTOnchainFromForm(){
-  return pnc2168SendMintTransaction({skipLocalConfirm:false});
-}
-
-async function oneClickPinataUploadAndMint(){
-  if(pnc2168MintBusy){
-    alert('Mint処理中です。完了または失敗表示が出るまで待ってください。');
-    return;
-  }
-  const file = document.getElementById('newNftImage')?.files?.[0];
-  try{
-    const ok = confirm('画像とmetadataをPinataへアップロードし、その後Sepoliaでmintします。\n\n重要:\nMetaMask確認後は、Status欄がSuccess/Failedになるまで再度押さないでください。\n\nJWT/APIキー入力は不要です。続けますか？');
-    if(!ok) return;
-    pnc2168SetBusy(true);
-    pncSetMintStatus('One-click status: Uploading image & metadata to Pinata via Vercel...');
-    const data = await uploadImageAndMetadataViaVercel(file);
-    const imageInput = document.getElementById('onchainImageUri');
-    if(imageInput) imageInput.value = data.imageUri || '';
-    const area = document.getElementById('onchainMetadataJson');
-    if(area) area.value = JSON.stringify(data.metadata || {}, null, 2);
-    const uriInput = document.getElementById('onchainMetadataUri');
-    if(uriInput) uriInput.value = data.metadataUri || '';
-    pnc2168SetBusy(false);
-    pncSetMintStatus('One-click status: Metadata uploaded. Starting guarded mint...');
-    await pnc2168SendMintTransaction({skipLocalConfirm:true});
-  }catch(e){
-    console.warn('One-click upload & mint failed', e);
-    const msg = e && e.message ? e.message : String(e);
-    pncSetMintStatus('One-click status: Error ❌<br>' + pnc2168Esc(msg));
-    alert('Upload & Mintできませんでした。\n' + msg);
-    pnc2168SetBusy(false);
-  }
-}
-
-console.log('PNC v2.16.8 Mint Safety Guard loaded');
+  };
+  console.log('PNC v2.16.8 Mint Safety Guard loaded from v2.16.7 base');
+})();
 // === /v2.16.8 ===
+
 </script>
 
 </body>
