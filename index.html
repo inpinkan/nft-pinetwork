@@ -276,7 +276,7 @@
       <div class="creator-tile" onclick="showCreatorForm('nft')"><strong>🖼 Create NFT</strong><span class="meta">Upload image and add NFT to My Vault.</span></div>
       <div class="creator-tile" onclick="showCreatorForm('verify')"><strong>✅ Verification Request</strong><span class="meta">Request verified collection status.</span></div>
       <div class="creator-tile" onclick="showCreatorForm('dashboard')"><strong>📊 Creator Dashboard</strong><span class="meta">View accurate collection and NFT status.</span></div>
-      <div class="creator-tile" onclick="showCreatorForm('dashboard')"><strong>⚙️ Creator Settings</strong><span class="meta">Creator profile and private sales wallet.</span></div>
+      <div class="creator-tile" onclick="showCreatorForm('settings')"><strong>⚙️ Creator Settings</strong><span class="meta">Creator profile and private sales wallet.</span></div>
     </div>
     <section><div id="creatorForm" class="panel"><strong>Select a creator menu above.</strong><p class="meta">PNC beta prototype. Data is stored only in this browser session.</p></div></section>
   </div>
@@ -6669,8 +6669,7 @@ async function oneClickPinataUploadAndMint(){
   const file = document.getElementById('newNftImage')?.files?.[0];
   try{
     pnc2169EnsurePendingCollectionForMint();
-    // One-click flow keeps only the mint confirmation before MetaMask.
-    // This avoids an extra browser dialog that can confuse mobile MetaMask recovery.
+    if(!confirm('画像とmetadataをPinataへアップロードし、その後Sepoliaでmintします。\n\nJWT/APIキー入力は不要です。\n\n※MetaMask確認後は再度押さず、Status更新を待ってください。\n\n続けますか？')) return;
     pnc2169MintInProgress = true;
     pnc2169SetMintButtonLocked(true);
     pncSetMintStatus('One-click status: Uploading image & metadata to Pinata via Vercel...');
@@ -6726,6 +6725,248 @@ try{
 }catch(e){}
 console.log('PNC v2.16.9 stable merge loaded');
 // === /v2.16.9 ===
+</script>
+
+
+
+<script>
+// === v2.16.10 Stable Fix: Creator Settings route + separate Shop Image / Banner Image ===
+const PNC2170_FIX_VERSION = '2.16.10';
+
+function pnc2170Esc(v){
+  try{ return (typeof pncEscapeHtml === 'function') ? pncEscapeHtml(v) : String(v ?? '').replace(/[&<>"']/g, ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch])); }
+  catch(e){ return String(v ?? ''); }
+}
+function pnc2170CollectionCardImage(c){ return (c && (c.image || c.shopImage || c.collectionImage)) || ''; }
+function pnc2170CollectionHeroImage(c){ return (c && (c.bannerImage || c.shopBannerImage || c.collectionBannerImage || c.image || c.shopImage || c.collectionImage)) || ''; }
+
+try{
+  collectionMediaBox = function(c){
+    const img = pnc2170CollectionCardImage(c);
+    if(img) return `<div class="collection-banner has-image" style="background-image:url('${pnc2170Esc(img)}')"></div>`;
+    return `<div class="collection-banner">${(c && c.icon) || '🏪'}</div>`;
+  };
+  collectionDetailBanner = function(c){
+    const img = pnc2170CollectionHeroImage(c);
+    if(img) return `<div class="collection-detail-banner has-image" style="background-image:url('${pnc2170Esc(img)}')"></div>`;
+    return `<div class="collection-detail-banner">${(c && c.icon) || '🏪'}</div>`;
+  };
+}catch(e){ console.warn('PNC v2.16.10 banner display override failed', e); }
+
+function pnc2170CreateCollectionHtml(){
+  return `<h2>🎨 Create Collection</h2>
+  <div class="form-grid">
+    <input id="collectionName" placeholder="Collection / Shop Name" />
+    <textarea id="collectionDescription" placeholder="Collection Description"></textarea>
+    <input id="creatorNameCollection" placeholder="Creator Name" />
+    <input id="creatorContact" placeholder="Contact / X / Telegram" />
+    <div class="meta"><strong>Collection / Shop Image</strong><br>Collectionカードに表示される正方形向け画像です。</div>
+    <input id="collectionImage" type="file" accept="image/*" onchange="previewCollectionImage(event)" />
+    <div id="collectionPreviewBox" class="preview-box"><img id="collectionPreview" /></div>
+    <div class="meta"><strong>Banner Image</strong><br>Collection詳細ページ上部に表示される横長バナーです。未選択ならShop Imageを代用します。</div>
+    <input id="collectionBannerImage" type="file" accept="image/*" onchange="previewCollectionBannerImage(event)" />
+    <div id="collectionBannerPreviewBox" class="preview-box"><img id="collectionBannerPreview" /></div>
+    <button class="primary-btn" onclick="submitCollection()">Create Collection</button>
+  </div>`;
+}
+
+function pnc2170CreatorNftFormHtml(opts){
+  return `<h2>🖼 Create NFT</h2>
+  <p class="meta">通常は入力して <strong>Upload to Pinata & Mint</strong> だけ押せばOKです。画像とmetadataはVercel経由でPinataへ保存され、Sepoliaでmintします。</p>
+  <div class="form-grid pnc-create-form-v2165">
+    <div class="pnc-form-section">
+      <div class="detail-section-title">🏪 1. Shop / Collection</div>
+      <select id="newNftCollection" onchange="toggleNewCollectionInput()"><option value="">Select Collection / Shop</option><option value="__new__">＋ Create New Collection / Shop</option>${opts}</select>
+      <input id="quickCollectionName" class="hidden" placeholder="New Collection / Shop Name" />
+      <div id="quickCollectionTools" class="quick-collection-tools">
+        <div class="meta"><strong>Collection / Shop Image</strong><br>Collectionカードに表示される画像です。未選択ならNFT画像を代用します。</div>
+        <input id="quickCollectionImage" type="file" accept="image/*" onchange="previewCollectionImage(event)" />
+        <div id="collectionPreviewBox" class="preview-box"><img id="collectionPreview" /></div>
+        <div class="meta"><strong>Banner Image</strong><br>Collection詳細ページ上部に表示される横長バナーです。未選択ならShop Image、またはNFT画像を代用します。</div>
+        <input id="quickCollectionBannerImage" type="file" accept="image/*" onchange="previewCollectionBannerImage(event)" />
+        <div id="collectionBannerPreviewBox" class="preview-box"><img id="collectionBannerPreview" /></div>
+      </div>
+    </div>
+    <div class="pnc-form-section">
+      <div class="detail-section-title">🎨 2. NFT Information</div>
+      <input id="newNftName" placeholder="NFT Name" />
+      <textarea id="newNftDescription" placeholder="NFT Description"></textarea>
+      <input id="newNftImage" type="file" accept="image/*" onchange="previewNFTImage(event)" />
+      <div id="imagePreviewBox" class="preview-box"><img id="imagePreview" /></div>
+    </div>
+    <div class="pnc-form-section">
+      <div class="detail-section-title">🎁 3. Utility</div>
+      <select id="newNftUtilityType"><option value="General">🎁 Utility Type: General</option><option value="Access">🔑 Access / Gated Content</option><option value="Membership">🎫 Membership</option><option value="Event">🎪 Event / Ticket</option><option value="Game Item">🎮 Game Item</option><option value="Battle">⚔️ Battle / Game Bonus</option><option value="Coupon">🏷 Coupon / Discount</option><option value="Airdrop">🎁 Airdrop Eligible</option><option value="Voting">🗳 Voting / Governance</option><option value="Other">✨ Other</option></select>
+      <textarea id="newNftUtility" placeholder="Utility / Holder Benefits&#10;Example: Holders can join a private community, receive future airdrops, or use this NFT in future PNC apps."></textarea>
+    </div>
+    <div class="pnc-form-section">
+      <div class="detail-section-title">💰 4. Market Settings</div>
+      <input id="newNftPrice" placeholder="Price in SepoliaETH" />
+      <select id="newNftStatus"><option value="Not For Sale">Not For Sale</option><option value="Listed">Listed</option><option value="Draft">Draft</option><option value="Sold Out">Sold Out</option></select>
+      <input id="newNftIcon" type="hidden" value="🖼" />
+      <p class="secondary-note">Genesis Era は SepoliaETH 建てで開発中です。将来のゴールは Pi Mainnet / Pi 建てローンチです。</p>
+    </div>
+    <div class="creator-actions-clean"><button id="pnc2169MintButton" class="primary-btn" onclick="oneClickPinataUploadAndMint()">🚀 Upload to Pinata & Mint</button><button id="saveDraftBtn" class="small-btn ghost-btn" onclick="submitNFT()">💾 Save Draft / Update Draft</button><div id="onchainMintStatus" class="address-box">Mint status: Ready</div><p class="secondary-note">Pinata JWT/APIキーは入力不要です。Vercelサーバー側のEnvironment Variableだけで使います。</p></div>
+    <details class="advanced-tools"><summary>Advanced tools（開発者向け）</summary></details>
+  </div>`;
+}
+
+try{
+  const pnc2170BaseShowCreatorForm = showCreatorForm;
+  showCreatorForm = function(type){
+    const box = document.getElementById('creatorForm');
+    if(!box) return;
+    uploadedImageData = null;
+    uploadedCollectionImage = null;
+    if(typeof uploadedCollectionBannerImage !== 'undefined') uploadedCollectionBannerImage = null;
+    if(type === 'collection'){
+      box.innerHTML = pnc2170CreateCollectionHtml();
+      return;
+    }
+    if(type === 'nft'){
+      const opts=(collections||[]).map(c=>`<option value="${pnc2170Esc(c.id)}">${pnc2170Esc(c.name)}</option>`).join('');
+      box.innerHTML = pnc2170CreatorNftFormHtml(opts);
+      try{ toggleNewCollectionInput(); }catch(e){}
+      return;
+    }
+    if(type === 'settings'){
+      box.innerHTML = `<h2>⚙️ Creator Settings</h2>${typeof pncCreatorSettingsHtml === 'function' ? pncCreatorSettingsHtml() : '<div class="panel">Creator Settings</div>'}`;
+      return;
+    }
+    return pnc2170BaseShowCreatorForm(type);
+  };
+}catch(e){ console.warn('PNC v2.16.10 creator routing override failed', e); }
+
+try{
+  submitCollection = function(){
+    const name=(document.getElementById('collectionName')?.value||'').trim();
+    const desc=(document.getElementById('collectionDescription')?.value||'').trim();
+    const creator=(document.getElementById('creatorNameCollection')?.value||'').trim();
+    const contact=(document.getElementById('creatorContact')?.value||'').trim();
+    if(!name){ alert('Please enter Collection Name.'); return; }
+    if(collectionNameExists(name)){ alert('同じショップ名は既に存在します。\n既存ショップにNFTを追加する場合は、Create NFTでプルダウンからそのショップを選んでください。'); return; }
+    const img = uploadedCollectionImage || null;
+    const banner = (typeof uploadedCollectionBannerImage !== 'undefined' && uploadedCollectionBannerImage) ? uploadedCollectionBannerImage : img;
+    collections.unshift({id:nextCollectionId(), name, creator:creator||'You', contact, icon:'🏪', image:img, bannerImage:banner, description:desc, verified:false, volume:'0 Pi', verification:'Unverified'});
+    saveState(); renderAll(); alert('Collection created:\n'+name); showPage('collectionsPage');
+  };
+}catch(e){ console.warn('PNC v2.16.10 submitCollection override failed', e); }
+
+function pnc2170EnsurePendingCollectionForCreate(){
+  const selected = document.getElementById('newNftCollection')?.value || '';
+  if(selected !== '__new__'){
+    const c = collectionById(selected);
+    if(c){
+      if(uploadedCollectionImage) c.image = c.image || uploadedCollectionImage;
+      if(typeof uploadedCollectionBannerImage !== 'undefined' && uploadedCollectionBannerImage) c.bannerImage = uploadedCollectionBannerImage;
+      else if(!c.bannerImage && c.image) c.bannerImage = c.image;
+    }
+    return c;
+  }
+  const name=(document.getElementById('quickCollectionName')?.value||'').trim();
+  if(!name) throw new Error('New Collection / Shop Nameを入力してください。');
+  let c=(collections||[]).find(x=>String(x.name||'').toLowerCase()===name.toLowerCase());
+  const shopImg = uploadedCollectionImage || uploadedImageData || null;
+  const banner = (typeof uploadedCollectionBannerImage !== 'undefined' && uploadedCollectionBannerImage) ? uploadedCollectionBannerImage : (uploadedCollectionImage || uploadedImageData || null);
+  if(!c){
+    c={id:nextCollectionId(), name, creator:'You', icon:'🏪', image:shopImg, bannerImage:banner, description:'Creator shop created from Create NFT.', verified:false, volume:'0 Pi', verification:'Unverified'};
+    collections.unshift(c);
+  }else{
+    if(shopImg && !c.image) c.image = shopImg;
+    if(banner) c.bannerImage = banner;
+  }
+  const sel=document.getElementById('newNftCollection');
+  if(sel){
+    const exists=Array.from(sel.options).some(o=>o.value===c.id);
+    if(!exists) sel.add(new Option(c.name,c.id));
+    sel.value=c.id;
+  }
+  try{ toggleNewCollectionInput(); }catch(e){}
+  try{ saveState(); }catch(e){}
+  return c;
+}
+
+try{
+  pnc2169EnsurePendingCollectionForMint = pnc2170EnsurePendingCollectionForCreate;
+  const pnc2170PrevSubmitNFT = submitNFT;
+  submitNFT = function(){
+    try{ pnc2170EnsurePendingCollectionForCreate(); }catch(e){ alert(e.message || String(e)); return; }
+    return pnc2170PrevSubmitNFT.apply(this, arguments);
+  };
+}catch(e){ console.warn('PNC v2.16.10 pending collection override failed', e); }
+
+try{
+  showEditCollectionForm = function(collectionId){
+    const c = collectionById(collectionId) || (collections||[]).find(x=>x.name===collectionId);
+    if(!c) return alert('Collection not found.');
+    uploadedCollectionImage = null;
+    if(typeof uploadedCollectionBannerImage !== 'undefined') uploadedCollectionBannerImage = null;
+    const box=document.getElementById('creatorForm');
+    if(!box) return;
+    showPage('creatorPage');
+    box.innerHTML = `<h2>✏️ Edit Shop / Collection</h2>
+      <div class="form-grid">
+        <input id="editCollectionName" placeholder="Collection / Shop Name" value="${pnc2170Esc(c.name||'')}" />
+        <textarea id="editCollectionDescription" placeholder="Description">${pnc2170Esc(c.description||'')}</textarea>
+        <input id="editCollectionCreator" placeholder="Creator Name" value="${pnc2170Esc(c.creator||'')}" />
+        <input id="editCollectionContact" placeholder="Contact / X / Telegram" value="${pnc2170Esc(c.contact||'')}" />
+        <div class="meta"><strong>Collection / Shop Image</strong><br>Collectionカードに表示される画像です。</div>
+        ${typeof pncImagePreviewBlock === 'function' ? pncImagePreviewBlock('editCollectionCurrentImage', c.image, 'Current Collection / Shop Image') : ''}
+        <input id="editCollectionImage" type="file" accept="image/*" onchange="previewCollectionImage(event)" />
+        <div id="collectionPreviewBox" class="preview-box"><img id="collectionPreview" /></div>
+        <div class="meta"><strong>Banner Image</strong><br>Collection詳細ページ上部に表示される横長バナーです。</div>
+        ${typeof pncImagePreviewBlock === 'function' ? pncImagePreviewBlock('editCollectionCurrentBanner', c.bannerImage || c.image, 'Current Banner Image') : ''}
+        <input id="editCollectionBannerImage" type="file" accept="image/*" onchange="previewCollectionBannerImage(event)" />
+        <div id="collectionBannerPreviewBox" class="preview-box"><img id="collectionBannerPreview" /></div>
+        <div class="creator-actions-clean">
+          <button class="primary-btn" onclick='saveEditedCollection("${safeId(c.id)}")'>Save Shop / Collection</button>
+          <button class="small-btn buy-btn" onclick='openCollection("${safeId(c.id)}")'>Open Collection Page</button>
+          <button class="small-btn ghost-btn" onclick="showCreatorForm('dashboard')">Back to Dashboard</button>
+        </div>
+      </div>`;
+    box.scrollIntoView({behavior:'smooth'});
+  };
+  saveEditedCollection = function(collectionId){
+    const c = collectionById(collectionId) || (collections||[]).find(x=>x.name===collectionId);
+    if(!c) return alert('Collection not found.');
+    const oldName=c.name;
+    const name=(document.getElementById('editCollectionName')?.value||'').trim();
+    const desc=(document.getElementById('editCollectionDescription')?.value||'').trim();
+    const creator=(document.getElementById('editCollectionCreator')?.value||'').trim();
+    const contact=(document.getElementById('editCollectionContact')?.value||'').trim();
+    if(!name) return alert('Collection / Shop Name is required.');
+    if(name.toLowerCase() !== String(oldName||'').toLowerCase() && collectionNameExists(name)) return alert('同じCollection / Shop名が既に存在します。');
+    c.name=name; c.description=desc; c.creator=creator||c.creator||'You'; c.contact=contact;
+    if(uploadedCollectionImage) c.image=uploadedCollectionImage;
+    if(typeof uploadedCollectionBannerImage !== 'undefined' && uploadedCollectionBannerImage) c.bannerImage=uploadedCollectionBannerImage;
+    else if(!c.bannerImage && c.image) c.bannerImage=c.image;
+    (vaultNfts||[]).forEach(n=>{ if(n.collectionId===c.id || (!n.collectionId && n.collection===oldName)){ n.collectionId=c.id; n.collection=c.name; }});
+    saveState(); renderAll(); showCreatorForm('dashboard'); alert('Shop / Collection updated:\n'+c.name);
+  };
+}catch(e){ console.warn('PNC v2.16.10 edit collection override failed', e); }
+
+try{
+  const pnc2170PrevEnsureOnchainCollection = typeof pncEnsureOnchainCollection === 'function' ? pncEnsureOnchainCollection : null;
+  pncEnsureOnchainCollection = function(collectionName, image){
+    const name = String(collectionName || (typeof PNC_ONCHAIN_SCAN_CONFIG !== 'undefined' && PNC_ONCHAIN_SCAN_CONFIG.collectionName) || 'PNC On-chain').trim();
+    let c = (collections || []).find(x => String(x.name || '').toLowerCase() === name.toLowerCase());
+    if(!c && pnc2170PrevEnsureOnchainCollection) c = pnc2170PrevEnsureOnchainCollection(collectionName, image);
+    if(!c){ c = {id:'ONCHAIN-COL-' + name.toLowerCase().replace(/[^a-z0-9]+/g,'-'), name, creator:'On-chain Creator', icon:'🏪', image:image||null, bannerImage:null, description:'Auto-created from on-chain NFT metadata.', verified:false, volume:'0 Pi', verification:'Sepolia On-chain'}; collections.unshift(c); }
+    if(!c.image && image) c.image = image;
+    if(!c.bannerImage && image) c.bannerImage = image;
+    c.verification = c.verification || 'Sepolia On-chain';
+    return c;
+  };
+}catch(e){ console.warn('PNC v2.16.10 onchain collection override failed', e); }
+
+try{
+  document.title = (document.title || 'Pi Network NFT Center').replace(/v2\.16\.[0-9]+/g, 'v2.16.10');
+  const fb = document.querySelector('.footer-bottom');
+  if(fb) fb.innerHTML = fb.innerHTML.replace(/Version 2\.16\.[0-9]+/g, 'Version 2.16.10');
+  renderAll();
+}catch(e){}
+console.log('PNC v2.16.10 Stable Fix loaded');
+// === /v2.16.10 ===
 </script>
 
 </body>
