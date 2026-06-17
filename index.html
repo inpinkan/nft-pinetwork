@@ -6497,5 +6497,39 @@ try{
 console.log('PNC v2.16.7 duplicate on-chain NFT display filter loaded');
 </script>
 
+
+
+<script>
+// === v2.16.8 Home New NFTs duplicate on-chain filter ===
+// v2.16.7 fixed Collection detail via public/collection wrappers.
+// Home "New NFTs" still rendered directly from vaultNfts, so apply the same duplicate filter there too.
+const PNC2168_HOME_NEW_NFTS_FILTER_VERSION = '2.16.8';
+
+function pnc2168PublicNewNFTs(){
+  const list = (vaultNfts || []).filter(n => n && n.status !== 'Draft' && !(typeof pncIsHiddenOnchain === 'function' && pncIsHiddenOnchain(n)) && !(typeof pncIsLocalOffchainNFT === 'function' && pncIsLocalOffchainNFT(n)));
+  if(typeof pnc2167DedupOnchainDuplicates === 'function') return pnc2167DedupOnchainDuplicates(list);
+  return list;
+}
+
+function pnc2168RenderHomeNewNFTs(){
+  const newBox = document.getElementById('newNfts');
+  if(!newBox) return;
+  newBox.innerHTML = pnc2168PublicNewNFTs().slice(0,8).map(n => nftCard(n)).join('') || `<div class="panel">No public NFTs yet.</div>`;
+}
+
+try{
+  const pnc2168BaseRenderNFTs = renderNFTs;
+  renderNFTs = function(){
+    const r = pnc2168BaseRenderNFTs.apply(this, arguments);
+    pnc2168RenderHomeNewNFTs();
+    return r;
+  };
+}catch(e){ console.warn('PNC v2.16.8 renderNFTs wrapper failed', e); }
+
+try{ setTimeout(()=>{ pnc2168RenderHomeNewNFTs(); }, 1000); }catch(e){}
+console.log('PNC v2.16.8 Home New NFTs duplicate filter loaded');
+// === /v2.16.8 ===
+</script>
+
 </body>
 </html>
