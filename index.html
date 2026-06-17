@@ -6531,5 +6531,76 @@ console.log('PNC v2.16.8 Home New NFTs duplicate filter loaded');
 // === /v2.16.8 ===
 </script>
 
+
+
+<script>
+// === v2.16.9 DDREAM public visibility fix ===
+// Fix: sold / transferred on-chain NFTs must still be visible in public Collection pages.
+// v2.14.5 public combiner removed sold NFTs completely, which made DDREAM Genesis show
+// 1 item when disconnected and 2 items after wallet cloud state loaded.
+// Rule: public marketplace should hide active listing after sale, but should NOT hide the NFT itself.
+const PNC2169_PUBLIC_SOLD_VISIBILITY_VERSION = '2.16.9';
+
+function pnc2169PublicCombinedNFTsKeepSold(){
+  const map = new Map();
+  const add = (n) => {
+    if(!n || n.status === 'Draft') return;
+    if(typeof pncIsHiddenOnchain === 'function' && pncIsHiddenOnchain(n)) return;
+    if(typeof pncIsLocalOffchainNFT === 'function' && pncIsLocalOffchainNFT(n)) return;
+
+    const x = (typeof pnc215ApplySold === 'function')
+      ? pnc215ApplySold(typeof pnc215Clone === 'function' ? pnc215Clone(n) : JSON.parse(JSON.stringify(n)))
+      : (typeof pnc215Clone === 'function' ? pnc215Clone(n) : Object.assign({}, n));
+
+    // Do NOT drop sold NFTs here. Keep them public, just no longer Listed.
+    const k = (typeof pnc215Key === 'function' ? pnc215Key(x) : '') || x.pncId || x.id || x.name || Math.random().toString(36);
+    if(k && !map.has(k)) map.set(k, x);
+  };
+
+  (window.pncPublicListings || pncPublicListings || []).forEach(add);
+  (window.vaultNfts || vaultNfts || []).forEach(add);
+
+  let arr = Array.from(map.values());
+  if(typeof pnc2167DedupOnchainDuplicates === 'function') arr = pnc2167DedupOnchainDuplicates(arr);
+  return arr;
+}
+
+try{
+  pncPublicCombinedNFTs = pnc2169PublicCombinedNFTsKeepSold;
+  pncPublicNFTs = function(){ return pncPublicCombinedNFTs(); };
+  pncListedNFTs = function(){ return pncPublicCombinedNFTs().filter(n => {
+    if(typeof pnc215IsListed === 'function') return pnc215IsListed(n);
+    return String(n.status || n.saleStatus || '').toLowerCase() === 'listed';
+  }); };
+  hotNfts = function(){ return pncListedNFTs(); };
+
+  const pnc2169BaseGetCollectionNFTsById = getCollectionNFTsById;
+  getCollectionNFTsById = function(collectionId, onlyPublic=false){
+    if(!onlyPublic) return pnc2169BaseGetCollectionNFTsById.apply(this, arguments);
+    const c = (typeof collectionById === 'function' ? collectionById(collectionId) : null) || (collections || []).find(x => x.id === collectionId || x.name === collectionId);
+    const src = pncPublicCombinedNFTs();
+    return src.filter(n => {
+      const m = c ? ((n.collectionId && n.collectionId === c.id) || n.collection === c.name) : n.collectionId === collectionId;
+      return m && n.status !== 'Draft';
+    });
+  };
+
+  const pnc2169BaseRenderNFTs = renderNFTs;
+  renderNFTs = function(){
+    const r = pnc2169BaseRenderNFTs.apply(this, arguments);
+    try{
+      const newBox = document.getElementById('newNfts');
+      if(newBox) newBox.innerHTML = pncPublicCombinedNFTs().filter(n=>n.status!=='Draft').slice(0,8).map(n=>nftCard(n)).join('') || `<div class="panel">No public NFTs yet.</div>`;
+    }catch(e){}
+    return r;
+  };
+
+  setTimeout(()=>{ try{ renderAll(); }catch(e){} }, 800);
+}catch(e){ console.warn('PNC v2.16.9 public sold visibility fix failed', e); }
+
+console.log('PNC v2.16.9 DDREAM public visibility fix loaded');
+// === /v2.16.9 ===
+</script>
+
 </body>
 </html>
