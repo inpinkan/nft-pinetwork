@@ -6413,5 +6413,89 @@ console.log('PNC v2.16.6 Advanced Tools UI hidden loaded');
 // === /v2.16.6 ===
 </script>
 
+
+<script>
+// === v2.16.7 Duplicate On-chain NFT display filter ===
+// Purpose: when the same owner minted the exact same tokenURI more than once,
+// keep the latest tokenId visible and hide older duplicates in PNC UI.
+// This does NOT burn or alter the blockchain.
+const PNC2167_DUPLICATE_FILTER_VERSION = '2.16.7';
+
+function pnc2167IsOnchainCandidate(n){
+  if(!n) return false;
+  const pncId = String(n.pncId || n.id || '');
+  const chain = String(n.chainStatus || n.transferNetwork || '');
+  return !!(n.contractAddress || n.chainTokenId || pncId.includes('PNC-ONCHAIN') || chain.toLowerCase().includes('on-chain'));
+}
+
+function pnc2167TokenNum(n){
+  const v = String(n && (n.chainTokenId || n.tokenId || n.pncId || '') || '');
+  const m = v.match(/(\d+)(?!.*\d)/);
+  return m ? Number(m[1]) : 0;
+}
+
+function pnc2167DuplicateKey(n){
+  if(!pnc2167IsOnchainCandidate(n)) return '';
+  const owner = String(n.currentOwner || n.owner || n.creatorWallet || '').toLowerCase().trim();
+  const uri = String(n.metadataUri || n.tokenUri || n.tokenURI || '').toLowerCase().trim();
+  const contract = String(n.contractAddress || '').toLowerCase().trim();
+  if(!owner || !uri) return '';
+  return [contract, owner, uri].join('|');
+}
+
+function pnc2167DedupOnchainDuplicates(list){
+  const arr = Array.isArray(list) ? list : [];
+  const keep = new Map();
+
+  arr.forEach((n, idx) => {
+    const key = pnc2167DuplicateKey(n);
+    if(!key){
+      keep.set('raw:' + idx, n);
+      return;
+    }
+    const prev = keep.get(key);
+    if(!prev || pnc2167TokenNum(n) >= pnc2167TokenNum(prev)){
+      keep.set(key, n);
+    }
+  });
+
+  return Array.from(keep.values());
+}
+
+try{
+  const pnc2167BasePublicNFTs = pncPublicNFTs;
+  pncPublicNFTs = function(){
+    return pnc2167DedupOnchainDuplicates(pnc2167BasePublicNFTs.apply(this, arguments));
+  };
+}catch(e){ console.warn('PNC v2.16.7 publicNFTs wrapper failed', e); }
+
+try{
+  const pnc2167BaseListedNFTs = pncListedNFTs;
+  pncListedNFTs = function(){
+    return pnc2167DedupOnchainDuplicates(pnc2167BaseListedNFTs.apply(this, arguments));
+  };
+}catch(e){ console.warn('PNC v2.16.7 listedNFTs wrapper failed', e); }
+
+try{
+  const pnc2167BaseHotNfts = hotNfts;
+  hotNfts = function(){
+    return pnc2167DedupOnchainDuplicates(pnc2167BaseHotNfts.apply(this, arguments));
+  };
+}catch(e){ console.warn('PNC v2.16.7 hotNfts wrapper failed', e); }
+
+try{
+  const pnc2167BaseGetCollectionNFTsById = getCollectionNFTsById;
+  getCollectionNFTsById = function(){
+    return pnc2167DedupOnchainDuplicates(pnc2167BaseGetCollectionNFTsById.apply(this, arguments));
+  };
+}catch(e){ console.warn('PNC v2.16.7 collection wrapper failed', e); }
+
+try{
+  setTimeout(()=>{ renderAll(); }, 800);
+}catch(e){}
+
+console.log('PNC v2.16.7 duplicate on-chain NFT display filter loaded');
+</script>
+
 </body>
 </html>
