@@ -6604,152 +6604,322 @@ console.log('PNC v2.16.9 DDREAM public visibility fix loaded');
 
 
 <script>
-// === v2.16.12 DDREAM Genesis shop exact item fix ===
-// Target:
-// - DDREAM Genesis      = PNCNFT #1 + DDREAM Genesis #1
-// - DDREAM Genesis shop = DDREAM genesis no.1 only
-// Do not move DDREAM Genesis #1 into DDREAM Genesis shop.
+// === v2.16.10 DDREAM Legacy public seed force include ===
+// Fix:
+// - DDREAM Genesis has two correct public cards:
+//   000001 = current tradeable ERC721 display
+//   000002 = old Sepolia legacy/display-only Genesis seed
+// - v2.16.9 public combiner still filtered local/legacy-like NFTs through pncIsLocalOffchainNFT(),
+//   so disconnected visitors could see only 000001.
+// Rule:
+// - Keep local off-chain NFTs hidden from public.
+// - But always allow the official PNC_ONCHAIN_GENESIS legacy seed in public Collection/Home.
+// - Legacy seed remains Display Only, not List/Buy tradeable.
 
-const PNC21612_SHOP_FIX_VERSION = '2.16.12';
-const PNC21612_SHOP_NAME = 'DDREAM Genesis shop';
-const PNC21612_SHOP_ID = 'COL-DDREAM-GENESIS-SHOP';
-const PNC21612_SHOP_ITEM_ID = 'PNC-ONCHAIN-000003';
+const PNC21610_DDREAM_LEGACY_PUBLIC_VERSION = '2.16.10';
 
-function pnc21612FindShopItem(){
+function pnc21610GenesisSeedNFT(){
   try{
-    const arr = window.vaultNfts || vaultNfts || [];
-    return arr.find(n => n && (
-      String(n.pncId || '') === PNC21612_SHOP_ITEM_ID ||
-      String(n.name || '').toLowerCase() === 'ddream genesis no.1' ||
-      (String(n.collection || '').toLowerCase() === PNC21612_SHOP_NAME.toLowerCase()
-        && String(n.name || '').toLowerCase().includes('ddream genesis no.1'))
-    ));
-  }catch(e){ return null; }
-}
-
-function pnc21612ShopCollectionSeed(){
-  let image = null;
-  try{
-    const item = pnc21612FindShopItem();
-    image = item && item.image ? item.image : null;
+    if(typeof PNC_ONCHAIN_GENESIS !== 'undefined' && PNC_ONCHAIN_GENESIS && PNC_ONCHAIN_GENESIS.nft){
+      return PNC_ONCHAIN_GENESIS.nft;
+    }
   }catch(e){}
-  return {
-    id: PNC21612_SHOP_ID,
-    name: PNC21612_SHOP_NAME,
-    creator: 'Pi NFT Center',
-    icon: '🏪',
-    image: image,
-    description: 'PNC first shop / collection display.',
-    verified: true,
-    volume: '0 Pi',
-    verification: 'Sepolia Legacy'
-  };
+  return null;
 }
 
-function pnc21612NormalizeShopItem(n){
-  if(!n) return n;
-  const isTarget = (
-    String(n.pncId || '') === PNC21612_SHOP_ITEM_ID ||
-    String(n.name || '').toLowerCase() === 'ddream genesis no.1' ||
-    (String(n.collection || '').toLowerCase() === PNC21612_SHOP_NAME.toLowerCase()
-      && String(n.name || '').toLowerCase().includes('ddream genesis no.1'))
-  );
-  if(!isTarget) return n;
+function pnc21610IsGenesisSeed(n){
+  const g = pnc21610GenesisSeedNFT();
+  if(!n || !g) return false;
+  const np = String(n.pncId || n.id || '').trim();
+  const gp = String(g.pncId || g.id || '').trim();
+  const nc = String(n.contractAddress || '').trim().toLowerCase();
+  const gc = String(g.contractAddress || '').trim().toLowerCase();
+  const nt = String(n.chainTokenId || n.tokenId || '').trim();
+  const gt = String(g.chainTokenId || g.tokenId || '').trim();
+  return (!!np && np === gp) || (!!nc && nc === gc && !!nt && nt === gt);
+}
 
-  n.pncId = PNC21612_SHOP_ITEM_ID;
-  n.name = 'DDREAM genesis no.1';
-  n.collection = PNC21612_SHOP_NAME;
-  n.collectionId = PNC21612_SHOP_ID;
-  n.status = 'Legacy / Display Only';
-  n.saleStatus = 'Legacy / Display Only';
-  n.price = 'Not Set';
-  n.chainStatus = 'Sepolia Legacy';
-  n.ownershipStatus = 'Legacy Display';
-  n.marketplaceTradeable = false;
+function pnc21610EnsureGenesisInVault(){
+  try{
+    if(typeof ensureOnchainGenesisSeed === 'function') ensureOnchainGenesisSeed();
+  }catch(e){}
+  const g = pnc21610GenesisSeedNFT();
+  if(!g) return;
+  try{
+    if(!Array.isArray(vaultNfts)) vaultNfts = [];
+    const i = vaultNfts.findIndex(n => pnc21610IsGenesisSeed(n));
+    if(i >= 0){
+      vaultNfts[i] = Object.assign({}, vaultNfts[i], g);
+    }else{
+      vaultNfts.unshift(Object.assign({}, g));
+    }
+    if(typeof pnc2161MarkLegacy === 'function'){
+      for(const n of vaultNfts) if(pnc21610IsGenesisSeed(n)) pnc2161MarkLegacy(n);
+    }
+  }catch(e){ console.warn('PNC v2.16.10 ensure legacy seed failed', e); }
+}
+
+function pnc21610PublicCombinedNFTs(){
+  pnc21610EnsureGenesisInVault();
+
+  const map = new Map();
+  const add = (n) => {
+    if(!n || n.status === 'Draft') return;
+    if(typeof pncIsHiddenOnchain === 'function' && pncIsHiddenOnchain(n)) return;
+
+    const isGenesis = pnc21610IsGenesisSeed(n);
+
+    // Keep normal local/off-chain drafts hidden, but allow the official DDREAM legacy seed.
+    if(!isGenesis && typeof pncIsLocalOffchainNFT === 'function' && pncIsLocalOffchainNFT(n)) return;
+
+    const base = (typeof pnc215Clone === 'function') ? pnc215Clone(n) : JSON.parse(JSON.stringify(n));
+    const x = (typeof pnc215ApplySold === 'function' && !isGenesis) ? pnc215ApplySold(base) : base;
+
+    if(isGenesis && typeof pnc2161MarkLegacy === 'function') pnc2161MarkLegacy(x);
+
+    let k = '';
+    try{ if(typeof pnc215Key === 'function') k = pnc215Key(x); }catch(e){}
+    if(!k) k = x.pncId || x.id || ((x.contractAddress||'') + ':' + (x.chainTokenId||x.tokenId||'')) || x.name || Math.random().toString(36);
+
+    if(k && !map.has(k)) map.set(k, x);
+  };
+
+  try{ (window.pncPublicListings || pncPublicListings || []).forEach(add); }catch(e){}
+  try{ (window.vaultNfts || vaultNfts || []).forEach(add); }catch(e){}
+
+  // Hard guarantee: official DDREAM legacy seed is public even when wallet/cloud/local state is empty.
+  const g = pnc21610GenesisSeedNFT();
+  if(g) add(g);
+
+  let arr = Array.from(map.values());
+  try{ if(typeof pnc2167DedupOnchainDuplicates === 'function') arr = pnc2167DedupOnchainDuplicates(arr); }catch(e){}
+  return arr;
+}
+
+try{
+  pncPublicCombinedNFTs = pnc21610PublicCombinedNFTs;
+  pncPublicNFTs = function(){ return pnc21610PublicCombinedNFTs(); };
+  pncListedNFTs = function(){ return pnc21610PublicCombinedNFTs().filter(n => {
+    if(pnc21610IsGenesisSeed(n)) return false;
+    if(typeof pnc215IsListed === 'function') return pnc215IsListed(n);
+    return String(n.status || n.saleStatus || '').toLowerCase() === 'listed';
+  }); };
+  hotNfts = function(){ return pncListedNFTs(); };
+
+  const pnc21610BaseGetCollectionNFTsById = getCollectionNFTsById;
+  getCollectionNFTsById = function(collectionId, onlyPublic=false){
+    if(!onlyPublic) return pnc21610BaseGetCollectionNFTsById.apply(this, arguments);
+
+    const c = (typeof collectionById === 'function' ? collectionById(collectionId) : null)
+      || (collections || []).find(x => x.id === collectionId || x.name === collectionId);
+
+    const src = pnc21610PublicCombinedNFTs();
+    return src.filter(n => {
+      const match = c
+        ? ((n.collectionId && n.collectionId === c.id) || n.collection === c.name)
+        : (n.collectionId === collectionId || n.collection === collectionId);
+      return match && n.status !== 'Draft';
+    });
+  };
+
+  const pnc21610BaseRenderNFTs = renderNFTs;
+  renderNFTs = function(){
+    const r = pnc21610BaseRenderNFTs.apply(this, arguments);
+    try{
+      const newBox = document.getElementById('newNfts');
+      if(newBox) newBox.innerHTML = pnc21610PublicCombinedNFTs()
+        .filter(n=>n.status!=='Draft')
+        .slice(0,8)
+        .map(n=>nftCard(n))
+        .join('') || `<div class="panel">No public NFTs yet.</div>`;
+    }catch(e){}
+    return r;
+  };
+
+  pnc21610EnsureGenesisInVault();
+  setTimeout(()=>{ try{ pnc21610EnsureGenesisInVault(); renderAll(); }catch(e){} }, 300);
+  setTimeout(()=>{ try{ pnc21610EnsureGenesisInVault(); renderAll(); }catch(e){} }, 1400);
+}catch(e){ console.warn('PNC v2.16.10 DDREAM legacy public force include failed', e); }
+
+console.log('PNC v2.16.10 DDREAM legacy public seed force include loaded');
+// === /v2.16.10 ===
+</script>
+
+
+<script>
+// === v2.16.11 DDREAM Genesis shop public visibility fix ===
+// DDREAM Genesis and DDREAM Genesis shop are different collections.
+// The shop's first legacy/display NFT was visible on Home, but Collection detail could be empty because
+// public collection rendering uses pncPublicCombinedNFTs(), which can exclude local/legacy display cards.
+const PNC21611_DDREAM_SHOP_FIX_VERSION = '2.16.11';
+const PNC21611_SHOP_NAME = 'DDREAM Genesis shop';
+const PNC21611_SHOP_ID = 'ONCHAIN-COL-ddream-genesis-shop';
+const PNC21611_SHOP_LEGACY_INTERNAL_ID = 'PNC-LEGACY-DDREAM-SHOP-000003';
+const PNC21611_SHOP_LEGACY_DISPLAY_ID = 'PNC-ONCHAIN-000003';
+
+function pnc21611Lc(v){ return String(v || '').trim().toLowerCase(); }
+function pnc21611IsShopName(v){
+  const k = pnc21611Lc(v);
+  return k === 'ddream genesis shop' || k === 'ddream genesis ahop';
+}
+function pnc21611IsDdreamShopLegacy(n){
+  if(!n) return false;
+  return pnc21611IsShopName(n.collection) ||
+    pnc21611IsShopName(n.shopName) ||
+    pnc21611Lc(n.pncId) === pnc21611Lc(PNC21611_SHOP_LEGACY_INTERNAL_ID) ||
+    (pnc21611Lc(n.pncId) === pnc21611Lc(PNC21611_SHOP_LEGACY_DISPLAY_ID) && pnc21611Lc(n.chainStatus).includes('legacy') && pnc21611Lc(n.name).includes('ddream')) ||
+    (pnc21611Lc(n.name).includes('ddream genesis') && pnc21611Lc(n.status || n.saleStatus || '').includes('legacy'));
+}
+function pnc21611EnsureDdreamShopCollection(){
+  let c = (collections || []).find(x => pnc21611IsShopName(x.name) || String(x.id||'') === PNC21611_SHOP_ID);
+  if(!c){
+    c = {id:PNC21611_SHOP_ID, name:PNC21611_SHOP_NAME, creator:'Pi NFT Center', icon:'🏪', image:null, description:'PNC first shop / display collection.', verified:true, volume:'0 Pi', verification:'Sepolia Legacy'};
+    collections.unshift(c);
+  }
+  c.id = c.id || PNC21611_SHOP_ID;
+  c.name = PNC21611_SHOP_NAME;
+  c.creator = c.creator || 'Pi NFT Center';
+  c.icon = c.icon || '🏪';
+  c.verified = true;
+  c.verification = c.verification || 'Sepolia Legacy';
+  return c;
+}
+function pnc21611NormalizeShopNFT(n){
+  if(!n) return n;
+  const c = pnc21611EnsureDdreamShopCollection();
+  if(!n.pncId || pnc21611Lc(n.pncId) === pnc21611Lc(PNC21611_SHOP_LEGACY_DISPLAY_ID)){
+    // Keep internal key unique so it does not collide with current ERC721 token #3 / Cyber Tabby.
+    n.pncId = PNC21611_SHOP_LEGACY_INTERNAL_ID;
+  }
+  n.displayPncId = n.displayPncId || PNC21611_SHOP_LEGACY_DISPLAY_ID;
+  n.collection = PNC21611_SHOP_NAME;
+  n.collectionId = c.id;
+  n.name = n.name || 'DDREAM genesis no.1';
+  n.creator = n.creator || 'Pi NFT Center';
+  n.creatorWallet = n.creatorWallet || n.owner || n.currentOwner || '0x4a45Cd6Aa78C7AB51b0d9ba0e36E035A47a0BC1b';
+  n.owner = n.owner || n.currentOwner || '0x4a45Cd6Aa78C7AB51b0d9ba0e36E035A47a0BC1b';
+  n.currentOwner = n.currentOwner || n.owner || '0x4a45Cd6Aa78C7AB51b0d9ba0e36E035A47a0BC1b';
+  n.price = n.price || 'Not Set';
+  n.status = n.status || 'Legacy / Display Only';
+  n.saleStatus = n.saleStatus || 'Legacy / Display Only';
+  n.ownershipStatus = n.ownershipStatus || 'Legacy Display';
   n.verified = true;
+  n.chainStatus = n.chainStatus || 'Sepolia Legacy';
+  n.transferNetwork = n.transferNetwork || 'Sepolia Testnet';
+  n.chainTokenId = n.chainTokenId || '3';
+  n.contractAddress = n.contractAddress || '0xeD5789fd878BC72138a015b7929407ced04Cc687';
+  n.createdAt = n.createdAt || 'On-chain synced';
+  n.description = n.description || 'Legacy display NFT for DDREAM Genesis shop.';
+  if(!n.image){
+    const g = (typeof PNC_ONCHAIN_GENESIS !== 'undefined' && PNC_ONCHAIN_GENESIS.nft) ? PNC_ONCHAIN_GENESIS.nft : null;
+    n.image = g && g.image ? g.image : '';
+  }
   return n;
 }
-
-function pnc21612IsWrongGenesisInShop(n){
-  if(!n) return false;
-  const name = String(n.name || '').toLowerCase();
-  const col = String(n.collection || '').toLowerCase();
-  return col === PNC21612_SHOP_NAME.toLowerCase() && name === 'ddream genesis #1';
+function pnc21611EnsureDdreamShopLegacyNFT(){
+  const c = pnc21611EnsureDdreamShopCollection();
+  let n = (vaultNfts || []).find(x => pnc21611IsDdreamShopLegacy(x));
+  if(!n){
+    n = {
+      pncId: PNC21611_SHOP_LEGACY_INTERNAL_ID,
+      displayPncId: PNC21611_SHOP_LEGACY_DISPLAY_ID,
+      name:'DDREAM genesis no.1',
+      collection:PNC21611_SHOP_NAME,
+      collectionId:c.id,
+      icon:'🏆',
+      image:(typeof PNC_ONCHAIN_GENESIS !== 'undefined' && PNC_ONCHAIN_GENESIS.nft && PNC_ONCHAIN_GENESIS.nft.image) ? PNC_ONCHAIN_GENESIS.nft.image : '',
+      price:'Not Set',
+      status:'Legacy / Display Only',
+      saleStatus:'Legacy / Display Only',
+      ownershipStatus:'Legacy Display',
+      verified:true,
+      creator:'Pi NFT Center',
+      creatorWallet:'0x4a45Cd6Aa78C7AB51b0d9ba0e36E035A47a0BC1b',
+      owner:'0x4a45Cd6Aa78C7AB51b0d9ba0e36E035A47a0BC1b',
+      currentOwner:'0x4a45Cd6Aa78C7AB51b0d9ba0e36E035A47a0BC1b',
+      chainStatus:'Sepolia Legacy',
+      transferNetwork:'Sepolia Testnet',
+      chainTokenId:'3',
+      contractAddress:'0xeD5789fd878BC72138a015b7929407ced04Cc687',
+      description:'Legacy display NFT for DDREAM Genesis shop.',
+      createdAt:'On-chain synced'
+    };
+    vaultNfts.unshift(n);
+  }
+  return pnc21611NormalizeShopNFT(n);
 }
-
-function pnc21612Apply(){
-  try{
-    const cSeed = pnc21612ShopCollectionSeed();
-
-    let ci = (collections || []).findIndex(c =>
-      c && (String(c.id || '') === PNC21612_SHOP_ID ||
-        String(c.name || '').toLowerCase() === PNC21612_SHOP_NAME.toLowerCase())
-    );
-    if(ci >= 0){
-      collections[ci] = Object.assign({}, collections[ci], cSeed);
-    }else{
-      collections.unshift(cSeed);
-    }
-
-    (vaultNfts || []).forEach(n => pnc21612NormalizeShopItem(n));
-
-    // Safety: if the previous v2.16.11 accidentally moved DDREAM Genesis #1 into shop,
-    // put it back into DDREAM Genesis.
-    (vaultNfts || []).forEach(n => {
-      if(pnc21612IsWrongGenesisInShop(n)){
-        n.collection = 'DDREAM Genesis';
-        n.collectionId = 'COL-ONCHAIN-DDREAM';
-      }
-    });
-  }catch(e){ console.warn('PNC v2.16.12 apply failed', e); }
+function pnc21611ShopKey(n){
+  if(!n) return '';
+  return pnc21611IsDdreamShopLegacy(n) ? PNC21611_SHOP_LEGACY_INTERNAL_ID : (n.pncId || n.id || (n.contractAddress + ':' + n.chainTokenId));
+}
+function pnc21611AddShopLegacy(list){
+  const arr = Array.isArray(list) ? list.slice() : [];
+  const n = pnc21611EnsureDdreamShopLegacyNFT();
+  if(!arr.some(x => pnc21611ShopKey(x) === PNC21611_SHOP_LEGACY_INTERNAL_ID)) arr.push(n);
+  return arr;
 }
 
 try{
-  const pnc21612BaseGetCollectionNFTsById = getCollectionNFTsById;
-  getCollectionNFTsById = function(collectionId, onlyPublic=false){
-    pnc21612Apply();
-
-    const c = (typeof collectionById === 'function' ? collectionById(collectionId) : null) ||
-      (collections || []).find(x => x && (x.id === collectionId || x.name === collectionId));
-
-    if(c && String(c.name || '').toLowerCase() === PNC21612_SHOP_NAME.toLowerCase()){
-      const src = (typeof pncPublicCombinedNFTs === 'function' ? pncPublicCombinedNFTs() : (vaultNfts || []));
-      return src
-        .map(n => pnc21612NormalizeShopItem(Object.assign({}, n)))
-        .filter(n => n && String(n.pncId || '') === PNC21612_SHOP_ITEM_ID && n.status !== 'Draft');
-    }
-
-    return pnc21612BaseGetCollectionNFTsById.apply(this, arguments);
+  const pnc21611BaseNormalizeCollectionLinks = normalizeCollectionLinks;
+  normalizeCollectionLinks = function(){
+    const r = pnc21611BaseNormalizeCollectionLinks.apply(this, arguments);
+    try{
+      const c = pnc21611EnsureDdreamShopCollection();
+      (vaultNfts || []).forEach(n => { if(pnc21611IsDdreamShopLegacy(n)) pnc21611NormalizeShopNFT(n); });
+    }catch(e){}
+    return r;
   };
-}catch(e){ console.warn('PNC v2.16.12 getCollectionNFTsById override failed', e); }
+}catch(e){ console.warn('PNC v2.16.11 normalize wrapper failed', e); }
 
 try{
-  const pnc21612BasePublicCombined = pncPublicCombinedNFTs;
+  const pnc21611BasePublicCombinedNFTs = pncPublicCombinedNFTs;
   pncPublicCombinedNFTs = function(){
-    pnc21612Apply();
-    let arr = pnc21612BasePublicCombined.apply(this, arguments) || [];
-    arr = arr.map(n => pnc21612NormalizeShopItem(n)).filter(n => !pnc21612IsWrongGenesisInShop(n));
-    return arr;
+    let arr = pnc21611BasePublicCombinedNFTs.apply(this, arguments) || [];
+    return pnc21611AddShopLegacy(arr);
   };
   pncPublicNFTs = function(){ return pncPublicCombinedNFTs(); };
-}catch(e){ console.warn('PNC v2.16.12 public override failed', e); }
+}catch(e){ console.warn('PNC v2.16.11 public combined wrapper failed', e); }
 
 try{
-  const pnc21612BaseRenderAll = renderAll;
-  renderAll = function(){
-    pnc21612Apply();
-    return pnc21612BaseRenderAll.apply(this, arguments);
+  const pnc21611BaseGetCollectionNFTsById = getCollectionNFTsById;
+  getCollectionNFTsById = function(collectionId, onlyPublic=false){
+    let arr = pnc21611BaseGetCollectionNFTsById.apply(this, arguments) || [];
+    const c = (typeof collectionById === 'function' ? collectionById(collectionId) : null) || (collections || []).find(x => x.id === collectionId || x.name === collectionId);
+    if(c && pnc21611IsShopName(c.name)){
+      arr = pnc21611AddShopLegacy(arr).filter(n => pnc21611IsDdreamShopLegacy(n));
+    }
+    return arr;
   };
-}catch(e){ console.warn('PNC v2.16.12 render override failed', e); }
+}catch(e){ console.warn('PNC v2.16.11 collection wrapper failed', e); }
 
 try{
-  pnc21612Apply();
-  setTimeout(()=>{ try{ pnc21612Apply(); renderAll(); }catch(e){} }, 500);
-  setTimeout(()=>{ try{ pnc21612Apply(); renderAll(); }catch(e){} }, 1500);
-}catch(e){}
+  const pnc21611BaseNftCard = nftCard;
+  nftCard = function(n){
+    if(pnc21611IsDdreamShopLegacy(n)) pnc21611NormalizeShopNFT(n);
+    let html = pnc21611BaseNftCard.apply(this, arguments);
+    if(n && n.displayPncId) html = String(html).replace(String(n.pncId), String(n.displayPncId));
+    return html;
+  };
+}catch(e){ console.warn('PNC v2.16.11 nftCard wrapper failed', e); }
 
-console.log('PNC v2.16.12 DDREAM Genesis shop exact item fix loaded');
-// === /v2.16.12 ===
+try{
+  const pnc21611BaseShowDetailById = showDetailById;
+  showDetailById = function(id){
+    if(String(id||'') === PNC21611_SHOP_LEGACY_DISPLAY_ID || String(id||'') === PNC21611_SHOP_LEGACY_INTERNAL_ID){
+      const n = pnc21611EnsureDdreamShopLegacyNFT();
+      return pnc21611BaseShowDetailById.call(this, n.pncId);
+    }
+    return pnc21611BaseShowDetailById.apply(this, arguments);
+  };
+}catch(e){ console.warn('PNC v2.16.11 detail wrapper failed', e); }
+
+try{
+  pnc21611EnsureDdreamShopLegacyNFT();
+  setTimeout(()=>{ try{ renderAll(); }catch(e){} }, 500);
+}catch(e){ console.warn('PNC v2.16.11 init failed', e); }
+
+console.log('PNC v2.16.11 DDREAM Genesis shop public visibility fix loaded');
+// === /v2.16.11 ===
 </script>
 
 </body>
