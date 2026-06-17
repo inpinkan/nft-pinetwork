@@ -6604,152 +6604,124 @@ console.log('PNC v2.16.9 DDREAM public visibility fix loaded');
 
 
 <script>
-// === v2.16.12 DDREAM Genesis shop exact item fix ===
-// Target:
-// - DDREAM Genesis      = PNCNFT #1 + DDREAM Genesis #1
-// - DDREAM Genesis shop = DDREAM genesis no.1 only
-// Do not move DDREAM Genesis #1 into DDREAM Genesis shop.
+// === v2.16.13 Safe restore + DDREAM Genesis shop exact public item ===
+// Built from clean v2.16.9 base. This patch intentionally does NOT rename existing collections,
+// does NOT touch The Corner Cat Shop, and does NOT move DDREAM Genesis #1.
 
-const PNC21612_SHOP_FIX_VERSION = '2.16.12';
-const PNC21612_SHOP_NAME = 'DDREAM Genesis shop';
-const PNC21612_SHOP_ID = 'COL-DDREAM-GENESIS-SHOP';
-const PNC21612_SHOP_ITEM_ID = 'PNC-ONCHAIN-000003';
+const PNC21613_VERSION = '2.16.13';
+const PNC21613_SHOP_NAME = 'DDREAM Genesis shop';
+const PNC21613_SHOP_ID = 'COL-DDREAM-GENESIS-SHOP';
 
-function pnc21612FindShopItem(){
-  try{
-    const arr = window.vaultNfts || vaultNfts || [];
-    return arr.find(n => n && (
-      String(n.pncId || '') === PNC21612_SHOP_ITEM_ID ||
-      String(n.name || '').toLowerCase() === 'ddream genesis no.1' ||
-      (String(n.collection || '').toLowerCase() === PNC21612_SHOP_NAME.toLowerCase()
-        && String(n.name || '').toLowerCase().includes('ddream genesis no.1'))
-    ));
-  }catch(e){ return null; }
+function pnc21613Text(v){
+  return String(v || '').trim();
 }
-
-function pnc21612ShopCollectionSeed(){
-  let image = null;
-  try{
-    const item = pnc21612FindShopItem();
-    image = item && item.image ? item.image : null;
-  }catch(e){}
-  return {
-    id: PNC21612_SHOP_ID,
-    name: PNC21612_SHOP_NAME,
-    creator: 'Pi NFT Center',
-    icon: '🏪',
-    image: image,
-    description: 'PNC first shop / collection display.',
-    verified: true,
-    volume: '0 Pi',
-    verification: 'Sepolia Legacy'
-  };
+function pnc21613Lower(v){
+  return pnc21613Text(v).toLowerCase();
 }
-
-function pnc21612NormalizeShopItem(n){
-  if(!n) return n;
-  const isTarget = (
-    String(n.pncId || '') === PNC21612_SHOP_ITEM_ID ||
-    String(n.name || '').toLowerCase() === 'ddream genesis no.1' ||
-    (String(n.collection || '').toLowerCase() === PNC21612_SHOP_NAME.toLowerCase()
-      && String(n.name || '').toLowerCase().includes('ddream genesis no.1'))
-  );
-  if(!isTarget) return n;
-
-  n.pncId = PNC21612_SHOP_ITEM_ID;
-  n.name = 'DDREAM genesis no.1';
-  n.collection = PNC21612_SHOP_NAME;
-  n.collectionId = PNC21612_SHOP_ID;
-  n.status = 'Legacy / Display Only';
-  n.saleStatus = 'Legacy / Display Only';
-  n.price = 'Not Set';
-  n.chainStatus = 'Sepolia Legacy';
-  n.ownershipStatus = 'Legacy Display';
-  n.marketplaceTradeable = false;
-  n.verified = true;
-  return n;
+function pnc21613IsDDreamGenesisShopCollection(c){
+  return !!c && pnc21613Lower(c.name) === pnc21613Lower(PNC21613_SHOP_NAME);
 }
-
-function pnc21612IsWrongGenesisInShop(n){
+function pnc21613IsDDreamGenesisShopItem(n){
   if(!n) return false;
-  const name = String(n.name || '').toLowerCase();
-  const col = String(n.collection || '').toLowerCase();
-  return col === PNC21612_SHOP_NAME.toLowerCase() && name === 'ddream genesis #1';
+  const name = pnc21613Lower(n.name);
+  const col = pnc21613Lower(n.collection);
+  // Exact intended item only.
+  // Do not include "DDREAM Genesis #1" and do not include The Corner Cat tokenId #3.
+  return col === pnc21613Lower(PNC21613_SHOP_NAME)
+    && (name === 'ddream genesis no.1' || name === 'ddream genesis no. 1' || name.includes('ddream genesis no.1'));
 }
+function pnc21613NormalizeDDreamGenesisShopItem(n){
+  if(!n || !pnc21613IsDDreamGenesisShopItem(n)) return n;
+  const x = (typeof pncClone === 'function') ? pncClone(n) : Object.assign({}, n);
+  x.collection = PNC21613_SHOP_NAME;
+  x.collectionId = PNC21613_SHOP_ID;
+  x.name = x.name || 'DDREAM genesis no.1';
+  x.status = x.status || 'Legacy / Display Only';
+  x.saleStatus = x.saleStatus || x.status;
+  x.chainStatus = x.chainStatus || 'Sepolia Legacy';
+  x.price = x.price || 'Not Set';
+  x.verified = true;
+  x.marketplaceTradeable = false;
+  return x;
+}
+function pnc21613ShopItemsSource(){
+  const combined = (typeof pncPublicCombinedNFTs === 'function') ? pncPublicCombinedNFTs() : [];
+  const raw = [];
+  try{ raw.push(...combined); }catch(e){}
+  try{ raw.push(...(vaultNfts || [])); }catch(e){}
+  try{ raw.push(...(pncPublicListings || [])); }catch(e){}
 
-function pnc21612Apply(){
+  const map = new Map();
+  raw.forEach(n => {
+    if(!pnc21613IsDDreamGenesisShopItem(n)) return;
+    const x = pnc21613NormalizeDDreamGenesisShopItem(n);
+    const key = String(x.metadataUri || x.image || x.name || Math.random());
+    if(!map.has(key)) map.set(key, x);
+  });
+  return Array.from(map.values());
+}
+function pnc21613EnsureShopCollection(){
   try{
-    const cSeed = pnc21612ShopCollectionSeed();
-
-    let ci = (collections || []).findIndex(c =>
-      c && (String(c.id || '') === PNC21612_SHOP_ID ||
-        String(c.name || '').toLowerCase() === PNC21612_SHOP_NAME.toLowerCase())
-    );
-    if(ci >= 0){
-      collections[ci] = Object.assign({}, collections[ci], cSeed);
-    }else{
-      collections.unshift(cSeed);
-    }
-
-    (vaultNfts || []).forEach(n => pnc21612NormalizeShopItem(n));
-
-    // Safety: if the previous v2.16.11 accidentally moved DDREAM Genesis #1 into shop,
-    // put it back into DDREAM Genesis.
-    (vaultNfts || []).forEach(n => {
-      if(pnc21612IsWrongGenesisInShop(n)){
-        n.collection = 'DDREAM Genesis';
-        n.collectionId = 'COL-ONCHAIN-DDREAM';
-      }
+    const exists = (collections || []).some(pnc21613IsDDreamGenesisShopCollection);
+    if(exists) return;
+    const item = pnc21613ShopItemsSource()[0] || {};
+    collections.push({
+      id: PNC21613_SHOP_ID,
+      name: PNC21613_SHOP_NAME,
+      creator: 'Pi NFT Center',
+      icon: '🏪',
+      image: item.image || '',
+      description: 'DDREAM Genesis shop collection.',
+      verified: true,
+      volume: '0 Pi',
+      verification: 'Sepolia Legacy'
     });
-  }catch(e){ console.warn('PNC v2.16.12 apply failed', e); }
+  }catch(e){ console.warn('PNC v2.16.13 ensure shop collection failed', e); }
 }
 
 try{
-  const pnc21612BaseGetCollectionNFTsById = getCollectionNFTsById;
+  const pnc21613BaseGetCollectionNFTsById = getCollectionNFTsById;
   getCollectionNFTsById = function(collectionId, onlyPublic=false){
-    pnc21612Apply();
+    pnc21613EnsureShopCollection();
+    const c = (typeof collectionById === 'function' ? collectionById(collectionId) : null)
+      || (collections || []).find(x => x && (x.id === collectionId || x.name === collectionId));
 
-    const c = (typeof collectionById === 'function' ? collectionById(collectionId) : null) ||
-      (collections || []).find(x => x && (x.id === collectionId || x.name === collectionId));
-
-    if(c && String(c.name || '').toLowerCase() === PNC21612_SHOP_NAME.toLowerCase()){
-      const src = (typeof pncPublicCombinedNFTs === 'function' ? pncPublicCombinedNFTs() : (vaultNfts || []));
-      return src
-        .map(n => pnc21612NormalizeShopItem(Object.assign({}, n)))
-        .filter(n => n && String(n.pncId || '') === PNC21612_SHOP_ITEM_ID && n.status !== 'Draft');
+    if(pnc21613IsDDreamGenesisShopCollection(c) || pnc21613Lower(collectionId) === pnc21613Lower(PNC21613_SHOP_NAME)){
+      return pnc21613ShopItemsSource().filter(n => n && n.status !== 'Draft');
     }
 
-    return pnc21612BaseGetCollectionNFTsById.apply(this, arguments);
+    return pnc21613BaseGetCollectionNFTsById.apply(this, arguments);
   };
-}catch(e){ console.warn('PNC v2.16.12 getCollectionNFTsById override failed', e); }
+}catch(e){ console.warn('PNC v2.16.13 getCollectionNFTsById wrapper failed', e); }
 
 try{
-  const pnc21612BasePublicCombined = pncPublicCombinedNFTs;
+  const pnc21613BaseGetCollectionNFTs = getCollectionNFTs;
+  getCollectionNFTs = function(name, onlyPublic=false){
+    pnc21613EnsureShopCollection();
+    if(pnc21613Lower(name) === pnc21613Lower(PNC21613_SHOP_NAME)){
+      return pnc21613ShopItemsSource().filter(n => n && n.status !== 'Draft');
+    }
+    return pnc21613BaseGetCollectionNFTs.apply(this, arguments);
+  };
+}catch(e){ console.warn('PNC v2.16.13 getCollectionNFTs wrapper failed', e); }
+
+try{
+  const pnc21613BasePublicCombinedNFTs = pncPublicCombinedNFTs;
   pncPublicCombinedNFTs = function(){
-    pnc21612Apply();
-    let arr = pnc21612BasePublicCombined.apply(this, arguments) || [];
-    arr = arr.map(n => pnc21612NormalizeShopItem(n)).filter(n => !pnc21612IsWrongGenesisInShop(n));
-    return arr;
+    const arr = pnc21613BasePublicCombinedNFTs.apply(this, arguments) || [];
+    // Only normalize the intended DDREAM Genesis shop item. Do not alter other collections.
+    return arr.map(n => pnc21613NormalizeDDreamGenesisShopItem(n));
   };
   pncPublicNFTs = function(){ return pncPublicCombinedNFTs(); };
-}catch(e){ console.warn('PNC v2.16.12 public override failed', e); }
+}catch(e){ console.warn('PNC v2.16.13 public combined wrapper failed', e); }
 
 try{
-  const pnc21612BaseRenderAll = renderAll;
-  renderAll = function(){
-    pnc21612Apply();
-    return pnc21612BaseRenderAll.apply(this, arguments);
-  };
-}catch(e){ console.warn('PNC v2.16.12 render override failed', e); }
-
-try{
-  pnc21612Apply();
-  setTimeout(()=>{ try{ pnc21612Apply(); renderAll(); }catch(e){} }, 500);
-  setTimeout(()=>{ try{ pnc21612Apply(); renderAll(); }catch(e){} }, 1500);
+  pnc21613EnsureShopCollection();
+  setTimeout(()=>{ try{ pnc21613EnsureShopCollection(); renderAll(); }catch(e){} }, 600);
 }catch(e){}
 
-console.log('PNC v2.16.12 DDREAM Genesis shop exact item fix loaded');
-// === /v2.16.12 ===
+console.log('PNC v2.16.13 safe DDREAM Genesis shop exact public item loaded');
+// === /v2.16.13 ===
 </script>
 
 </body>
