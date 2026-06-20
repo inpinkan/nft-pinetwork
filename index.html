@@ -8669,3 +8669,123 @@ console.log('PNC v2.16.28 Buy Core Fix loaded. List/Unlist preserved from v2.16.
 
 </body>
 </html>
+<script>
+// === v2.16.29 Buy Owner Authority Guard ===
+// Purpose: preserve stable v2.16.27 List/Unlist, and fix Buy display sync.
+// Root cause: old local display overrides could overwrite owner/currentOwner after ownerOf() confirmed the buyer.
+const PNC21629_VERSION = '2.16.29';
+
+function pnc21629SanitizeOnchainPatch(patch){
+  patch = Object.assign({}, patch || {});
+  [
+    'owner','currentOwner','ownerAuthority','ownerAuthorityVersion','ownerAuthorityReason','ownerSyncedAt',
+    'status','saleStatus','price','marketListingId','listingId','sellerWallet','listingAuthority','marketplaceAddress',
+    'ownershipStatus','purchasedAt','soldAt','buyerWallet','pncMarketEdited'
+  ].forEach(function(k){ try{ delete patch[k]; }catch(e){} });
+  return patch;
+}
+function pnc21629CleanOverrideStoreFor(n){
+  try{
+    if(typeof PNC_ONCHAIN_OVERRIDES_KEY === 'undefined') return;
+    var key = (typeof pncOnchainKey === 'function') ? pncOnchainKey(n) : '';
+    if(!key) return;
+    var ov = (typeof pncLoadJson === 'function') ? pncLoadJson(PNC_ONCHAIN_OVERRIDES_KEY,{}) : JSON.parse(localStorage.getItem(PNC_ONCHAIN_OVERRIDES_KEY)||'{}');
+    if(ov && ov[key]){
+      ov[key] = pnc21629SanitizeOnchainPatch(ov[key]);
+      if(typeof pncSaveJson === 'function') pncSaveJson(PNC_ONCHAIN_OVERRIDES_KEY, ov);
+      else localStorage.setItem(PNC_ONCHAIN_OVERRIDES_KEY, JSON.stringify(ov));
+    }
+  }catch(e){ console.warn('PNC v2.16.29 override cleanup failed', e); }
+}
+
+// Replace on-chain display override so it can never change real owner/listing/price.
+try{
+  window.pncApplyOnchainOverride = pncApplyOnchainOverride = function(n){
+    if(!n || (typeof pncIsOnchainNFT === 'function' && !pncIsOnchainNFT(n))) return n;
+    try{
+      var ov = (typeof pncLoadJson === 'function') ? pncLoadJson(PNC_ONCHAIN_OVERRIDES_KEY,{}) : JSON.parse(localStorage.getItem(PNC_ONCHAIN_OVERRIDES_KEY)||'{}');
+      var k = (typeof pncOnchainKey === 'function') ? pncOnchainKey(n) : '';
+      if(k && ov && ov[k]) Object.assign(n, pnc21629SanitizeOnchainPatch(ov[k]), {pncDisplayEdited:true});
+    }catch(e){}
+    return n;
+  };
+}catch(e){ console.warn('PNC v2.16.29 pncApplyOnchainOverride override failed', e); }
+
+async function pnc21629BuyOnchainById(id){
+  var n = await pnc21628FindFreshNFT(id);
+  if(!n) return alert('NFT not found.');
+  if(!(typeof pnc21625IsChainNFT === 'function' ? pnc21625IsChainNFT(n) : (typeof pnc2151IsChainNFT === 'function' && pnc2151IsChainNFT(n)))){
+    return alert('This NFT is not an on-chain NFT. Real Buy is enabled for Sepolia on-chain NFTs only.');
+  }
+  pnc21629CleanOverrideStoreFor(n);
+  var buyer = await pnc21628Viewer();
+  if(!buyer){ alert('Please connect the buyer wallet first.'); return true; }
+
+  pnc21628Status('Reading current Marketplace listing...', true);
+  var info;
+  try{ info = await pnc2151GetListing(n); }
+  catch(e){ pnc21628ClearStatus(); alert('Could not read current Marketplace listing.\n\n'+pnc21628Err(e)); return true; }
+  if(!info || !info.listingId || !info.listing || !info.listing.active){
+    try{ if(typeof pnc21625ApplyListingEverywhere === 'function') pnc21625ApplyListingEverywhere(n, null); if(typeof renderAll === 'function') renderAll(); }catch(e){}
+    pnc21628ClearStatus(); alert('This NFT is not listed on-chain anymore.'); return true;
+  }
+  var seller = String(info.listing.seller || '').trim();
+  if(pnc21628Lc(seller) === pnc21628Lc(buyer)){ pnc21628ClearStatus(); alert('Seller cannot buy their own listing.'); return true; }
+  var liveOwner = '';
+  try{ liveOwner = await pnc21625OwnerOf(n); }catch(e){ console.warn('ownerOf before buy failed', e); }
+  if(liveOwner && pnc21628Lc(liveOwner) !== pnc21628Lc(seller)){
+    try{ if(typeof pnc21625ApplyOwnerEverywhere === 'function') pnc21625ApplyOwnerEverywhere(n, liveOwner, 'before-buy-owner-mismatch-'+PNC21629_VERSION); if(typeof pnc21625ApplyListingEverywhere === 'function') pnc21625ApplyListingEverywhere(n, null); if(typeof renderAll === 'function') renderAll(); }catch(e){}
+    pnc21628ClearStatus(); alert('This listing is stale. Seller is no longer owner.\n\nownerOf(tokenId): '+liveOwner+'\nListing seller: '+seller); return true;
+  }
+  var priceEth = (typeof pnc2151WeiToEth === 'function') ? pnc2151WeiToEth(info.listing.priceWei) : String(info.listing.priceWei);
+  var ok = confirm('PNC REAL ON-CHAIN BUY '+PNC21629_VERSION+'\n\n'+(n.name || 'NFT')+'\nListing ID: '+String(info.listingId)+'\nSeller: '+pnc21628Short(seller)+'\nBuyer: '+pnc21628Short(buyer)+'\nPrice: '+priceEth+' SepoliaETH\n\nRule: ownerOf controls the owner after Buy. Display overrides cannot change owner/listing.\n\nContinue?');
+  if(!ok){ pnc21628ClearStatus(); return true; }
+
+  pnc21628Status('Re-checking listing before MetaMask...', true);
+  try{ info = await pnc2151GetListing(n); }
+  catch(e){ pnc21628ClearStatus(); alert('Could not re-check Marketplace listing.\n\n'+pnc21628Err(e)); return true; }
+  if(!info || !info.listingId || !info.listing || !info.listing.active){ pnc21628ClearStatus(); alert('This NFT is no longer listed.'); return true; }
+  if(pnc21628Lc(info.listing.seller) === pnc21628Lc(buyer)){ pnc21628ClearStatus(); alert('Seller cannot buy their own listing.'); return true; }
+
+  var tx = '';
+  try{
+    pnc21628Status('Waiting for MetaMask Buy transaction...<br>Listing ID: '+String(info.listingId)+'<br>Value: '+pnc2151WeiToEth(info.listing.priceWei)+' SepoliaETH', true);
+    tx = await pnc2151Send(PNC_MARKETPLACE_ADDRESS, pnc2151DataBuy(info.listingId), pnc21628HexValue(info.listing.priceWei));
+    pnc21628Status('Buy submitted.<br>Tx: <a target="_blank" style="color:#f5b041" href="'+pnc21628ExplorerTx(tx)+'">'+tx+'</a><br>Waiting for confirmation...', true);
+  }catch(e){ pnc21628ClearStatus(); alert('Buy was NOT submitted.\n\nReason:\n'+pnc21628Err(e)); return true; }
+
+  try{ await pnc21625WaitReceipt(tx, 'Buy'); }
+  catch(e){ alert('Buy was submitted, but confirmation was not detected yet.\n\nBuy Tx:\n'+tx+'\n\nCheck Etherscan. PNC will sync once confirmed.'); return true; }
+
+  var newOwner = '';
+  try{ newOwner = await pnc21625OwnerOf(n); }catch(e){ console.warn('ownerOf after buy failed', e); }
+  if(!newOwner) newOwner = buyer;
+
+  // Authority update: ownerOf and Marketplace listing are canonical. Do not let old local/KV display overrides revert them.
+  pnc21629CleanOverrideStoreFor(n);
+  try{ if(typeof pnc21625ApplyOwnerEverywhere === 'function') pnc21625ApplyOwnerEverywhere(n, newOwner, 'after-buy-'+PNC21629_VERSION); }catch(e){}
+  try{ if(typeof pnc21625ApplyListingEverywhere === 'function') pnc21625ApplyListingEverywhere(n, null); }catch(e){}
+  try{ if(typeof pnc21625SyncOne === 'function') await pnc21625SyncOne(n, 'after-buy-sync-'+PNC21629_VERSION); }catch(e){ console.warn('sync one after buy failed', e); }
+  pnc21629CleanOverrideStoreFor(n);
+  try{ if(typeof pnc21625ApplyOwnerEverywhere === 'function') pnc21625ApplyOwnerEverywhere(n, newOwner, 'after-buy-final-'+PNC21629_VERSION); }catch(e){}
+  try{ if(typeof pnc21625ApplyListingEverywhere === 'function') pnc21625ApplyListingEverywhere(n, null); }catch(e){}
+
+  try{ if(typeof saveState === 'function') saveState(); }catch(e){}
+  try{ if(typeof saveWalletState === 'function') await saveWalletState().catch(function(){}); }catch(e){}
+  try{ if(typeof renderAll === 'function') renderAll(); if(typeof showPage === 'function') showPage('vaultPage'); }catch(e){}
+  pnc21628Status('Buy confirmed. ownerOf: '+pnc21628Short(newOwner), false);
+  alert('Buy confirmed on-chain.\n\nBuy Tx:\n'+tx+'\nownerOf(tokenId): '+pnc21628Short(newOwner)+'\nListing removed.\n\nPNC owner display is locked to ownerOf.');
+  return true;
+}
+try{ window.pncBuyNowV2144 = window.buyNFT = buyNFT = async function(id){ return await pnc21629BuyOnchainById(id); }; }catch(e){ console.warn('PNC v2.16.29 buy override failed', e); }
+
+var PNC21629_FOOTER = 'Pi Network NFT Center (Beta) — Version 2.16.29<br>Built for the Pi Ecosystem / Marketplace Core / Getgems-style NFT Detail / On-chain Sepolia Mint / Wallet Sync / Public Listing Sync / Real Ownership Transfer / Marketplace Contract Connected / Core State Refactor / Reliable Resume Listing Fix / Cleanup & Core Stabilize / Buy Owner Authority Guard';
+function pnc21629NormalizeFooter(){ try{ document.querySelectorAll('.footer-bottom').forEach(function(el){ el.innerHTML = PNC21629_FOOTER; }); }catch(e){} }
+try{
+  var pnc21629BaseRenderAll = typeof renderAll === 'function' ? renderAll : null;
+  if(pnc21629BaseRenderAll){ renderAll = function(){ var r = pnc21629BaseRenderAll.apply(this, arguments); pnc21629NormalizeFooter(); return r; }; }
+  pnc21629NormalizeFooter(); setTimeout(pnc21629NormalizeFooter, 1000);
+}catch(e){}
+console.log('PNC v2.16.29 Buy Owner Authority Guard loaded. List/Unlist preserved.');
+// === /v2.16.29 ===
+</script>
