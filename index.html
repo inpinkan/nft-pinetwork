@@ -8789,3 +8789,112 @@ try{
 console.log('PNC v2.16.29 Buy Owner Authority Guard loaded. List/Unlist preserved.');
 // === /v2.16.29 ===
 </script>
+
+<script>
+// === v2.16.30 Global OwnerOf Render Authority ===
+// Preserve stable v2.16.27 List/Unlist and v2.16.28 Buy tx flow.
+// Fix: after Buy, every render/page load re-reads ERC721 ownerOf(tokenId) and Marketplace listing.
+const PNC21630_VERSION = '2.16.30';
+var pnc21630SyncRunning = false;
+var pnc21630LastSyncAt = 0;
+var pnc21630RenderLock = false;
+
+function pnc21630Lc(x){ return String(x||'').trim().toLowerCase(); }
+function pnc21630Short(a){ try{return typeof shortAddress==='function'?shortAddress(a):(String(a).slice(0,6)+'...'+String(a).slice(-4));}catch(e){return String(a||'');} }
+function pnc21630IsChain(n){ try{return typeof pnc21625IsChainNFT==='function'?pnc21625IsChainNFT(n):(typeof pnc2151IsChainNFT==='function'&&pnc2151IsChainNFT(n));}catch(e){return false;} }
+function pnc21630Token(n){ try{return typeof pnc21625TokenId==='function'?String(pnc21625TokenId(n)||''):String(n.chainTokenId||n.tokenId||'');}catch(e){return String(n&& (n.chainTokenId||n.tokenId) || '');} }
+function pnc21630Contract(n){ try{return typeof pnc21625Contract==='function'?String(pnc21625Contract(n)||''):String(n.contractAddress||n.nftContract||'');}catch(e){return String(n&& (n.contractAddress||n.nftContract) || '');} }
+function pnc21630Key(n){ return pnc21630Lc(pnc21630Contract(n))+':'+pnc21630Token(n); }
+function pnc21630Same(a,b){
+  if(!a||!b) return false;
+  var ka=pnc21630Key(a), kb=pnc21630Key(b);
+  if(ka && kb && ka!==':' && kb!==':' && ka===kb) return true;
+  return String(a.pncId||'') && String(a.pncId||'')===String(b.pncId||'');
+}
+function pnc21630Lists(){
+  var out=[];
+  try{ if(Array.isArray(vaultNfts)) out.push(vaultNfts); }catch(e){}
+  try{ if(Array.isArray(window.vaultNfts) && out.indexOf(window.vaultNfts)<0) out.push(window.vaultNfts); }catch(e){}
+  try{ if(Array.isArray(pncPublicListings)) out.push(pncPublicListings); }catch(e){}
+  try{ if(Array.isArray(window.pncPublicListings) && out.indexOf(window.pncPublicListings)<0) out.push(window.pncPublicListings); }catch(e){}
+  return out;
+}
+function pnc21630AllChainNFTs(){
+  var seen={}, arr=[];
+  pnc21630Lists().forEach(function(list){
+    list.forEach(function(n){
+      if(!n || !pnc21630IsChain(n)) return;
+      var k=pnc21630Key(n) || String(n.pncId||'');
+      if(!k || seen[k]) return;
+      seen[k]=true; arr.push(n);
+    });
+  });
+  return arr;
+}
+function pnc21630ApplyEverywhere(target, owner, listingInfo, reason){
+  pnc21630Lists().forEach(function(list){
+    list.forEach(function(item){
+      if(!pnc21630Same(item,target)) return;
+      if(owner){
+        item.owner = owner;
+        item.currentOwner = owner;
+        item.ownerAuthority = 'ownerOf';
+        item.ownerAuthorityVersion = PNC21630_VERSION;
+        item.ownerAuthorityReason = reason || 'global-ownerOf-sync';
+        item.ownerSyncedAt = new Date().toISOString();
+      }
+      try{ if(typeof pnc21625ApplyListing==='function') pnc21625ApplyListing(item, listingInfo); }catch(e){}
+    });
+  });
+}
+function pnc21630Footer(){
+  try{
+    var text='Pi Network NFT Center (Beta) — Version 2.16.30<br>Built for the Pi Ecosystem / Marketplace Core / Getgems-style NFT Detail / On-chain Sepolia Mint / Wallet Sync / Public Listing Sync / Real Ownership Transfer / Marketplace Contract Connected / Core State Refactor / Reliable Resume Listing Fix / Cleanup & Core Stabilize / Buy Core Fix / Global OwnerOf Render Authority';
+    document.querySelectorAll('.footer-bottom').forEach(function(el){ el.innerHTML=text; });
+  }catch(e){}
+}
+async function pnc21630SyncAllOwnerOf(reason, force){
+  var now=Date.now();
+  if(pnc21630SyncRunning) return;
+  if(!force && now-pnc21630LastSyncAt<3500) return;
+  pnc21630SyncRunning=true; pnc21630LastSyncAt=now;
+  var changed=false;
+  try{
+    var arr=pnc21630AllChainNFTs();
+    for(var i=0;i<arr.length;i++){
+      var n=arr[i], owner='', info=null;
+      try{ owner = await pnc21625OwnerOf(n); }catch(e){ console.warn('PNC v2.16.30 ownerOf failed', pnc21630Key(n), e); }
+      try{ if(typeof pnc2151GetListing==='function') info = await pnc2151GetListing(n); }catch(e){ info=null; }
+      if(owner){ pnc21630ApplyEverywhere(n, owner, info, reason||'global-ownerOf-sync'); changed=true; }
+    }
+    if(changed){
+      try{ if(typeof saveState==='function') saveState(); }catch(e){}
+      try{ if(typeof saveWalletState==='function') await saveWalletState().catch(function(){}); }catch(e){}
+      if(!pnc21630RenderLock && typeof renderAll==='function'){
+        pnc21630RenderLock=true;
+        try{ renderAll(); }catch(e){}
+        pnc21630RenderLock=false;
+      }
+    }
+  }finally{ pnc21630SyncRunning=false; pnc21630Footer(); }
+}
+
+try{
+  var pnc21630BaseRenderAll = typeof renderAll==='function' ? renderAll : null;
+  if(pnc21630BaseRenderAll){
+    renderAll = function(){
+      var r = pnc21630BaseRenderAll.apply(this, arguments);
+      pnc21630Footer();
+      if(!pnc21630RenderLock) setTimeout(function(){ pnc21630SyncAllOwnerOf('after-render-'+PNC21630_VERSION, false); }, 250);
+      return r;
+    };
+  }
+}catch(e){ console.warn('PNC v2.16.30 render hook failed', e); }
+try{
+  pnc21630Footer();
+  setTimeout(function(){ pnc21630SyncAllOwnerOf('boot-'+PNC21630_VERSION, true); }, 500);
+  setTimeout(function(){ pnc21630SyncAllOwnerOf('boot-late-'+PNC21630_VERSION, true); }, 3000);
+}catch(e){}
+console.log('PNC v2.16.30 Global OwnerOf Render Authority loaded. List/Unlist untouched.');
+// === /v2.16.30 ===
+</script>
