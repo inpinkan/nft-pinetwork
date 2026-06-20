@@ -8259,6 +8259,236 @@ setTimeout(function(){ pnc21625SyncAll('startup-late').then(function(){ try{ ren
 
 console.log('PNC v2.16.25 Marketplace Core State Refactor loaded. Rule: Owner=ownerOf, Listing=Marketplace, Viewer=connectedWallet.');
 // === /v2.16.25 ===
+
+
+// === v2.16.26 Reliable Resume Listing Fix ===
+// Purpose:
+// - Stop Approve-only failures from leaving NFTs stuck.
+// - Listing is now resumable: if Token approval already exists, skip approve and execute createListing.
+// - No address-specific rules. Owner = ownerOf(tokenId), Listing = Marketplace, Viewer = connected wallet.
+var PNC21626_VERSION = '2.16.26';
+var PNC21626_LABEL = 'Reliable Resume Listing Fix';
+
+function pnc21626Lc(v){ return String(v || '').trim().toLowerCase(); }
+function pnc21626Err(e){ return (e && (e.message || (e.data && e.data.message))) || String(e || 'Unknown error'); }
+function pnc21626TokenId(n){ return String((n && (n.chainTokenId || n.tokenId)) || '').trim(); }
+function pnc21626Contract(n){ return String((n && n.contractAddress) || (typeof PNC_ONCHAIN_SCAN_CONFIG !== 'undefined' ? PNC_ONCHAIN_SCAN_CONFIG.contractAddress : '') || '').trim(); }
+function pnc21626PendingKey(n, owner){ return 'PNC_PENDING_LIST:'+pnc21626Lc(pnc21626Contract(n))+':'+pnc21626TokenId(n)+':'+pnc21626Lc(owner); }
+function pnc21626HexUint(v){ return BigInt(v || 0).toString(16).padStart(64,'0'); }
+function pnc21626HexAddress(a){ return String(a || '').replace(/^0x/i,'').toLowerCase().padStart(64,'0'); }
+function pnc21626DataGetApproved(tokenId){ return '0x081812fc' + pnc21626HexUint(tokenId); }
+function pnc21626DataIsApprovedForAll(owner, operator){ return '0xe985e9c5' + pnc21626HexAddress(owner) + pnc21626HexAddress(operator); }
+function pnc21626DecodeAddress(ret){ return '0x' + String(ret || '').replace(/^0x/i,'').padStart(64,'0').slice(-40); }
+function pnc21626DecodeBool(ret){ try{ return BigInt(ret || '0x0') !== 0n; }catch(e){ return false; } }
+function pnc21626ExplorerTx(tx){ return 'https://sepolia.etherscan.io/tx/' + tx; }
+
+function pnc21626Status(msg, keep){
+  try{
+    var box = document.getElementById('pnc21626ListStatus');
+    if(!box){
+      box = document.createElement('div');
+      box.id = 'pnc21626ListStatus';
+      box.style.cssText = 'position:fixed;left:12px;right:12px;bottom:14px;z-index:99999;background:rgba(17,16,23,.96);color:#f5b041;border:1px solid rgba(245,176,65,.55);border-radius:14px;padding:12px 14px;font-size:13px;line-height:1.45;box-shadow:0 8px 24px rgba(0,0,0,.35);word-break:break-word;';
+      document.body.appendChild(box);
+    }
+    box.innerHTML = '<strong>PNC Listing '+PNC21626_VERSION+'</strong><br>'+String(msg || 'Working...');
+    if(!keep){ setTimeout(function(){ try{ var el=document.getElementById('pnc21626ListStatus'); if(el) el.remove(); }catch(e){} }, 9000); }
+  }catch(e){ console.log('PNC Listing '+PNC21626_VERSION, msg); }
+}
+
+async function pnc21626ReadApproved(nftContract, tokenId){
+  var raw = await pnc21625RpcCall(nftContract, pnc21626DataGetApproved(tokenId));
+  return pnc21626DecodeAddress(raw);
+}
+async function pnc21626ReadApprovalForAll(nftContract, owner){
+  var raw = await pnc21625RpcCall(nftContract, pnc21626DataIsApprovedForAll(owner, PNC_MARKETPLACE_ADDRESS));
+  return pnc21626DecodeBool(raw);
+}
+async function pnc21626IsMarketplaceApproved(nftContract, tokenId, owner){
+  var approved = '';
+  var allApproved = false;
+  try{ approved = await pnc21626ReadApproved(nftContract, tokenId); }catch(e){ console.warn('getApproved failed', e); }
+  try{ allApproved = await pnc21626ReadApprovalForAll(nftContract, owner); }catch(e){ console.warn('isApprovedForAll failed', e); }
+  return {
+    approvedAddress: approved,
+    isApprovedForAll: allApproved,
+    ok: pnc21626Lc(approved) === pnc21626Lc(PNC_MARKETPLACE_ADDRESS) || !!allApproved
+  };
+}
+
+function pnc21626LoadPending(n, owner){
+  try{ return JSON.parse(localStorage.getItem(pnc21626PendingKey(n, owner)) || 'null'); }catch(e){ return null; }
+}
+function pnc21626SavePending(n, owner, data){
+  try{ localStorage.setItem(pnc21626PendingKey(n, owner), JSON.stringify(Object.assign({savedAt:new Date().toISOString(), version:PNC21626_VERSION}, data || {}))); }catch(e){}
+}
+function pnc21626ClearPending(n, owner){ try{ localStorage.removeItem(pnc21626PendingKey(n, owner)); }catch(e){} }
+
+async function pnc21626ReliableCreateOnchainListing(n, index){
+  if(!(typeof pnc21625IsChainNFT === 'function' ? pnc21625IsChainNFT(n) : pnc2151IsChainNFT(n))) return false;
+
+  var seller = '';
+  try{ seller = (typeof pnc21625Viewer === 'function' ? pnc21625Viewer() : '') || window.pncConnectedAccount || pncConnectedAccount || ''; }catch(e){}
+  try{ if(!seller && typeof refreshMetaMaskAccount === 'function') seller = await refreshMetaMaskAccount(); }catch(e){}
+  if(!seller){ alert('Please connect the seller wallet first.'); return true; }
+
+  var nftContract = pnc21626Contract(n);
+  var tokenId = pnc21626TokenId(n);
+  if(!nftContract || !tokenId){ alert('NFT contract/tokenId missing. Listing stopped.'); return true; }
+
+  var liveOwner = '';
+  try{ liveOwner = await pnc21625OwnerOf(n); }
+  catch(e){ alert('Could not confirm ownerOf(tokenId). Listing stopped.\n\n'+pnc21626Err(e)); return true; }
+
+  if(pnc21626Lc(liveOwner) !== pnc21626Lc(seller)){
+    alert('This connected wallet is not the on-chain owner.\n\nownerOf(tokenId): '+liveOwner+'\nConnected: '+seller);
+    return true;
+  }
+  try{ pnc21625ApplyOwnerEverywhere(n, liveOwner, 'before-list-'+PNC21626_VERSION); }catch(e){}
+
+  // If already listed, trust Marketplace and sync UI.
+  try{
+    var already = await pnc2151GetListing(n);
+    if(already && already.listingId && already.listing && already.listing.active){
+      try{ pnc21625ApplyListingEverywhere(n, already); renderAll(); }catch(e){}
+      alert('This NFT is already listed on-chain.\n\nListing ID: '+already.listingId+'\nPrice: '+pnc2151WeiToEth(already.listing.priceWei)+' SepoliaETH');
+      return true;
+    }
+  }catch(e){ console.warn('PNC v2.16.26 pre-list read failed', e); }
+
+  var pending = pnc21626LoadPending(n, seller);
+  var priceEth = pending && pending.priceEth ? String(pending.priceEth) : '';
+  var resumeMsg = '';
+  var approval = {ok:false};
+  try{ approval = await pnc21626IsMarketplaceApproved(nftContract, tokenId, seller); }catch(e){ console.warn('approval read failed', e); }
+
+  if(pending && approval.ok){
+    var usePending = confirm('PNC found a previous Approve for this NFT.\n\nToken #'+tokenId+' is already approved for the Marketplace.\nResume listing and send createListing now?\n\nSaved price: '+priceEth+' SepoliaETH');
+    if(!usePending) pending = null;
+    else resumeMsg = '\n\nResume mode: Approve already exists, so only Create Listing should appear.';
+  }
+
+  if(!pending){
+    var defaultEth = localStorage.getItem('PNC_DEFAULT_SEPOLIA_PRICE_ETH') || '0.0001';
+    priceEth = prompt('On-chain List price in SepoliaETH\n\nPrice changes use Unlist → List.\nExample: 0.0001', defaultEth);
+    if(priceEth === null) return true;
+  }
+
+  var priceWei;
+  try{ priceWei = pnc2151EthToWei(priceEth); }catch(e){ alert('Invalid SepoliaETH price.'); return true; }
+  localStorage.setItem('PNC_DEFAULT_SEPOLIA_PRICE_ETH', String(priceEth));
+
+  var ok = confirm(
+    'PNC RELIABLE LIST '+PNC21626_VERSION+'\n\n'+
+    (n.name||'NFT')+'\nToken ID: '+tokenId+'\nOwner: '+liveOwner+'\nMarketplace: '+PNC_MARKETPLACE_ADDRESS+'\nPrice: '+priceEth+' SepoliaETH\n\n'+
+    'Rule: ownerOf confirms the seller. Marketplace approval is checked before sending.\n\n'+
+    (approval.ok ? 'Current state: already approved. MetaMask should appear ONCE for Create Listing.' : 'Current state: not approved yet. MetaMask should appear TWICE: Approve, then Create Listing.')+
+    resumeMsg+'\n\nContinue?'
+  );
+  if(!ok) return true;
+
+  pnc21626SavePending(n, seller, {stage:'started', nftContract:nftContract, tokenId:tokenId, seller:seller, priceEth:String(priceEth), priceWei:String(priceWei)});
+  pnc21626Status('Checking Marketplace approval...', true);
+
+  // Re-read approval immediately before sending, so refresh/retry is safe.
+  try{ approval = await pnc21626IsMarketplaceApproved(nftContract, tokenId, seller); }catch(e){ approval = {ok:false}; }
+
+  var approveTx = pending && pending.approveTx ? pending.approveTx : '';
+  if(!approval.ok){
+    try{
+      pnc21626Status('Step 1/2: waiting for MetaMask Approve...', true);
+      approveTx = await pnc2151Send(nftContract, pnc2151DataApprove(PNC_MARKETPLACE_ADDRESS, tokenId));
+      pnc21626SavePending(n, seller, {stage:'approve-submitted', nftContract:nftContract, tokenId:tokenId, seller:seller, priceEth:String(priceEth), priceWei:String(priceWei), approveTx:approveTx});
+      pnc21626Status('Approve submitted.<br>Tx: <a target="_blank" style="color:#f5b041" href="'+pnc21626ExplorerTx(approveTx)+'">'+approveTx+'</a><br>Waiting for confirmation. Do not refresh unless the browser is stuck; retry will resume.', true);
+    }catch(e){
+      alert('Approve was not submitted.\n\n'+pnc21626Err(e));
+      return true;
+    }
+
+    try{ await pnc21625WaitReceipt(approveTx, 'Approve'); }
+    catch(e){
+      alert('Approve was submitted, but confirmation was not detected yet.\n\nApprove Tx:\n'+approveTx+'\n\nYou can press List again later; PNC will resume from approval if it confirmed.');
+      return true;
+    }
+
+    try{ approval = await pnc21626IsMarketplaceApproved(nftContract, tokenId, seller); }catch(e){ approval = {ok:false}; }
+    if(!approval.ok){
+      alert('Approve confirmed, but Marketplace approval could not be verified yet.\n\nApprove Tx:\n'+approveTx+'\n\nPlease wait a moment and press List again. PNC will resume safely.');
+      return true;
+    }
+  }
+
+  // At this point approval is confirmed/readable. Now createListing must be sent.
+  var listTx = '';
+  try{
+    pnc21626Status('Step 2/2: Marketplace approved. Waiting for MetaMask Create Listing...', true);
+    listTx = await pnc2151Send(PNC_MARKETPLACE_ADDRESS, pnc2151DataCreateListing(nftContract, tokenId, priceWei));
+    pnc21626SavePending(n, seller, {stage:'listing-submitted', nftContract:nftContract, tokenId:tokenId, seller:seller, priceEth:String(priceEth), priceWei:String(priceWei), approveTx:approveTx, listTx:listTx});
+    pnc21626Status('Create Listing submitted.<br>Tx: <a target="_blank" style="color:#f5b041" href="'+pnc21626ExplorerTx(listTx)+'">'+listTx+'</a><br>Waiting for confirmation...', true);
+  }catch(e){
+    alert('Create Listing was NOT submitted.\n\n'+
+      (approveTx ? 'Approve Tx:\n'+approveTx+'\n\n' : '')+
+      'Reason:\n'+pnc21626Err(e)+'\n\nPress List again. If approval is already confirmed, PNC will skip Approve and send Create Listing only.');
+    return true;
+  }
+
+  try{ await pnc21625WaitReceipt(listTx, 'Create Listing'); }
+  catch(e){
+    alert('Create Listing was submitted, but confirmation was not detected yet.\n\nCreate Listing Tx:\n'+listTx+'\n\nCheck Marketplace Etherscan. PNC will sync once confirmed.');
+    return true;
+  }
+
+  try{
+    var info = await pnc2151GetListing(n);
+    if(!info || !info.listingId || !info.listing || !info.listing.active){
+      throw new Error('Marketplace listing is not active after confirmed tx.');
+    }
+    try{ pnc21625ApplyListingEverywhere(n, info); }catch(e){}
+    try{ await pnc21625SyncOne(n, 'after-list-'+PNC21626_VERSION); }catch(e){}
+    try{ if(typeof saveState === 'function') saveState(); }catch(e){}
+    try{ if(typeof saveWalletState === 'function') await saveWalletState().catch(function(){}); }catch(e){}
+    try{ renderAll(); }catch(e){}
+    pnc21626ClearPending(n, seller);
+    pnc21626Status('Listed successfully. Price: '+pnc2151WeiToEth(info.listing.priceWei)+' SepoliaETH', false);
+    alert('Listed on-chain successfully.\n\nCreate Listing Tx:\n'+listTx+'\nListing ID: '+info.listingId+'\nPrice: '+pnc2151WeiToEth(info.listing.priceWei)+' SepoliaETH');
+  }catch(e){
+    alert('Create Listing confirmed, but PNC could not read the active listing yet.\n\nTx:\n'+listTx+'\n\n'+pnc21626Err(e)+'\n\nPlease refresh once after a short wait.');
+  }
+  return true;
+}
+
+// Override only the List path with the reliable/resumable version. Unlist/Buy keep v2.16.25 common-rule logic.
+try{
+  var pnc21626PreviousSetStatus = typeof setStatus === 'function' ? setStatus : null;
+  setStatus = async function(index, status){
+    var n = (Array.isArray(vaultNfts) ? vaultNfts[index] : null);
+    if(n && (typeof pnc21625IsChainNFT === 'function' ? pnc21625IsChainNFT(n) : pnc2151IsChainNFT(n)) && status === 'Listed'){
+      return await pnc21626ReliableCreateOnchainListing(n, index);
+    }
+    if(pnc21626PreviousSetStatus) return await pnc21626PreviousSetStatus.apply(this, arguments);
+  };
+  pncPromptListNFT = async function(index){ return await setStatus(index, 'Listed'); };
+}catch(e){ console.warn('PNC v2.16.26 List override failed', e); }
+
+try{
+  var pnc21626LegacyRenderAll = typeof renderAll === 'function' ? renderAll : null;
+  if(pnc21626LegacyRenderAll){
+    renderAll = function(){
+      var r = pnc21626LegacyRenderAll.apply(this, arguments);
+      try{
+        document.querySelectorAll('.footer-bottom').forEach(function(el){
+          el.innerHTML = el.innerHTML.replace(/Version\s+2\.16\.\d+/g, 'Version '+PNC21626_VERSION).replace(/Marketplace Core State Refactor/g, 'Marketplace Core State Refactor / Reliable Resume Listing Fix');
+        });
+      }catch(e){}
+      return r;
+    };
+  }
+}catch(e){}
+
+setTimeout(function(){ try{ if(typeof renderAll === 'function') renderAll(); }catch(e){} }, 800);
+console.log('PNC v2.16.26 Reliable Resume Listing Fix loaded. List is resumable after Approve.');
+// === /v2.16.26 ===
+
 </script>
 
 
