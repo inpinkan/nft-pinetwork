@@ -8898,3 +8898,251 @@ try{
 console.log('PNC v2.16.30 Global OwnerOf Render Authority loaded. List/Unlist untouched.');
 // === /v2.16.30 ===
 </script>
+
+<script>
+// === v2.16.31 Blockchain Authority Core ===
+// Principle: Blockchain is the source of truth.
+// - Owner display must come from ERC721 ownerOf(tokenId)
+// - Listed/price display must come from PNCMarketplace listing state
+// - PNC DB/localStorage is metadata/cache only and must not overwrite chain facts.
+const PNC21631_VERSION = '2.16.31';
+const PNC21631_OWNER_CACHE_KEY = 'PNC_CHAIN_AUTHORITY_OWNER_CACHE_V21631';
+var pnc21631Syncing = false;
+var pnc21631LastSync = 0;
+
+function pnc21631Lc(x){ return String(x||'').trim().toLowerCase(); }
+function pnc21631Short(a){ try{return typeof shortAddress==='function'?shortAddress(a):(String(a).slice(0,6)+'...'+String(a).slice(-4));}catch(e){return String(a||'');} }
+function pnc21631Load(k, fb){ try{return JSON.parse(localStorage.getItem(k)||JSON.stringify(fb));}catch(e){return fb;} }
+function pnc21631Save(k, v){ try{localStorage.setItem(k, JSON.stringify(v));}catch(e){} }
+function pnc21631Token(n){
+  var t = String((n && (n.chainTokenId || n.tokenId || n.onchainTokenId || n.erc721TokenId)) || '').trim();
+  if(!t && n && n.pncId){
+    var m = String(n.pncId).match(/(\d+)\s*$/);
+    if(m) t = String(parseInt(m[1],10));
+  }
+  return t;
+}
+function pnc21631Contract(n){
+  return String((n && (n.contractAddress || n.nftContract || n.tokenContract)) || (typeof PNC_ONCHAIN_SCAN_CONFIG!=='undefined' && PNC_ONCHAIN_SCAN_CONFIG.contractAddress) || '').trim();
+}
+function pnc21631IsChain(n){
+  if(!n) return false;
+  try{ if(typeof pnc2151IsChainNFT==='function' && pnc2151IsChainNFT(n)) return true; }catch(e){}
+  try{ if(typeof pnc21625IsChainNFT==='function' && pnc21625IsChainNFT(n)) return true; }catch(e){}
+  return !!(pnc21631Contract(n) && pnc21631Token(n) && String(n.chainStatus||'').toLowerCase().includes('chain'));
+}
+function pnc21631Key(n){
+  var c=pnc21631Lc(pnc21631Contract(n));
+  var t=pnc21631Token(n);
+  if(!c || !t) return '';
+  return c + ':' + t;
+}
+function pnc21631Same(a,b){
+  var ka=pnc21631Key(a), kb=pnc21631Key(b);
+  if(ka && kb) return ka===kb;
+  return !!(a && b && a.pncId && b.pncId && String(a.pncId)===String(b.pncId));
+}
+function pnc21631Lists(){
+  var out=[];
+  try{ if(Array.isArray(vaultNfts)) out.push(vaultNfts); }catch(e){}
+  try{ if(Array.isArray(window.vaultNfts) && out.indexOf(window.vaultNfts)<0) out.push(window.vaultNfts); }catch(e){}
+  try{ if(Array.isArray(pncPublicListings)) out.push(pncPublicListings); }catch(e){}
+  try{ if(Array.isArray(window.pncPublicListings) && out.indexOf(window.pncPublicListings)<0) out.push(window.pncPublicListings); }catch(e){}
+  return out;
+}
+function pnc21631AllNFTs(){
+  var seen={}, arr=[];
+  pnc21631Lists().forEach(function(list){
+    list.forEach(function(n){
+      if(!n || !pnc21631IsChain(n)) return;
+      var k=pnc21631Key(n) || String(n.pncId||'');
+      if(!k || seen[k]) return;
+      seen[k]=true; arr.push(n);
+    });
+  });
+  return arr;
+}
+function pnc21631CleanPatch(patch){
+  patch = Object.assign({}, patch||{});
+  ['owner','currentOwner','ownerAuthority','ownerAuthorityVersion','ownerAuthorityReason','ownerSyncedAt','status','saleStatus','price','marketListingId','listingId','sellerWallet','listingAuthority','ownershipStatus','vaultLocation','buyerWallet','pncSoldPublic'].forEach(function(k){ delete patch[k]; });
+  return patch;
+}
+function pnc21631CleanOverrideStore(){
+  try{
+    if(typeof PNC_ONCHAIN_OVERRIDES_KEY==='undefined') return;
+    var ov = pnc21631Load(PNC_ONCHAIN_OVERRIDES_KEY, {});
+    Object.keys(ov||{}).forEach(function(k){ ov[k]=pnc21631CleanPatch(ov[k]); });
+    pnc21631Save(PNC_ONCHAIN_OVERRIDES_KEY, ov);
+  }catch(e){ console.warn('PNC v2.16.31 override cleanup failed', e); }
+}
+function pnc21631CacheOwner(n, owner){
+  if(!owner) return;
+  var key=pnc21631Key(n); if(!key) return;
+  var cache=pnc21631Load(PNC21631_OWNER_CACHE_KEY, {});
+  cache[key]={owner:owner, at:new Date().toISOString(), version:PNC21631_VERSION};
+  pnc21631Save(PNC21631_OWNER_CACHE_KEY, cache);
+}
+function pnc21631CachedOwner(n){
+  var key=pnc21631Key(n); if(!key) return '';
+  var cache=pnc21631Load(PNC21631_OWNER_CACHE_KEY, {});
+  return cache[key] && cache[key].owner ? String(cache[key].owner) : '';
+}
+function pnc21631Connected(){
+  return String(window.pncConnectedAccount || (typeof pncConnectedAccount!=='undefined'?pncConnectedAccount:'') || localStorage.getItem('PNC_CONNECTED_WALLET') || localStorage.getItem('pnc_connected_wallet_address') || '').trim();
+}
+function pnc21631ApplyChainState(target, owner, listingInfo, reason){
+  var connected=pnc21631Connected();
+  pnc21631Lists().forEach(function(list){
+    list.forEach(function(item){
+      if(!pnc21631Same(item,target)) return;
+      if(owner){
+        item.owner = owner;
+        item.currentOwner = owner;
+        item.ownerAuthority = 'ERC721.ownerOf';
+        item.ownerAuthorityVersion = PNC21631_VERSION;
+        item.ownerAuthorityReason = reason || 'blockchain-authority';
+        item.ownerSyncedAt = new Date().toISOString();
+        item.chainTokenId = item.chainTokenId || pnc21631Token(target);
+        item.contractAddress = item.contractAddress || pnc21631Contract(target);
+        // On-chain vault visibility must follow current connected owner, not old local ownershipStatus.
+        if(connected && pnc21631Lc(owner)===pnc21631Lc(connected)){
+          item.vaultLocation = 'My Vault';
+          if(item.status !== 'Listed') item.ownershipStatus = 'Purchased';
+        }else if(connected && pnc21631Lc(owner)!==pnc21631Lc(connected)){
+          item.vaultLocation = 'External';
+          if(item.status !== 'Listed') item.ownershipStatus = 'External';
+        }
+      }
+      if(listingInfo && listingInfo.listingId && listingInfo.listing && listingInfo.listing.active){
+        try{ if(typeof pnc21625ApplyListing==='function') pnc21625ApplyListing(item, listingInfo); }
+        catch(e){
+          item.status='Listed'; item.saleStatus='Listed'; item.marketListingId=String(listingInfo.listingId); item.listingId=String(listingInfo.listingId); item.sellerWallet=listingInfo.listing.seller;
+          try{ item.price = pnc2151WeiToEth(listingInfo.listing.priceWei)+' SepoliaETH'; }catch(_){ item.price=String(listingInfo.listing.priceWei); }
+        }
+      }else if(listingInfo !== undefined){
+        item.status='Not For Sale'; item.saleStatus='Not For Sale'; item.price='Not Set'; item.marketListingId=''; item.listingId=''; item.sellerWallet=''; item.listingAuthority='marketplace';
+      }
+    });
+  });
+}
+async function pnc21631OwnerOf(n){
+  var contract=pnc21631Contract(n), tokenId=pnc21631Token(n);
+  if(!contract || !tokenId) throw new Error('contract/tokenId missing');
+  if(typeof pnc21625OwnerOf==='function') return await pnc21625OwnerOf(Object.assign({}, n, {contractAddress:contract, chainTokenId:tokenId}));
+  var data='0x6352211e' + BigInt(tokenId).toString(16).padStart(64,'0');
+  var raw = await pnc21625RpcCall(contract, data);
+  return '0x'+String(raw||'').replace(/^0x/,'').slice(-40);
+}
+async function pnc21631Listing(n){
+  try{ if(typeof pnc2151GetListing==='function') return await pnc2151GetListing(Object.assign({}, n, {contractAddress:pnc21631Contract(n), chainTokenId:pnc21631Token(n)})); }catch(e){}
+  return null;
+}
+async function pnc21631SyncAll(reason, force){
+  var now=Date.now();
+  if(pnc21631Syncing) return;
+  if(!force && now-pnc21631LastSync<2500) return;
+  pnc21631Syncing=true; pnc21631LastSync=now;
+  var changed=false;
+  try{
+    pnc21631CleanOverrideStore();
+    var arr=pnc21631AllNFTs();
+    for(var i=0;i<arr.length;i++){
+      var n=arr[i], owner='', listing=null;
+      try{ owner=await pnc21631OwnerOf(n); }catch(e){ console.warn('PNC v2.16.31 ownerOf failed', pnc21631Key(n), e); owner=pnc21631CachedOwner(n); }
+      try{ listing=await pnc21631Listing(n); }catch(e){ listing=null; }
+      if(owner){ pnc21631CacheOwner(n, owner); pnc21631ApplyChainState(n, owner, listing || null, reason||'sync'); changed=true; }
+    }
+    if(changed){
+      try{ if(typeof saveState==='function') saveState(); }catch(e){}
+      try{ if(typeof saveWalletState==='function') await saveWalletState().catch(function(){}); }catch(e){}
+      try{ if(typeof renderAll==='function' && !window.__PNC21631_RENDERING){ window.__PNC21631_RENDERING=true; renderAll(); window.__PNC21631_RENDERING=false; } }catch(e){ window.__PNC21631_RENDERING=false; }
+    }
+  }finally{ pnc21631Syncing=false; pnc21631Footer(); }
+}
+function pnc21631Live(n){
+  if(!n || !pnc21631IsChain(n)) return n;
+  var owner=pnc21631CachedOwner(n);
+  if(owner){ n.owner=owner; n.currentOwner=owner; n.ownerAuthority='ERC721.ownerOf'; n.ownerAuthorityVersion=PNC21631_VERSION; }
+  return n;
+}
+
+// Prevent old display overrides from reintroducing owner/listing/price from local cache.
+try{
+  window.pncApplyOnchainOverride = pncApplyOnchainOverride = function(n){
+    if(!n || (typeof pncIsOnchainNFT==='function' && !pncIsOnchainNFT(n))) return n;
+    try{
+      if(typeof PNC_ONCHAIN_OVERRIDES_KEY!=='undefined'){
+        var ov=pnc21631Load(PNC_ONCHAIN_OVERRIDES_KEY, {});
+        var k=(typeof pncOnchainKey==='function') ? pncOnchainKey(n) : '';
+        if(k && ov && ov[k]) Object.assign(n, pnc21631CleanPatch(ov[k]), {pncDisplayEdited:true});
+      }
+    }catch(e){}
+    return pnc21631Live(n);
+  };
+}catch(e){ console.warn('PNC v2.16.31 override hook failed', e); }
+
+// Force card renderers to use live chain cache before building HTML.
+try{
+  var pnc21631BaseNftCard = typeof nftCard==='function' ? nftCard : null;
+  if(pnc21631BaseNftCard) nftCard = function(n){ return pnc21631BaseNftCard(pnc21631Live(n)); };
+  var pnc21631BaseVaultCard = typeof vaultCard==='function' ? vaultCard : null;
+  if(pnc21631BaseVaultCard) vaultCard = function(n,i){ return pnc21631BaseVaultCard(pnc21631Live(n), i); };
+  var pnc21631BasePurchasedCard = typeof purchasedVaultCard==='function' ? purchasedVaultCard : null;
+  if(pnc21631BasePurchasedCard) purchasedVaultCard = function(n,i){ return pnc21631BasePurchasedCard(pnc21631Live(n), i); };
+}catch(e){ console.warn('PNC v2.16.31 card hook failed', e); }
+
+// On-chain vault sections must follow the connected wallet and ownerOf, not legacy local ownershipStatus.
+try{
+  var pnc21631BaseIsVaultHeld = typeof isVaultHeld==='function' ? isVaultHeld : null;
+  if(pnc21631BaseIsVaultHeld) isVaultHeld = function(n){
+    if(pnc21631IsChain(n)){
+      var owner=pnc21631CachedOwner(n) || n.currentOwner || n.owner;
+      var connected=pnc21631Connected();
+      return !!(connected && owner && pnc21631Lc(owner)===pnc21631Lc(connected));
+    }
+    return pnc21631BaseIsVaultHeld(n);
+  };
+  var pnc21631BaseIsPurchasedNFT = typeof isPurchasedNFT==='function' ? isPurchasedNFT : null;
+  if(pnc21631BaseIsPurchasedNFT) isPurchasedNFT = function(n){
+    if(pnc21631IsChain(n)){
+      var owner=pnc21631CachedOwner(n) || n.currentOwner || n.owner;
+      var connected=pnc21631Connected();
+      return !!(connected && owner && pnc21631Lc(owner)===pnc21631Lc(connected) && String(n.status||'')!=='Listed');
+    }
+    return pnc21631BaseIsPurchasedNFT(n);
+  };
+  var pnc21631BaseCanManage = typeof pncCanManageOnchain==='function' ? pncCanManageOnchain : null;
+  if(pnc21631BaseCanManage) pncCanManageOnchain = function(n){
+    if(pnc21631IsChain(n)){
+      var owner=pnc21631CachedOwner(n) || n.currentOwner || n.owner;
+      var connected=pnc21631Connected();
+      return !!(connected && owner && pnc21631Lc(owner)===pnc21631Lc(connected));
+    }
+    return pnc21631BaseCanManage(n);
+  };
+}catch(e){ console.warn('PNC v2.16.31 vault authority hook failed', e); }
+
+function pnc21631Footer(){
+  try{
+    var text='Pi Network NFT Center (Beta) — Version 2.16.31<br>Built for the Pi Ecosystem / Marketplace Core / Getgems-style NFT Detail / On-chain Sepolia Mint / Wallet Sync / Public Listing Sync / Real Ownership Transfer / Marketplace Contract Connected / Reliable Resume Listing Fix / Cleanup & Core Stabilize / Buy Core Fix / Blockchain Authority Core';
+    document.querySelectorAll('.footer-bottom').forEach(function(el){ el.innerHTML=text; });
+  }catch(e){}
+}
+try{
+  var pnc21631BaseRenderAll = typeof renderAll==='function' ? renderAll : null;
+  if(pnc21631BaseRenderAll){
+    renderAll = function(){
+      var r=pnc21631BaseRenderAll.apply(this, arguments);
+      pnc21631Footer();
+      if(!window.__PNC21631_RENDERING) setTimeout(function(){ pnc21631SyncAll('after-render-'+PNC21631_VERSION, false); }, 150);
+      return r;
+    };
+  }
+  pnc21631Footer();
+  setTimeout(function(){ pnc21631SyncAll('boot-'+PNC21631_VERSION, true); }, 300);
+  setTimeout(function(){ pnc21631SyncAll('boot-late-'+PNC21631_VERSION, true); }, 2500);
+  setInterval(function(){ pnc21631SyncAll('interval-'+PNC21631_VERSION, false); }, 15000);
+}catch(e){ console.warn('PNC v2.16.31 boot failed', e); }
+console.log('PNC v2.16.31 Blockchain Authority Core loaded. Blockchain owner/listing is authoritative; DB is metadata/cache only.');
+// === /v2.16.31 ===
+</script>
