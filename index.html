@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Pi Network NFT Center (Beta) v2.16.19</title>
+  <title>Pi Network NFT Center (Beta) v2.16.21</title>
   <style>
     :root{--purple:#5b2d82;--gold:#f5b041;--bg:#f7f4fb;--card:#fff;--text:#19151f;--muted:#8b8195;--border:#e5d8ef;--green:#2ecc71;--red:#ff5c5c;--blue:#2f80ed}
     body.dark{--bg:#111017;--card:#1d1826;--text:#f7f1ff;--muted:#b7a9c6;--border:#3b2c4c}
@@ -7884,6 +7884,131 @@ try{
 
 console.log('PNC v2.16.19 Cross-device Authority Fix loaded. Use pncSyncNow() in console for manual server/KV refresh.');
 // === /v2.16.19 ===
+
+
+// === v2.16.21 createListing Direct Fix ===
+// Fix target:
+// - v2.16.19 successfully sends ERC721 approve(Token #3 -> Marketplace)
+// - but mobile MetaMask flow stops before Marketplace.createListing
+// - Do not wait/re-render between approve and createListing.
+// - Submit the second transaction immediately after the first tx hash returns.
+const PNC21621_VERSION = '2.16.21';
+
+function pnc21621ErrMsg(e){
+  if(!e) return 'Unknown error';
+  if(e.message) return e.message;
+  if(e.data && e.data.message) return e.data.message;
+  return String(e);
+}
+function pnc21621ExplorerTx(tx){ return 'https://sepolia.etherscan.io/tx/' + tx; }
+
+async function pnc21621WaitReceipt(txHash, label){
+  const receipt = await pncWaitForReceipt(txHash, 80);
+  if(!receipt){
+    throw new Error((label||'Transaction') + ' receipt was not found yet. Check Etherscan: ' + pnc21621ExplorerTx(txHash));
+  }
+  if(receipt.status && String(receipt.status).toLowerCase() === '0x0'){
+    throw new Error((label||'Transaction') + ' failed/reverted. Check Etherscan: ' + pnc21621ExplorerTx(txHash));
+  }
+  return receipt;
+}
+
+async function pnc21621RefreshDisplay(n, priceEth){
+  try{
+    n.price = String(priceEth) + ' SepoliaETH';
+    n.status = 'Listed';
+    n.saleStatus = 'Listed';
+    n.marketplaceAddress = PNC_MARKETPLACE_ADDRESS;
+    if(typeof pncSaveOnchainPatch === 'function'){
+      pncSaveOnchainPatch(n, {price:n.price,status:'Listed',saleStatus:'Listed',marketplaceAddress:PNC_MARKETPLACE_ADDRESS});
+    }
+    if(typeof syncOnchainPNCNFTs === 'function') await syncOnchainPNCNFTs().catch(()=>{});
+    if(typeof loadPublicListingState === 'function') await loadPublicListingState().catch(()=>{});
+    if(typeof saveState === 'function') saveState();
+    if(typeof saveWalletState === 'function') await saveWalletState().catch(()=>{});
+    if(typeof renderAll === 'function') renderAll();
+  }catch(e){ console.warn('PNC v2.16.21 display refresh failed', e); }
+}
+
+pnc2151CreateOnchainListing = async function(n, index){
+  if(!pnc2151IsChainNFT(n)) return false;
+
+  let seller = pncConnectedAccount || null;
+  try{ if(!seller) seller = await refreshMetaMaskAccount(); }catch(e){}
+  if(!seller){ alert('Please connect the seller wallet first.'); return true; }
+
+  const owner = String(n.currentOwner || n.owner || '').toLowerCase();
+  if(owner && owner !== String(seller).toLowerCase()){
+    alert('This connected wallet is not the on-chain owner.\n\nOwner: '+(n.currentOwner||n.owner)+'\nConnected: '+seller);
+    return true;
+  }
+
+  const defaultEth = localStorage.getItem('PNC_DEFAULT_SEPOLIA_PRICE_ETH') || '0.0001';
+  const priceEth = prompt('On-chain List price in SepoliaETH\n\nPNC test marketplace uses SepoliaETH for now.\nExample: 0.0001', defaultEth);
+  if(priceEth === null) return true;
+
+  let priceWei;
+  try{ priceWei = pnc2151EthToWei(priceEth); }
+  catch(e){ alert('Invalid SepoliaETH price.'); return true; }
+  localStorage.setItem('PNC_DEFAULT_SEPOLIA_PRICE_ETH', String(priceEth));
+
+  const nftContract = pnc2151NftContract(n);
+  const tokenId = pnc2151TokenId(n);
+  const ok = confirm(
+    `PNC MARKETPLACE LIST ${PNC21621_VERSION}\n\n`+
+    `${n.name}\nToken ID: ${tokenId}\nMarketplace: ${PNC_MARKETPLACE_ADDRESS}\nPrice: ${priceEth} SepoliaETH\n\n`+
+    `MetaMask should appear TWICE.\n\n`+
+    `1) Approve Token #${tokenId}\n`+
+    `2) Create Listing\n\n`+
+    `If the second MetaMask does not appear, do not treat it as Listed.\n\nContinue?`
+  );
+  if(!ok) return true;
+
+  let approveTx, listTx;
+  try{
+    approveTx = await pnc2151Send(nftContract, pnc2151DataApprove(PNC_MARKETPLACE_ADDRESS, tokenId));
+    console.log('PNC v2.16.21 approve tx submitted', approveTx);
+  }catch(e){
+    alert('Approve was not submitted.\n\n' + pnc21621ErrMsg(e));
+    return true;
+  }
+
+  try{
+    // Submit createListing immediately after approve tx hash returns.
+    // Same-sender nonce order means createListing executes after approve is mined.
+    listTx = await pnc2151Send(PNC_MARKETPLACE_ADDRESS, pnc2151DataCreateListing(nftContract, tokenId, priceWei));
+    console.log('PNC v2.16.21 createListing tx submitted', listTx);
+  }catch(e){
+    alert('Approve was submitted, but createListing was NOT submitted.\n\nApprove Tx:\n' + approveTx + '\n\nReason:\n' + pnc21621ErrMsg(e) + '\n\nThis NFT is still NOT listed until createListing appears on the Marketplace contract.');
+    return true;
+  }
+
+  alert('Both transactions were submitted.\n\nApprove Tx:\n' + approveTx + '\n\nCreate Listing Tx:\n' + listTx + '\n\nNow waiting for confirmations. Do not close this page yet.');
+
+  try{
+    await pnc21621WaitReceipt(approveTx, 'Approve');
+    await pnc21621WaitReceipt(listTx, 'Create Listing');
+  }catch(e){
+    alert('Transaction confirmation problem.\n\n' + pnc21621ErrMsg(e));
+    return true;
+  }
+
+  try{
+    const info = await pnc2151GetListing(n);
+    if(!info || !info.listingId || !info.listing || !info.listing.active){
+      alert('Create Listing transaction completed, but active listing was not found yet.\n\nCreate Listing Tx:\n' + listTx + '\n\nPlease refresh and check Sepolia Etherscan.');
+      return true;
+    }
+  }catch(e){ console.warn('PNC v2.16.21 listing verification failed', e); }
+
+  await pnc21621RefreshDisplay(n, priceEth);
+  alert('Listed on-chain successfully.\n\nCreate Listing Tx:\n' + listTx);
+  return true;
+};
+
+console.log('PNC v2.16.21 createListing direct fix loaded. Marketplace:', PNC_MARKETPLACE_ADDRESS);
+// === /v2.16.21 ===
+
 </script>
 
 </body>
