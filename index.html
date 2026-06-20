@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Pi Network NFT Center (Beta) v2.16.22</title>
+  <title>Pi Network NFT Center (Beta) v2.16.32</title>
   <style>
     :root{--purple:#5b2d82;--gold:#f5b041;--bg:#f7f4fb;--card:#fff;--text:#19151f;--muted:#8b8195;--border:#e5d8ef;--green:#2ecc71;--red:#ff5c5c;--blue:#2f80ed}
     body.dark{--bg:#111017;--card:#1d1826;--text:#f7f1ff;--muted:#b7a9c6;--border:#3b2c4c}
@@ -9145,4 +9145,193 @@ try{
 }catch(e){ console.warn('PNC v2.16.31 boot failed', e); }
 console.log('PNC v2.16.31 Blockchain Authority Core loaded. Blockchain owner/listing is authoritative; DB is metadata/cache only.');
 // === /v2.16.31 ===
+// === v2.16.32 Render Separation Fix / Dead Reaction Guard ===
+// Purpose:
+// 1) Public marketplace render is NEVER filtered by connected wallet.
+// 2) My Vault render is filtered ONLY by connected wallet + ERC721 ownerOf cache.
+// 3) Old repeating sync/render hooks are neutralized so stale local owner/listing code cannot fight the screen.
+const PNC21632_VERSION = '2.16.32';
+var pnc21632Syncing = false;
+var pnc21632LastManualSync = 0;
+
+function pnc21632Lc(x){ return String(x||'').trim().toLowerCase(); }
+function pnc21632Token(n){ try{ return pnc21631Token(n); }catch(e){ return String((n&&(n.chainTokenId||n.tokenId))||'').trim(); } }
+function pnc21632Contract(n){ try{ return pnc21631Contract(n); }catch(e){ return String((n&&(n.contractAddress||n.nftContract))||'').trim(); } }
+function pnc21632Key(n){
+  var c=pnc21632Lc(pnc21632Contract(n)); var t=pnc21632Token(n);
+  if(c && t) return c+':'+t;
+  return String((n && (n.pncId||n.id||n.registryKey||n.publicListingKey)) || '');
+}
+function pnc21632IsChain(n){ try{return pnc21631IsChain(n);}catch(e){return !!(n && pnc21632Contract(n) && pnc21632Token(n));} }
+function pnc21632IsListed(n){ return String((n&&(n.status||n.saleStatus))||'') === 'Listed'; }
+function pnc21632Connected(){ try{return pnc21631Connected();}catch(e){ return String(window.pncConnectedAccount||'').trim(); } }
+function pnc21632CachedOwner(n){ try{return pnc21631CachedOwner(n)||'';}catch(e){return '';} }
+function pnc21632Short(a){ try{return shortAddress(a);}catch(e){a=String(a||'');return a?a.slice(0,6)+'...'+a.slice(-4):'';} }
+function pnc21632LiveClone(n){
+  var x = Object.assign({}, n||{});
+  if(pnc21632IsChain(x)){
+    var owner = pnc21632CachedOwner(x) || x.currentOwner || x.owner;
+    if(owner){
+      x.owner = owner; x.currentOwner = owner;
+      x.ownerAuthority = 'ERC721.ownerOf';
+      x.ownerAuthorityVersion = PNC21632_VERSION;
+    }
+  }
+  return x;
+}
+function pnc21632Dedup(arr){
+  var map = new Map();
+  (arr||[]).forEach(function(raw){
+    if(!raw || raw.status === 'Draft') return;
+    if(typeof pncIsHiddenOnchain==='function' && pncIsHiddenOnchain(raw)) return;
+    var n = pnc21632LiveClone(raw);
+    var k = pnc21632Key(n);
+    if(!k) k = String(n.name||'')+'|'+String(n.collection||'');
+    var old = map.get(k);
+    if(!old) map.set(k,n);
+    else{
+      // Prefer blockchain-authoritative owner and live listing state, but keep richer image/metadata.
+      map.set(k, Object.assign({}, old, n, {
+        image: n.image || old.image,
+        metadataUri: n.metadataUri || old.metadataUri,
+        owner: n.owner || old.owner,
+        currentOwner: n.currentOwner || old.currentOwner
+      }));
+    }
+  });
+  return Array.from(map.values());
+}
+function pnc21632AllPublicNFTs(){
+  var arr=[];
+  try{ if(Array.isArray(vaultNfts)) arr=arr.concat(vaultNfts); }catch(e){}
+  try{ if(Array.isArray(window.vaultNfts) && window.vaultNfts!==vaultNfts) arr=arr.concat(window.vaultNfts); }catch(e){}
+  try{ if(Array.isArray(pncPublicListings)) arr=arr.concat(pncPublicListings); }catch(e){}
+  try{ if(Array.isArray(window.pncPublicListings) && window.pncPublicListings!==pncPublicListings) arr=arr.concat(window.pncPublicListings); }catch(e){}
+  return pnc21632Dedup(arr);
+}
+function pnc21632VaultOwnedNFTs(){
+  var connected = pnc21632Lc(pnc21632Connected());
+  if(!connected) return [];
+  return pnc21632AllPublicNFTs().filter(function(n){
+    if(!pnc21632IsChain(n)) return false;
+    var owner = pnc21632Lc(pnc21632CachedOwner(n) || n.currentOwner || n.owner);
+    return owner && owner === connected;
+  });
+}
+function pnc21632MineShop(n){
+  var connected = pnc21632Lc(pnc21632Connected());
+  if(!connected) return false;
+  var owner = pnc21632Lc(pnc21632CachedOwner(n) || n.currentOwner || n.owner);
+  return owner === connected;
+}
+function pnc21632Card(n, vaultMode){
+  n = pnc21632LiveClone(n);
+  var owner = n.currentOwner || n.owner || 'PNC Vault';
+  var ownerText = /^0x[a-fA-F0-9]{40}$/.test(String(owner)) ? pnc21632Short(owner) : owner;
+  var status = n.status || n.saleStatus || 'Not Set';
+  var actions = '';
+  if(vaultMode){
+    try{
+      var idx = Array.isArray(vaultNfts) ? vaultNfts.findIndex(function(x){ return pnc21632Key(x)===pnc21632Key(n) || x.pncId===n.pncId; }) : -1;
+      actions = (typeof pncOnchainManageActions==='function') ? pncOnchainManageActions(n, Math.max(idx,0)) : '';
+    }catch(e){}
+  }else if(pnc21632IsListed(n) && !pnc21632MineShop(n)){
+    actions = `<div class="actions"><button class="small-btn buy-btn" onclick='showDetailById("${n.pncId}")'>View</button><button class="small-btn buy-btn" onclick='buyNow("${n.pncId}")'>Buy Now</button></div>`;
+  }else{
+    actions = `<div class="actions"><button class="small-btn buy-btn" onclick='showDetailById("${n.pncId}")'>View</button></div>`;
+  }
+  return `<div class="nft-card">${mediaBox(n,"nft-img")}<div class="nft-body"><div class="nft-name">${n.name||'NFT'} ${n.verified?'<span class="verified">✔</span>':''}${n.pncDisplayEdited?' <span class="verified">✎</span>':''}</div><div class="meta">${n.collection||''}</div>${priceBlock(n)}<span class="status-badge ${statusClass(status)}">${status}</span><br><span class="chain-badge">${n.displayPncId||n.pncId||''} / ${n.chainStatus||''}</span><br><span class="owner-badge">Owner: <span class="pnc-address-chip">${ownerText}</span></span>${n.createdAt ? `<div class="meta">Created: ${n.createdAt}</div>` : ""}${actions}</div></div>`;
+}
+
+// Neutralize old v2.16.31 after-render interval behavior. Manual/boot sync below remains.
+try{
+  if(typeof pnc21631SyncAll === 'function'){
+    window.pnc21631SyncAll = pnc21631SyncAll = async function(){ return; };
+  }
+}catch(e){}
+
+async function pnc21632SyncOnce(reason, force){
+  var now=Date.now();
+  if(pnc21632Syncing) return;
+  if(!force && now-pnc21632LastManualSync < 5000) return;
+  pnc21632Syncing=true; pnc21632LastManualSync=now;
+  var changed=false;
+  try{
+    var arr=pnc21632AllPublicNFTs().filter(pnc21632IsChain);
+    for(var i=0;i<arr.length;i++){
+      var n=arr[i], owner='', listing=null;
+      try{ owner = await (typeof pnc21631OwnerOf==='function' ? pnc21631OwnerOf(n) : pnc21625OwnerOf(n)); }catch(e){ owner=pnc21632CachedOwner(n); }
+      try{ listing = (typeof pnc21631Listing==='function') ? await pnc21631Listing(n) : null; }catch(e){ listing=null; }
+      if(owner && typeof pnc21631ApplyChainState==='function'){
+        pnc21631CacheOwner(n, owner);
+        pnc21631ApplyChainState(n, owner, listing || null, reason||'v2.16.32-sync');
+        changed=true;
+      }
+    }
+    if(changed){ try{ if(typeof saveState==='function') saveState(); }catch(e){} }
+  }finally{
+    pnc21632Syncing=false;
+  }
+}
+
+// Final render authority: public pages use public NFT list; vault uses connected owner list only.
+try{
+  window.pncPublicNFTs = pncPublicNFTs = function(){ return pnc21632AllPublicNFTs(); };
+  window.hotNfts = hotNfts = function(){ return pnc21632AllPublicNFTs().filter(pnc21632IsListed); };
+  window.myShopNFTs = myShopNFTs = function(){ return pnc21632VaultOwnedNFTs().map(function(n){ return {n:n, i:0}; }); };
+  window.purchasedNFTs = purchasedNFTs = function(){ return pnc21632VaultOwnedNFTs().filter(function(n){ return !pnc21632IsListed(n); }).map(function(n){ return {n:n, i:0}; }); };
+  window.nftCard = nftCard = function(n){ return pnc21632Card(n, false); };
+  window.vaultCard = vaultCard = function(n,i){ return pnc21632Card(n, true); };
+  window.purchasedVaultCard = purchasedVaultCard = function(n,i){ return pnc21632Card(n, true); };
+  window.renderNFTs = renderNFTs = function(){
+    var hot=document.getElementById('hotNfts');
+    if(hot) hot.innerHTML = hotNfts().map(function(n){return pnc21632Card(n,false);}).join('') || `<div class="panel">No listed NFTs yet.</div>`;
+    var newBox=document.getElementById('newNfts');
+    if(newBox) newBox.innerHTML = pnc21632AllPublicNFTs().filter(function(n){return !pnc21632IsListed(n);}).slice(0,12).map(function(n){return pnc21632Card(n,false);}).join('') || `<div class="panel">No public NFTs yet.</div>`;
+    var shopBox=document.getElementById('myShopNfts');
+    if(shopBox) shopBox.innerHTML = pnc21632VaultOwnedNFTs().map(function(n){return pnc21632Card(n,true);}).join('') || `<div class="panel">No shop NFTs in My Vault yet.</div>`;
+    var purchasedBox=document.getElementById('purchasedNfts');
+    if(purchasedBox) purchasedBox.innerHTML = pnc21632VaultOwnedNFTs().filter(function(n){return !pnc21632IsListed(n);}).map(function(n){return pnc21632Card(n,true);}).join('') || `<div class="panel">No purchased NFTs in My Vault yet.</div>`;
+    try{ updateVaultStats(); }catch(e){}
+  };
+}catch(e){ console.warn('PNC v2.16.32 render override failed', e); }
+
+// Collection detail must also use public data, not connected-wallet data.
+try{
+  window.getCollectionNFTs = getCollectionNFTs = function(name, onlyPublic){
+    var key=pnc21632Lc(name);
+    return pnc21632AllPublicNFTs().filter(function(n){ return pnc21632Lc(n.collection)===key || pnc21632Lc(n.collectionId)===key; });
+  };
+  window.getCollectionNFTsById = getCollectionNFTsById = function(collectionId, onlyPublic){
+    var c=null; try{ c=(collections||[]).find(function(x){return x && (x.id===collectionId || x.name===collectionId);}); }catch(e){}
+    var id=pnc21632Lc(collectionId), name=pnc21632Lc(c&&c.name);
+    return pnc21632AllPublicNFTs().filter(function(n){ return pnc21632Lc(n.collectionId)===id || (name && pnc21632Lc(n.collection)===name) || pnc21632Lc(n.collection)===id; });
+  };
+}catch(e){ console.warn('PNC v2.16.32 collection override failed', e); }
+
+function pnc21632Footer(){
+  try{
+    var text='Pi Network NFT Center (Beta) — Version 2.16.32<br>Built for the Pi Ecosystem / Marketplace Core / Getgems-style NFT Detail / On-chain Sepolia Mint / Wallet Sync / Public Listing Sync / Real Ownership Transfer / Marketplace Contract Connected / Reliable Resume Listing Fix / Cleanup & Core Stabilize / Buy Core Fix / Blockchain Authority Core / Render Separation Fix';
+    document.querySelectorAll('.footer-bottom').forEach(function(el){ el.innerHTML=text; });
+  }catch(e){}
+}
+try{
+  var pnc21632BaseRenderAll = typeof renderAll==='function' ? renderAll : null;
+  if(pnc21632BaseRenderAll){
+    window.renderAll = renderAll = function(){
+      var oldFlag=window.__PNC21631_RENDERING;
+      window.__PNC21631_RENDERING = true;
+      var r = pnc21632BaseRenderAll.apply(this, arguments);
+      window.__PNC21631_RENDERING = oldFlag;
+      try{ renderNFTs(); }catch(e){}
+      pnc21632Footer();
+      return r;
+    };
+  }
+  pnc21632Footer();
+  setTimeout(function(){ pnc21632SyncOnce('boot-'+PNC21632_VERSION, true).then(function(){ try{renderAll();}catch(e){} }); }, 450);
+  setTimeout(function(){ pnc21632SyncOnce('boot-late-'+PNC21632_VERSION, true).then(function(){ try{renderAll();}catch(e){} }); }, 3000);
+}catch(e){ console.warn('PNC v2.16.32 boot failed', e); }
+console.log('PNC v2.16.32 Render Separation Fix loaded. Public market and My Vault are separated; old reactive sync is guarded.');
+// === /v2.16.32 ===
 </script>
