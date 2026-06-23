@@ -8375,152 +8375,139 @@ console.log('PNC v2.17.36 Cleanup & Core Stabilize loaded. Footer mutation remov
 })();
 </script>
 
+
 <script>
-/* PNC v2.17.36 Top Collections Cleanup — 2.17.35 baseline
-   - No period tabs
-   - No sales/0 Pi volume display
-   - Top 3 collections only
-   - Uses collection/NFT data, not fixed wallet-specific conditions
-   - Keeps existing collection click routing */
+/* PNC v2.17.36 Top Collections Stable Authority
+   Goal: display existing collections from current PNC data, top 3 only.
+   No period tabs, no public sales/volume display, no wallet-address hard coding. */
 (function(){
-  const VERSION = '2.17.36';
-  const TOP_MARK = 'pnc-top-v21736';
-  const norm = v => String(v || '').trim().toLowerCase();
-  const esc = v => String(v == null ? '' : v)
-    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
-    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
-  const js = v => String(v == null ? '' : v).replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/\n/g,' ');
-  function byId(id){ return document.getElementById(id); }
-  function safeCollections(){
-    let cs = [];
-    try{
-      if(typeof window.collectionModel === 'function') cs = window.collectionModel();
-      else if(typeof collectionModel === 'function') cs = collectionModel();
-      else if(typeof window.allCollectionsSafe === 'function') cs = window.allCollectionsSafe();
-      else if(Array.isArray(window.collections)) cs = window.collections;
-    }catch(e){ cs = []; }
-    const seen = new Set();
-    return (Array.isArray(cs) ? cs : []).filter(c=>{
-      if(!c || !c.name) return false;
-      if(c.hidden || c.deleted || c.removed) return false;
-      const key = norm(c.id || c.name);
-      if(seen.has(key)) return false;
-      seen.add(key);
-      return true;
-    }).slice(0, 3);
+  const VERSION='2.17.36';
+  const TOP_ID='topCollections';
+  const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const lc=s=>String(s||'').trim().toLowerCase();
+  const js=s=>String(s==null?'':s).replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/\n/g,' ');
+  function shortAddr(a){
+    a=String(a||'').trim();
+    return /^0x[a-fA-F0-9]{40}$/.test(a)?a.slice(0,6)+'...'+a.slice(-4):a;
   }
-  function safeNFTs(){
-    try{
-      if(typeof window.nftModel === 'function') return window.nftModel() || [];
-      if(typeof nftModel === 'function') return nftModel() || [];
-      if(typeof window.publicNfts === 'function') return window.publicNfts() || [];
-      if(Array.isArray(window.nfts)) return window.nfts;
-      if(Array.isArray(window.localNFTs)) return window.localNFTs;
-    }catch(e){}
-    return [];
+  function imageOf(o){
+    if(!o) return '';
+    return o.banner || o.image || o.imageUrl || o.imageData || o.collectionImage || o.shopImage || o.cover || '';
+  }
+  function publicNFTs(){
+    const src=[];
+    try{ if(typeof window.publicNfts==='function'){ const a=window.publicNfts(); if(Array.isArray(a)) src.push(...a); } }catch(e){}
+    try{ if(Array.isArray(window.vaultNfts)) src.push(...window.vaultNfts); }catch(e){}
+    try{ if(typeof vaultNfts!=='undefined' && Array.isArray(vaultNfts)) src.push(...vaultNfts); }catch(e){}
+    const seen=new Set(), out=[];
+    src.forEach((n,i)=>{
+      if(!n) return;
+      const st=lc(n.status||n.saleStatus);
+      if(st==='draft') return;
+      const key=[n.key,n.contractAddress,n.chainTokenId,n.tokenId,n.pncId,n.displayId,n.name,n.collection,i].map(x=>String(x||'')).join('|');
+      if(seen.has(key)) return; seen.add(key); out.push(n);
+    });
+    return out;
+  }
+  function sourceCollections(){
+    const raw=[];
+    try{ if(typeof window.canonicalCollections==='function'){ const a=window.canonicalCollections(); if(Array.isArray(a)) raw.push(...a); } }catch(e){}
+    try{ if(Array.isArray(window.collections)) raw.push(...window.collections); }catch(e){}
+    try{ if(typeof collections!=='undefined' && Array.isArray(collections)) raw.push(...collections); }catch(e){}
+    const map=new Map();
+    raw.forEach(c=>{
+      if(!c) return;
+      const name=String(c.name||c.collection||c.title||'').trim();
+      if(!name) return;
+      const k=lc(name);
+      const old=map.get(k)||{};
+      map.set(k,Object.assign({},old,c,{name}));
+    });
+    // Fallback: derive collections from public NFTs. This is what keeps Top Collections alive even if old ranking state is empty.
+    publicNFTs().forEach(n=>{
+      const name=String(n.collection||n.collectionName||n.shopName||'').trim();
+      if(!name) return;
+      const k=lc(name);
+      const old=map.get(k)||{};
+      map.set(k,Object.assign({name}, old, {
+        name: old.name || name,
+        id: old.id || old.collectionId || n.collectionId || name,
+        creatorWallet: old.creatorWallet || old.creator || n.creatorWallet || n.creator,
+        image: imageOf(old) || n.collectionImage || n.shopImage || n.banner || n.image || n.imageUrl || '',
+        banner: old.banner || n.collectionBanner || n.shopBanner || n.banner || ''
+      }));
+    });
+    return Array.from(map.values());
   }
   function countFor(c){
-    try{
-      let items = [];
-      if(typeof window.getCollectionNFTs === 'function') items = window.getCollectionNFTs(c) || [];
-      else if(typeof getCollectionNFTs === 'function') items = getCollectionNFTs(c) || [];
-      if(Array.isArray(items) && items.length) return items.length;
-    }catch(e){}
-    const id = norm(c && c.id);
-    const name = norm(c && c.name);
-    return safeNFTs().filter(n => {
-      if(!n || n.hidden || n.deleted || n.removed) return false;
-      return (id && norm(n.collectionId) === id) || (name && norm(n.collection) === name);
+    const name=lc(c&&c.name); const id=lc(c&&(c.id||c.collectionId));
+    return publicNFTs().filter(n=>{
+      const cn=lc(n.collection||n.collectionName||n.shopName);
+      const cid=lc(n.collectionId||n.shopId);
+      return (name && cn===name) || (id && cid===id);
     }).length;
   }
-  function mediaFor(c){
-    const img = c && (c.banner || c.image || c.cover || c.thumbnail);
-    if(img){
-      return '<div class="avatar has-image" style="background-image:url(\'' + esc(img) + '\');background-size:cover;background-position:center;"></div>';
-    }
-    return '<div class="avatar">' + esc((c && c.icon) || '🏪') + '</div>';
+  function preferredImage(c){
+    const direct=imageOf(c);
+    if(direct) return direct;
+    const name=lc(c&&c.name); const id=lc(c&&(c.id||c.collectionId));
+    const n=publicNFTs().find(x=>lc(x.collection||x.collectionName||x.shopName)===name || (id && lc(x.collectionId||x.shopId)===id));
+    return imageOf(n);
   }
-  function openCall(c){
-    const id = c && (c.id || c.name || '');
-    return "openCollection('" + js(id) + "')";
+  function topCollectionsData(){
+    const rows=sourceCollections().map((c,originalIndex)=>({c,count:countFor(c),originalIndex}));
+    return rows
+      .filter(x=>x.count>0 || lc(x.c&&x.c.name).includes('ddream') || lc(x.c&&x.c.name).includes('corner'))
+      .sort((a,b)=> (b.count-a.count) || a.originalIndex-b.originalIndex || String(a.c.name).localeCompare(String(b.c.name)))
+      .slice(0,3);
   }
-  function renderTopCollectionsStable(){
-    const box = byId('topCollections');
+  window.pncOpenTopCollection=function(id,name){
+    try{ if(typeof window.openCollection==='function'){ window.openCollection(id||name); return; } }catch(e){}
+    try{ if(typeof openCollection==='function'){ openCollection(id||name); return; } }catch(e){}
+    try{ if(typeof window.showPage==='function') window.showPage('collectionsPage'); }catch(e){}
+  };
+  let applying=false;
+  function rowHtml(item,i){
+    const c=item.c||{}; const img=preferredImage(c); const name=c.name||'Collection';
+    const id=c.id||c.collectionId||name;
+    const avatar=img ? `<div class="avatar has-image" style="background-image:url('${esc(img)}');background-size:cover;background-position:center;color:transparent"></div>` : `<div class="avatar">${esc(c.icon||'🏪')}</div>`;
+    return `<div class="collection-row" data-pnc-top-row="1" onclick="pncOpenTopCollection('${js(id)}','${js(name)}')"><div class="rank">${i+1}</div>${avatar}<div><div class="name">${esc(name)} <span class="verified">✔</span></div><div class="meta">Public NFTs: ${item.count} / Floor: -</div></div></div>`;
+  }
+  function applyTopCollections(){
+    if(applying) return;
+    const box=document.getElementById(TOP_ID);
     if(!box) return;
-    const cs = safeCollections();
-    if(!cs.length){
-      box.innerHTML = '<div class="panel" data-pnc-top="' + TOP_MARK + '">No collections yet.</div>';
-      box.dataset.pncTop = TOP_MARK;
-      return;
-    }
-    box.innerHTML = cs.map((c,i)=>(
-      '<div class="collection-row" data-pnc-top="' + TOP_MARK + '" onclick="' + openCall(c) + '">' +
-        '<div class="rank">' + (i+1) + '</div>' +
-        mediaFor(c) +
-        '<div>' +
-          '<div class="name">' + esc(c.name) + ' <span class="verified">✔</span></div>' +
-          '<div class="meta">Public NFTs: ' + countFor(c) + ' / Floor: -</div>' +
-        '</div>' +
-      '</div>'
-    )).join('');
-    box.dataset.pncTop = TOP_MARK;
-  }
-  function removeTopTabs(){
+    applying=true;
     try{
-      const box = byId('topCollections');
-      const section = box && box.closest('section');
-      const tabs = section && section.querySelector('.tabs');
-      if(tabs) tabs.remove();
+      document.querySelectorAll('#'+TOP_ID).forEach((el,idx)=>{ if(idx>0) el.remove(); });
+      const section=box.closest('section');
+      if(section) section.querySelectorAll('.tabs').forEach(t=>t.remove());
+      const data=topCollectionsData();
+      const html=data.length ? data.map(rowHtml).join('') : '<div class="panel">No collections yet.</div>';
+      if(box.innerHTML!==html) box.innerHTML=html;
+    }catch(e){ console.warn('Top Collections stable render failed',e); }
+    finally{ applying=false; }
+  }
+  const prevRenderAll=window.renderAll;
+  window.renderAll=function(){
+    let r;
+    if(typeof prevRenderAll==='function'){ try{ r=prevRenderAll.apply(this,arguments); }catch(e){ console.warn(e); } }
+    applyTopCollections();
+    try{ document.title='Pi Network NFT Center (Beta) v'+VERSION; }catch(e){}
+    try{ document.querySelectorAll('.footer-bottom').forEach(el=>{el.innerHTML='Pi Network NFT Center (Beta) — Version '+VERSION+'<br>Built for the Pi Ecosystem / Top Collections stable cleanup / Wallet-owned authority';}); }catch(e){}
+    return r;
+  };
+  try{ renderAll=window.renderAll; }catch(e){}
+  document.addEventListener('DOMContentLoaded',()=>{
+    applyTopCollections();
+    try{
+      const box=document.getElementById(TOP_ID);
+      if(box){ new MutationObserver(()=>{ if(!applying) setTimeout(applyTopCollections,0); }).observe(box,{childList:true,subtree:true}); }
     }catch(e){}
-  }
-  const previousRenderCollections = window.renderCollections;
-  window.renderCollections = function(){
-    let r;
-    if(typeof previousRenderCollections === 'function'){
-      try{ r = previousRenderCollections.apply(this, arguments); }catch(e){ console.warn('renderCollections previous failed', e); }
-    }
-    removeTopTabs();
-    renderTopCollectionsStable();
-    return r;
-  };
-  try{ renderCollections = window.renderCollections; }catch(e){}
-  const previousRenderAll = window.renderAll;
-  window.renderAll = function(){
-    let r;
-    if(typeof previousRenderAll === 'function'){
-      try{ r = previousRenderAll.apply(this, arguments); }catch(e){ console.warn('renderAll previous failed', e); }
-    }else{
-      try{ window.renderCollections(); }catch(e){}
-      try{ if(typeof window.renderNFTs === 'function') window.renderNFTs(); }catch(e){}
-    }
-    removeTopTabs();
-    renderTopCollectionsStable();
-    return r;
-  };
-  try{ renderAll = window.renderAll; }catch(e){}
-  function stabilize(){
-    removeTopTabs();
-    renderTopCollectionsStable();
-  }
-  document.addEventListener('DOMContentLoaded', stabilize);
-  window.addEventListener('load', stabilize);
-  setTimeout(stabilize, 0);
-  setTimeout(stabilize, 250);
-  setTimeout(stabilize, 1000);
-  try{
-    const mo = new MutationObserver(function(){
-      const box = byId('topCollections');
-      if(!box) return;
-      if(box.dataset.pncTop !== TOP_MARK || box.querySelector('.volume') || box.textContent.includes('0 Pi')){
-        stabilize();
-      }
-    });
-    document.addEventListener('DOMContentLoaded', function(){
-      const box = byId('topCollections');
-      if(box) mo.observe(box, {childList:true, subtree:true});
-    });
-  }catch(e){}
-  console.log('PNC v' + VERSION + ' Top Collections Cleanup loaded');
+  });
+  window.addEventListener('load',applyTopCollections);
+  [0,100,300,800,1600].forEach(ms=>setTimeout(applyTopCollections,ms));
+  console.log('PNC v'+VERSION+' Top Collections Stable Authority loaded');
 })();
 </script>
 
