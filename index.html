@@ -4,7 +4,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Pi Network NFT Center (Beta) v2.17.36</title>
+<title>Pi Network NFT Center (Beta) v2.17.37</title>
 <style>
     :root{--purple:#5b2d82;--gold:#f5b041;--bg:#f7f4fb;--card:#fff;--text:#19151f;--muted:#8b8195;--border:#e5d8ef;--green:#2ecc71;--red:#ff5c5c;--blue:#2f80ed}
     body.dark{--bg:#111017;--card:#1d1826;--text:#f7f1ff;--muted:#b7a9c6;--border:#3b2c4c}
@@ -8376,193 +8376,193 @@ console.log('PNC v2.17.35 Cleanup & Core Stabilize loaded. Footer mutation remov
 </script>
 
 
+
+
+
 <script>
-/* PNC v2.17.36 Top Collections Rebuild Authority
-   Built from v2.17.35. This isolates the visible Top Collections panel from old
-   ranking/render writers, then renders the top 3 from the current PNC NFT data.
-   No wallet-address hard coding. No sales/volume display. */
+/* PNC v2.17.37 Top Collections Root Cleanup
+   Built after v2.17.36 review.
+   Goal: stop treating Top Collections as an old ranking widget, and render it once
+   from the current NFT/Collection data. No per-wallet hard coding. No 0 Pi volume. */
 (function(){
-  const VERSION = '2.17.36';
-  const TOP_VISIBLE_ID = 'topCollectionsStable';
-  const TOP_SINK_ID = 'topCollections';
+  'use strict';
+  const VERSION = '2.17.37';
+  const TOP_ID = 'topCollections';
   const ORDER = {'ddream genesis':0,'the corner cat shop':1,'ddream genesis shop':2};
-  const COLLECTION_IDS = {
+  const FALLBACK_IDS = {
     'ddream genesis':'COL-DDREAM-GENESIS',
     'the corner cat shop':'COL-CORNER-CAT-SHOP',
     'ddream genesis shop':'COL-DDREAM-GENESIS-SHOP'
   };
   function $(id){ return document.getElementById(id); }
-  function lc(v){ return String(v||'').trim().toLowerCase(); }
-  function esc(v){ return String(v==null?'':v).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+  function lc(v){ return String(v==null?'':v).trim().toLowerCase(); }
+  function esc(v){ return String(v==null?'':v).replace(/[&<>"']/g,function(m){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]; }); }
   function js(v){ return String(v==null?'':v).replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/\n/g,' '); }
   function imgOf(o){ return o && (o.banner || o.image || o.imageUrl || o.media || o.shopImage || o.collectionImage || ''); }
-  function short(a){ a=String(a||''); return /^0x[0-9a-fA-F]{40}$/.test(a) ? a.slice(0,6)+'...'+a.slice(-4) : a; }
-  function setupTopHost(){
-    let host = $(TOP_VISIBLE_ID);
-    if(!host){
-      const original = $(TOP_SINK_ID);
-      if(!original) return null;
-      original.id = TOP_VISIBLE_ID;
-      host = original;
-      host.setAttribute('data-pnc-top-visible','1');
-      host.classList.add('collection-list');
-    }
+  function setupTop(){
+    const host = $(TOP_ID);
+    if(!host) return null;
+    host.classList.add('collection-list');
+    host.removeAttribute('aria-hidden');
+    host.style.display = '';
+    host.style.visibility = '';
+    host.style.height = '';
+    host.style.overflow = '';
     const section = host.closest ? host.closest('section') : null;
-    if(section){ section.querySelectorAll('.tabs').forEach(el => el.remove()); }
-    let sink = $(TOP_SINK_ID);
-    if(!sink){
-      sink = document.createElement('div');
-      sink.id = TOP_SINK_ID;
-      sink.setAttribute('aria-hidden','true');
-      sink.style.cssText = 'display:none!important;visibility:hidden!important;height:0!important;overflow:hidden!important;';
-      host.parentNode.insertBefore(sink, host.nextSibling);
-    }else if(sink !== host){
-      sink.setAttribute('aria-hidden','true');
-      sink.style.cssText = 'display:none!important;visibility:hidden!important;height:0!important;overflow:hidden!important;';
-    }
+    if(section){ section.querySelectorAll('.tabs').forEach(function(el){ el.remove(); }); }
     return host;
   }
   function rawNfts(){
-    try{
-      if(typeof window.publicNfts === 'function') return window.publicNfts() || [];
-      if(Array.isArray(window.publicNfts)) return window.publicNfts;
-    }catch(e){}
+    try{ if(typeof window.publicNfts === 'function') return window.publicNfts() || []; }catch(e){}
+    try{ if(Array.isArray(window.publicNfts)) return window.publicNfts; }catch(e){}
     const out=[];
-    try{ if(Array.isArray(window.nfts)) out.push(...window.nfts); }catch(e){}
-    try{ if(Array.isArray(window.vaultNfts)) out.push(...window.vaultNfts); }catch(e){}
+    try{ if(Array.isArray(window.nfts)) out.push.apply(out, window.nfts); }catch(e){}
+    try{ if(Array.isArray(window.vaultNfts)) out.push.apply(out, window.vaultNfts); }catch(e){}
     return out;
   }
-  function isPublicNft(n){
-    const s = lc(n && (n.status || n.saleStatus || n.state));
+  function isVisibleNft(n){
     if(!n) return false;
+    const s = lc(n.status || n.saleStatus || n.state);
     if(s.includes('draft') || s.includes('removed') || s.includes('burn')) return false;
     return true;
   }
-  function identity(n){
-    const key = n && (n.key || n.uniqueKey || '');
-    if(key) return lc(key);
+  function nftIdentity(n){
     const name = lc(n && n.name);
-    const col = lc(n && (n.collection || n.collectionName || n.shop || n.shopName));
+    const collection = lc(n && (n.collection || n.collectionName || n.shop || n.shopName));
+    // This is the safest identity for current mixed Legacy/ERC721 PNC data.
+    // pncId can collide, so name+collection wins.
+    if(name || collection) return 'namecol:' + name + '|' + collection;
     const contract = lc(n && (n.contractAddress || n.contract));
     const tid = lc(n && (n.chainTokenId || n.tokenId));
-    // Name + collection wins for Legacy/display NFTs because pncId can collide.
-    if(name || col) return 'namecol:' + name + '|' + col;
-    return 'chain:' + contract + ':' + tid + ':' + lc(n && (n.pncId || n.displayId || n.id));
+    const pnc = lc(n && (n.pncId || n.displayId || n.id || n.key));
+    return 'chain:' + contract + ':' + tid + ':' + pnc;
   }
-  function nfts(){
+  function canonicalNfts(){
     const seen = new Set();
-    const arr = [];
-    rawNfts().forEach(n => {
-      if(!isPublicNft(n)) return;
-      const id = identity(n);
+    const out = [];
+    rawNfts().forEach(function(n){
+      if(!isVisibleNft(n)) return;
+      const id = nftIdentity(n);
       if(seen.has(id)) return;
       seen.add(id);
-      arr.push(n);
+      out.push(n);
     });
-    return arr;
+    return out;
   }
-  function seedCollections(){
+  function collectionSeed(){
     const map = new Map();
-    function add(name, c){
+    function add(name, data){
       const key = lc(name);
       if(!key) return;
-      const existing = map.get(key) || {name, id: COLLECTION_IDS[key] || ('COL-' + key.replace(/[^a-z0-9]+/g,'-').toUpperCase()), items:[]};
-      map.set(key, Object.assign(existing, c || {}, {name: existing.name || name}));
+      const prev = map.get(key) || { name:name, id:FALLBACK_IDS[key] || ('COL-' + key.replace(/[^a-z0-9]+/g,'-').toUpperCase()), items:[] };
+      const merged = Object.assign({}, prev, data || {});
+      merged.name = prev.name || name;
+      merged.id = merged.id || FALLBACK_IDS[key] || merged.name;
+      merged.items = prev.items || [];
+      map.set(key, merged);
     }
-    try{
-      if(Array.isArray(window.collections)){
-        window.collections.forEach(c => add(c.name || c.title, c));
-      }
-    }catch(e){}
-    add('DDREAM Genesis', {id:'COL-DDREAM-GENESIS', verified:true});
-    add('The Corner Cat Shop', {id:'COL-CORNER-CAT-SHOP', verified:true});
-    add('DDREAM Genesis shop', {id:'COL-DDREAM-GENESIS-SHOP', verified:true});
+    try{ if(Array.isArray(window.collections)) window.collections.forEach(function(c){ add(c.name || c.title, c); }); }catch(e){}
+    // Fallback only. These are not wallet-specific rules; they simply keep existing demo collections visible while data is local/static.
+    add('DDREAM Genesis', {verified:true});
+    add('The Corner Cat Shop', {verified:true});
+    add('DDREAM Genesis shop', {verified:true});
     return map;
   }
-  function topData(){
-    const map = seedCollections();
-    nfts().forEach(n => {
-      const name = n.collection || n.collectionName || n.shop || n.shopName || 'Untitled Collection';
-      const key = lc(name);
-      if(!map.has(key)) map.set(key, {name, id: COLLECTION_IDS[key] || ('COL-' + key.replace(/[^a-z0-9]+/g,'-').toUpperCase()), items:[]});
+  function topCollectionsData(){
+    const map = collectionSeed();
+    canonicalNfts().forEach(function(n){
+      const cname = n.collection || n.collectionName || n.shop || n.shopName || 'Untitled Collection';
+      const key = lc(cname);
+      if(!map.has(key)) map.set(key, {name:cname, id:FALLBACK_IDS[key] || ('COL-' + key.replace(/[^a-z0-9]+/g,'-').toUpperCase()), verified:true, items:[]});
       const c = map.get(key);
       c.items = c.items || [];
       c.items.push(n);
       if(!imgOf(c) && imgOf(n)){ c.image = imgOf(n); c.banner = imgOf(n); }
-      if(n.collectionId && !c.id) c.id = n.collectionId;
+      if(!c.id && n.collectionId) c.id = n.collectionId;
     });
-    // Prefer current canonical collection media if available from card source.
     return Array.from(map.values())
-      .filter(c => (c.items && c.items.length) || lc(c.name)==='ddream genesis' || lc(c.name)==='the corner cat shop' || lc(c.name)==='ddream genesis shop')
-      .map(c => {
+      .map(function(c){
         const key = lc(c.name);
         const items = c.items || [];
-        const img = imgOf(c) || imgOf(items[0]) || '';
-        return {id:c.id || COLLECTION_IDS[key] || c.name, name:c.name, image:img, banner:img, count:items.length, items, verified:c.verified!==false, order:ORDER[key] ?? 99};
+        const image = imgOf(c) || imgOf(items[0]) || '';
+        return { id:c.id || FALLBACK_IDS[key] || c.name, name:c.name, image:image, banner:image, items:items, count:items.length, verified:c.verified !== false, order:(ORDER[key] == null ? 99 : ORDER[key]) };
       })
-      .sort((a,b) => (b.count-a.count) || (a.order-b.order) || String(a.name).localeCompare(String(b.name)))
+      .filter(function(c){ return c.count > 0; })
+      .sort(function(a,b){ return (b.count-a.count) || (a.order-b.order) || String(a.name).localeCompare(String(b.name)); })
       .slice(0,3);
   }
-  function avatarHtml(c){
+  function avatar(c){
     const img = imgOf(c);
-    if(img) return `<div class="avatar has-image" style="background-image:url('${esc(img)}');background-size:cover;background-position:center;color:transparent"></div>`;
-    return `<div class="avatar">🏪</div>`;
+    if(img) return '<div class="avatar has-image" style="background-image:url(\'' + esc(img) + '\');background-size:cover;background-position:center;color:transparent"></div>';
+    return '<div class="avatar">🏪</div>';
   }
-  function rowHtml(c,i){
-    return `<div class="collection-row" data-pnc-top-stable-row="1" onclick="window.pncOpenTopCollectionStable('${js(c.id)}','${js(c.name)}')"><div class="rank">${i+1}</div>${avatarHtml(c)}<div><div class="name">${esc(c.name)} ${c.verified?'<span class="verified">✔</span>':''}</div><div class="meta">Public NFTs: ${c.count} / Floor: -</div></div></div>`;
+  function row(c,i){
+    return '<div class="collection-row" data-pnc-top-row="1" onclick="window.pncOpenTopCollectionV21737(\'' + js(c.id) + '\',\'' + js(c.name) + '\')">' +
+      '<div class="rank">' + (i+1) + '</div>' + avatar(c) +
+      '<div><div class="name">' + esc(c.name) + (c.verified ? ' <span class="verified">✔</span>' : '') + '</div>' +
+      '<div class="meta">Public NFTs: ' + c.count + ' / Floor: -</div></div></div>';
   }
-  function renderTop(){
-    const host = setupTopHost();
+  function renderTopCollections(){
+    const host = setupTop();
     if(!host) return;
-    const data = topData();
-    host.innerHTML = data.length ? data.map(rowHtml).join('') : '<div class="panel">No collections yet.</div>';
+    const data = topCollectionsData();
+    host.innerHTML = data.length ? data.map(row).join('') : '<div class="panel">No collections yet.</div>';
   }
   function ownCollectionDetail(c){
     const box = $('collectionDetail');
     if(!box) return false;
     const items = c.items || [];
-    const banner = imgOf(c) ? `<div class="collection-detail-banner has-image" style="background-image:url('${esc(imgOf(c))}')"></div>` : `<div class="collection-detail-banner">🏪</div>`;
-    const cards = items.length ? items.map(n => {
-      try{ return typeof window.nftCard === 'function' ? window.nftCard(n) : `<div class="panel">${esc(n.name||'NFT')}</div>`; }
-      catch(e){ return `<div class="panel">${esc(n.name||'NFT')}</div>`; }
+    const image = imgOf(c);
+    const banner = image ? '<div class="collection-detail-banner has-image" style="background-image:url(\'' + esc(image) + '\')"></div>' : '<div class="collection-detail-banner">🏪</div>';
+    const cards = items.length ? items.map(function(n){
+      try{ return typeof window.nftCard === 'function' ? window.nftCard(n) : '<div class="panel">' + esc(n.name || 'NFT') + '</div>'; }
+      catch(e){ return '<div class="panel">' + esc(n.name || 'NFT') + '</div>'; }
     }).join('') : '<div class="panel">No public NFTs yet.</div>';
-    const owners = new Set(items.map(n => lc(n.currentOwner || n.owner || n.ownerWallet || '')).filter(Boolean));
-    box.innerHTML = `${banner}<div class="hero"><h1>${esc(c.name)} ${c.verified?'<span class="verified">✔</span>':''}</h1><p></p></div><div class="market-dashboard"><div class="market-stat"><strong>${items.length}</strong><span>Items</span></div><div class="market-stat"><strong>${items.filter(n=>lc(n.status||n.saleStatus)==='listed').length}</strong><span>Listed</span></div><div class="market-stat"><strong>${owners.size || '-'}</strong><span>Owners</span></div><div class="market-stat"><strong>-</strong><span>Floor</span></div><div class="market-stat"><strong>0 SepoliaETH</strong><span>Volume</span></div></div><div class="panel"><strong>Creator:</strong> -<br><span class="meta">Public NFTs: ${items.length}</span></div><section><div class="section-title">🖼 ${esc(c.name)} NFTs</div><div class="grid">${cards}</div></section>`;
-    try{ if(typeof window.showPage === 'function') window.showPage('collectionPage'); else box.scrollIntoView({behavior:'smooth'}); }catch(e){ box.scrollIntoView({behavior:'smooth'}); }
+    const owners = new Set(items.map(function(n){ return lc(n.currentOwner || n.owner || n.ownerWallet || ''); }).filter(Boolean));
+    box.innerHTML = banner + '<div class="hero"><h1>' + esc(c.name) + (c.verified ? ' <span class="verified">✔</span>' : '') + '</h1><p></p></div>' +
+      '<div class="market-dashboard"><div class="market-stat"><strong>' + items.length + '</strong><span>Items</span></div>' +
+      '<div class="market-stat"><strong>' + items.filter(function(n){ return lc(n.status || n.saleStatus) === 'listed'; }).length + '</strong><span>Listed</span></div>' +
+      '<div class="market-stat"><strong>' + (owners.size || '-') + '</strong><span>Owners</span></div>' +
+      '<div class="market-stat"><strong>-</strong><span>Floor</span></div><div class="market-stat"><strong>0 SepoliaETH</strong><span>Volume</span></div></div>' +
+      '<div class="panel"><strong>Creator:</strong> -<br><span class="meta">Public NFTs: ' + items.length + '</span></div>' +
+      '<section><div class="section-title">🖼 ' + esc(c.name) + ' NFTs</div><div class="grid">' + cards + '</div></section>';
+    try{ if(typeof window.showPage === 'function') window.showPage('collectionPage'); else box.scrollIntoView({behavior:'smooth'}); }catch(e){ try{ box.scrollIntoView({behavior:'smooth'}); }catch(_){} }
     return true;
   }
-  window.pncOpenTopCollectionStable = function(id, name){
-    const c = topData().find(x => lc(x.id)===lc(id) || lc(x.name)===lc(name));
+  window.pncOpenTopCollectionV21737 = function(id, name){
+    const c = topCollectionsData().find(function(x){ return lc(x.id)===lc(id) || lc(x.name)===lc(name); });
     if(c && ownCollectionDetail(c)) return;
     try{ if(typeof window.openCollection === 'function') return window.openCollection(id || name); }catch(e){}
     try{ if(typeof window.openCollection === 'function') return window.openCollection(name || id); }catch(e){}
   };
-  function applyFooter(){
+  function applyVersion(){
     try{ document.title = 'Pi Network NFT Center (Beta) v' + VERSION; }catch(e){}
-    const html = 'Pi Network NFT Center (Beta) — Version ' + VERSION + '<br>Built for the Pi Ecosystem / Top Collections cleaned from v2.17.35 / Wallet-owned authority';
-    try{ document.querySelectorAll('.footer-bottom').forEach(el => { if(el.innerHTML !== html) el.innerHTML = html; }); }catch(e){}
+    const html = 'Pi Network NFT Center (Beta) — Version ' + VERSION + '<br>Built for the Pi Ecosystem / Top Collections root cleanup / Wallet-owned authority';
+    try{ document.querySelectorAll('.footer-bottom').forEach(function(el){ if(el.innerHTML !== html) el.innerHTML = html; }); }catch(e){}
   }
+
   const previousRenderAll = window.renderAll;
   window.renderAll = function(){
     let r;
     if(typeof previousRenderAll === 'function'){
-      try{ r = previousRenderAll.apply(this, arguments); }catch(e){ console.warn('Previous renderAll failed', e); }
+      try{ r = previousRenderAll.apply(this, arguments); }catch(e){ console.warn('PNC previous renderAll failed', e); }
     }
-    renderTop();
-    applyFooter();
+    renderTopCollections();
+    applyVersion();
     return r;
   };
   try{ renderAll = window.renderAll; }catch(e){}
-  document.addEventListener('DOMContentLoaded', function(){
-    setupTopHost(); renderTop(); applyFooter();
-    try{
-      const sink = $(TOP_SINK_ID);
-      if(sink){ new MutationObserver(function(){ renderTop(); }).observe(sink, {childList:true, subtree:true, characterData:true}); }
-    }catch(e){}
-  });
-  window.addEventListener('load', function(){ renderTop(); applyFooter(); });
-  [0,100,350,800,1500,3000,5200,7000].forEach(ms => setTimeout(function(){ renderTop(); applyFooter(); }, ms));
-  console.log('PNC v'+VERSION+' Top Collections Rebuild Authority loaded');
+
+  // Direct render only at key lifecycle moments. No mutation loop and no hidden sink.
+  document.addEventListener('DOMContentLoaded', function(){ renderTopCollections(); applyVersion(); });
+  window.addEventListener('load', function(){ renderTopCollections(); applyVersion(); });
+  setTimeout(function(){ renderTopCollections(); applyVersion(); }, 0);
+  setTimeout(function(){ renderTopCollections(); applyVersion(); }, 800);
+  setTimeout(function(){ renderTopCollections(); applyVersion(); }, 2500);
+
+  window.PNC_TOP_COLLECTIONS_VERSION = VERSION;
+  window.pncRenderTopCollections = renderTopCollections;
+  console.log('PNC v' + VERSION + ' Top Collections Root Cleanup loaded');
 })();
 </script>
 
