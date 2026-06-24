@@ -4,7 +4,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Pi Network NFT Center (Beta) v2.17.37</title>
+<title>Pi Network NFT Center (Beta) v2.17.39</title>
 <style>
     :root{--purple:#5b2d82;--gold:#f5b041;--bg:#f7f4fb;--card:#fff;--text:#19151f;--muted:#8b8195;--border:#e5d8ef;--green:#2ecc71;--red:#ff5c5c;--blue:#2f80ed}
     body.dark{--bg:#111017;--card:#1d1826;--text:#f7f1ff;--muted:#b7a9c6;--border:#3b2c4c}
@@ -8386,7 +8386,7 @@ console.log('PNC v2.17.35 Cleanup & Core Stabilize loaded. Footer mutation remov
    from the current NFT/Collection data. No per-wallet hard coding. No 0 Pi volume. */
 (function(){
   'use strict';
-  const VERSION = '2.17.37';
+  const VERSION = '2.17.39';
   const TOP_ID = 'topCollections';
   const ORDER = {'ddream genesis':0,'the corner cat shop':1,'ddream genesis shop':2};
   const FALLBACK_IDS = {
@@ -8541,6 +8541,25 @@ console.log('PNC v2.17.35 Cleanup & Core Stabilize loaded. Footer mutation remov
     try{ document.querySelectorAll('.footer-bottom').forEach(function(el){ if(el.innerHTML !== html) el.innerHTML = html; }); }catch(e){}
   }
 
+  /*
+    v2.17.39 Top Collections single authority
+    Previous versions had multiple renderCollections/renderAll paths that wrote to #topCollections.
+    This wrapper allows the old collection renderers to update the other collection areas, then
+    immediately restores #topCollections from this single canonical renderer before the browser paints.
+    No wallet-specific conditions. No MutationObserver. No delayed setTimeout re-render loop.
+  */
+  const previousRenderCollections = window.renderCollections;
+  window.renderCollections = function(){
+    let r;
+    if(typeof previousRenderCollections === 'function'){
+      try{ r = previousRenderCollections.apply(this, arguments); }catch(e){ console.warn('PNC previous renderCollections failed', e); }
+    }
+    renderTopCollections();
+    applyVersion();
+    return r;
+  };
+  try{ renderCollections = window.renderCollections; }catch(e){}
+
   const previousRenderAll = window.renderAll;
   window.renderAll = function(){
     let r;
@@ -8553,16 +8572,12 @@ console.log('PNC v2.17.35 Cleanup & Core Stabilize loaded. Footer mutation remov
   };
   try{ renderAll = window.renderAll; }catch(e){}
 
-  // Direct render only at key lifecycle moments. No mutation loop and no hidden sink.
   document.addEventListener('DOMContentLoaded', function(){ renderTopCollections(); applyVersion(); });
   window.addEventListener('load', function(){ renderTopCollections(); applyVersion(); });
-  setTimeout(function(){ renderTopCollections(); applyVersion(); }, 0);
-  setTimeout(function(){ renderTopCollections(); applyVersion(); }, 800);
-  setTimeout(function(){ renderTopCollections(); applyVersion(); }, 2500);
 
   window.PNC_TOP_COLLECTIONS_VERSION = VERSION;
   window.pncRenderTopCollections = renderTopCollections;
-  console.log('PNC v' + VERSION + ' Top Collections Root Cleanup loaded');
+  console.log('PNC v' + VERSION + ' Top Collections Single Authority loaded');
 })();
 </script>
 
