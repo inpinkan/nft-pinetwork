@@ -4,7 +4,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Pi Network NFT Center (Beta) v2.17.49</title>
+<title>Pi Network NFT Center (Beta) v2.17.50</title>
 <style>
     :root{--purple:#5b2d82;--gold:#f5b041;--bg:#f7f4fb;--card:#fff;--text:#19151f;--muted:#8b8195;--border:#e5d8ef;--green:#2ecc71;--red:#ff5c5c;--blue:#2f80ed}
     body.dark{--bg:#111017;--card:#1d1826;--text:#f7f1ff;--muted:#b7a9c6;--border:#3b2c4c}
@@ -8898,6 +8898,145 @@ console.log('PNC v2.17.35 Cleanup & Core Stabilize loaded. Footer mutation remov
   setTimeout(cleanDom, 2000);
   setTimeout(cleanDom, 5000);
   try{ console.log('PNC v'+VERSION+' Marketplace Flow Guard loaded from v2.17.42 stable base.'); }catch(e){}
+})();
+</script>
+
+
+<script>
+/* PNC v2.17.50 Render Authority Stabilizer
+   Base: v2.17.42 stable + v2.17.49 marketplace guard.
+   Purpose:
+   - Stop footer version flicker caused by older render/update paths.
+   - Do not change Mint/List/Unlist/Buy contract logic.
+   - Keep rendering low-risk: wrap existing render functions and re-apply only final footer authority.
+*/
+(function(){
+  'use strict';
+  var VERSION = '2.17.50';
+  var FOOTER_HTML =
+    'Pi Network NFT Center (Beta) — Version ' + VERSION +
+    '<br>Built for the Pi Ecosystem / Render authority stabilizer / Footer single write / Marketplace flow guard / v2.17.42 stable base';
+
+  var applying = false;
+
+  function applyFooterFinal(){
+    try{
+      window.PNC_CURRENT_VERSION = VERSION;
+      window.PNC_FOOTER_AUTHORITY_VERSION = VERSION;
+      window.PNC_RENDER_AUTHORITY_VERSION = VERSION;
+      document.title = 'Pi Network NFT Center (Beta) v' + VERSION;
+
+      var nodes = document.querySelectorAll('.footer-bottom');
+      nodes.forEach(function(el){
+        if(el && el.innerHTML !== FOOTER_HTML){
+          el.innerHTML = FOOTER_HTML;
+        }
+      });
+    }catch(e){}
+  }
+
+  function scheduleFooterFinal(){
+    if(applying) return;
+    applying = true;
+    try{
+      requestAnimationFrame(function(){
+        applying = false;
+        applyFooterFinal();
+      });
+    }catch(e){
+      applying = false;
+      applyFooterFinal();
+    }
+  }
+
+  function exposeFooterAuthority(){
+    try{
+      window.pncApplyFooterAuthority = applyFooterFinal;
+      window.applyFooterAuthority = applyFooterFinal;
+      window.renderFooter = applyFooterFinal;
+      window.updateFooter = applyFooterFinal;
+      window.footer = applyFooterFinal;
+    }catch(e){}
+  }
+
+  function wrapRenderFunction(name){
+    try{
+      var fn = window[name];
+      if(typeof fn !== 'function') return;
+      if(fn.__pnc_v21750_wrapped) return;
+
+      var wrapped = function(){
+        var result = fn.apply(this, arguments);
+        scheduleFooterFinal();
+        return result;
+      };
+      wrapped.__pnc_v21750_wrapped = true;
+      wrapped.__pnc_v21750_original = fn;
+      window[name] = wrapped;
+    }catch(e){}
+  }
+
+  function wrapKnownRenderers(){
+    [
+      'renderAll',
+      'showPage',
+      'renderHome',
+      'renderCollections',
+      'renderVault',
+      'renderVaultFinal',
+      'renderVaultUnified',
+      'renderTopCollections',
+      'pncRenderTopCollections',
+      'updateWalletUI'
+    ].forEach(wrapRenderFunction);
+  }
+
+  function watchFooter(){
+    try{
+      var target = document.body || document.documentElement;
+      if(!target || window.__PNC_V21750_FOOTER_OBSERVER) return;
+
+      var observer = new MutationObserver(function(mutations){
+        for(var i=0;i<mutations.length;i++){
+          var t = mutations[i].target;
+          if(!t) continue;
+          var el = (t.nodeType === 1) ? t : t.parentElement;
+          if(el && (el.classList && el.classList.contains('footer-bottom') || (el.closest && el.closest('.footer-bottom')))){
+            var f = document.querySelector('.footer-bottom');
+            if(f && f.innerHTML !== FOOTER_HTML) scheduleFooterFinal();
+            break;
+          }
+        }
+      });
+      observer.observe(target, {subtree:true, childList:true, characterData:true});
+      window.__PNC_V21750_FOOTER_OBSERVER = observer;
+    }catch(e){}
+  }
+
+  function boot(){
+    exposeFooterAuthority();
+    wrapKnownRenderers();
+    applyFooterFinal();
+    watchFooter();
+  }
+
+  boot();
+  setTimeout(boot, 0);
+  setTimeout(boot, 300);
+  setTimeout(boot, 900);
+  setTimeout(boot, 1800);
+  setTimeout(boot, 3200);
+
+  var checks = 0;
+  var timer = setInterval(function(){
+    checks++;
+    exposeFooterAuthority();
+    wrapKnownRenderers();
+    applyFooterFinal();
+    if(checks >= 8) clearInterval(timer);
+  }, 1000);
+
+  try{ console.log('PNC v' + VERSION + ' Render Authority Stabilizer loaded. List/Buy/Mint logic untouched.'); }catch(e){}
 })();
 </script>
 
