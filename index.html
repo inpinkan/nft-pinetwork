@@ -4,7 +4,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Pi Network NFT Center (Beta) v2.17.50</title>
+<title>Pi Network NFT Center (Beta) v2.18.0</title>
 <style>
     :root{--purple:#5b2d82;--gold:#f5b041;--bg:#f7f4fb;--card:#fff;--text:#19151f;--muted:#8b8195;--border:#e5d8ef;--green:#2ecc71;--red:#ff5c5c;--blue:#2f80ed}
     body.dark{--bg:#111017;--card:#1d1826;--text:#f7f1ff;--muted:#b7a9c6;--border:#3b2c4c}
@@ -8750,293 +8750,282 @@ console.log('PNC v2.17.35 Cleanup & Core Stabilize loaded. Footer mutation remov
 })();
 </script>
 
-
 <script>
-/* PNC v2.17.49 Marketplace Flow Guard
-   Base: v2.17.42.
-   Goal:
-   - Do not render/declare fake local listings.
-   - List/Unlist routes must go through Marketplace contract functions.
-   - Display-only/internal legacy wording is not exposed as a marketplace status.
-   - No vault/card renderer replacement here: keep v2.17.42 stable renderer to avoid duplicate Edit Display buttons.
-*/
+/* PNC v2.18.0 Render Rebuild Base
+   Render authority rebuild from v2.17.42.
+   Goal: one MarketState, one NFT card renderer, one footer authority.
+   This layer does not modify Mint/List/Buy contract internals. */
 (function(){
-  'use strict';
-  var VERSION = '2.17.49';
-  var NFT_CONTRACT = '0x63C8AbE6a0e7867B7812A1237a2781D460702382'.toLowerCase();
+  var VERSION = '2.18.0';
+  var BOOT_ID = Date.now() + '-' + Math.random().toString(16).slice(2);
 
+  function $(id){ return document.getElementById(id); }
+  function esc(v){
+    return String(v == null ? '' : v).replace(/[&<>'"]/g, function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c];
+    });
+  }
   function lc(v){ return String(v || '').trim().toLowerCase(); }
-  function arr(){ try{ return Array.isArray(window.vaultNfts) ? window.vaultNfts : (typeof vaultNfts !== 'undefined' && Array.isArray(vaultNfts) ? vaultNfts : []); }catch(e){ return []; } }
-  function contract(n){ return lc(n && (n.contractAddress || n.nftContract || n.collectionContract)); }
-  function tokenId(n){ return String((n && (n.chainTokenId || n.tokenId || n.onchainTokenId)) || '').trim(); }
-  function isTradeable(n){ return !!(n && contract(n) === NFT_CONTRACT && tokenId(n) && tokenId(n) !== '0'); }
-  function cleanStatusText(v){
-    var s = String(v || '');
-    if(/legacy\s*\/\s*display\s*only/i.test(s)) return 'Not For Sale';
-    if(/display\s*only/i.test(s)) return 'Not For Sale';
-    return s || 'Not For Sale';
+  function arr(name){
+    try{
+      if(name === 'vaultNfts' && Array.isArray(vaultNfts)) return vaultNfts;
+      if(name === 'collections' && Array.isArray(collections)) return collections;
+    }catch(e){}
+    return [];
   }
-  function cleanChainText(v){
-    var s = String(v || '');
-    s = s.replace(/Sepolia\s+Legacy/ig, 'PNC Display');
-    s = s.replace(/Legacy/ig, 'PNC Display');
-    s = s.replace(/Display\s+Only/ig, 'PNC Display');
-    return s;
+  function call(fn, fallback){
+    try{
+      if(typeof fn === 'function') return fn.apply(null, Array.prototype.slice.call(arguments,2));
+    }catch(e){ try{ console.warn('PNC v'+VERSION+' safe call failed', e); }catch(_){} }
+    return fallback;
   }
-  function findIndex(n){
-    var a = arr();
-    var i = a.indexOf(n);
-    if(i >= 0) return i;
-    var c = contract(n), t = tokenId(n), key = lc(n && (n.key || n.pncId || n.displayId || n.name));
-    for(var k=0;k<a.length;k++){
-      var x = a[k];
-      if(c && t && contract(x) === c && tokenId(x) === t) return k;
-      if(key && [x && x.key, x && x.pncId, x && x.displayId, x && x.name].some(function(v){ return lc(v) === key; })) return k;
+  function currentWallet(){
+    try{ if(typeof pncConnectedAccount !== 'undefined' && pncConnectedAccount) return String(pncConnectedAccount); }catch(e){}
+    try{ if(window.PNC_CHAIN && window.PNC_CHAIN.current && window.PNC_CHAIN.current.getWallet) return String(window.PNC_CHAIN.current.getWallet() || ''); }catch(e){}
+    return '';
+  }
+  function shortAddr(a){
+    a = String(a || '');
+    if(!a) return '';
+    return a.length > 14 ? a.slice(0,6) + '...' + a.slice(-4) : a;
+  }
+  function ownerOf(n){ return n && (n.currentOwner || n.owner || n.ownerWallet || n.creatorWallet || n.creator || ''); }
+  function creatorOf(n){ return n && (n.creatorWallet || n.creator || n.originalOwner || ''); }
+  function saleOf(n){
+    try{ if(typeof saleStatusValue === 'function') return saleStatusValue(n); }catch(e){}
+    if(!n) return 'Not For Sale';
+    if(n.saleStatus) return n.saleStatus;
+    if(n.status === 'Listed') return 'Listed';
+    if(n.status === 'Draft') return 'Draft';
+    if(n.status === 'Sold Out') return 'Sold Out';
+    return 'Not For Sale';
+  }
+  function statusClass2(status){
+    status = String(status || 'Not For Sale');
+    if(status === 'Listed') return 'status-listed';
+    if(status === 'Sold Out') return 'status-sold';
+    if(status === 'Draft') return 'status-draft';
+    if(status === 'Owned') return 'status-owned';
+    return '';
+  }
+  function priceHtml(n){
+    try{ if(typeof priceBlock === 'function') return priceBlock(n); }catch(e){}
+    var p = (n && n.price && String(n.price) !== 'Not Set') ? String(n.price).replace(/\s*(Pi|SepoliaETH)$/i,'') : 'Not Set';
+    if(p === 'Not Set') return '<div class="price-block"><div class="price-label">PRICE</div><div class="price-line">Not Set</div></div>';
+    return '<div class="price-block"><div class="price-label">PRICE</div><div class="price-line"><span class="price-value-wrap"><span>'+esc(p)+'</span><span class="price-unit">SepoliaETH</span></span></div></div>';
+  }
+  function mediaHtml(n, cls){
+    try{ if(typeof mediaBox === 'function') return mediaBox(n, cls); }catch(e){}
+    var img = n && (n.image || n.imageData || n.imageUrl || n.collectionImage);
+    if(img) return '<div class="'+cls+' has-image" style="background-image:url(\''+esc(img)+'\')">NFT</div>';
+    return '<div class="'+cls+'">🖼️</div>';
+  }
+  function cleanChainLabel(n){
+    var raw = String((n && (n.chainStatus || n.transferNetwork || n.chain || n.network)) || '');
+    if(/sepolia/i.test(raw) || (n && (n.contractAddress || n.chainTokenId || n.tokenId || n.transactionHash))) return 'SepoliaETH';
+    if(/pi/i.test(raw)) return 'PI';
+    return 'PNC';
+  }
+  function publicNFTs(state){
+    return state.nfts.filter(function(n){ return n && n.status !== 'Draft' && !isHidden(n); });
+  }
+  function isHidden(n){
+    try{ if(typeof pncIsHiddenOnchain === 'function' && pncIsHiddenOnchain(n)) return true; }catch(e){}
+    return false;
+  }
+  function isListed(n){ return saleOf(n) === 'Listed' || n.status === 'Listed'; }
+  function isMine(n){
+    var w = lc(currentWallet());
+    if(!w || !n) return false;
+    var owners = [n.currentOwner,n.owner,n.ownerWallet,n.creatorWallet,n.originalOwner];
+    return owners.some(function(x){ return lc(x) === w; });
+  }
+  function maybeApply(n){
+    try{ if(typeof pncApplyOnchainOverride === 'function') pncApplyOnchainOverride(n); }catch(e){}
+    try{ if(typeof syncLegacyNftState === 'function') syncLegacyNftState(n); }catch(e){}
+    return n;
+  }
+  function createMarketState(){
+    var nfts = arr('vaultNfts').map(function(n){ return maybeApply(n); }).filter(Boolean);
+    var cols = arr('collections').filter(Boolean);
+    var wallet = currentWallet();
+    return { version: VERSION, wallet: wallet, walletLower: lc(wallet), nfts: nfts, collections: cols, createdAt: Date.now() };
+  }
+  function actionHtml(n, mode){
+    var idx = arr('vaultNfts').findIndex(function(x){ return x && n && x.pncId === n.pncId; });
+    var buttons = '<button class="small-btn buy-btn" onclick="showDetailById(\''+esc(n.pncId)+'\')">View</button>';
+    var mine = isMine(n) || call(window.pncCanManageOnchain, false, n);
+    var listed = isListed(n);
+    if(mode === 'vault' && mine && idx >= 0){
+      if(listed) buttons += '<button class="small-btn nfs-btn" onclick="setStatus('+idx+',\'Not For Sale\')">Unlist</button>';
+      else buttons += '<button class="small-btn sell-btn" onclick="setStatus('+idx+',\'Listed\')">List</button>';
+      if(call(window.pncIsOnchainNFT, false, n)) buttons += '<button class="small-btn edit-btn" onclick="editOnchainDisplayNFT('+idx+')">Edit Display</button><button class="small-btn delete-btn" onclick="removeOnchainFromPNC('+idx+')">Remove</button>';
+      else buttons += '<button class="small-btn edit-btn" onclick="editNFT('+idx+')">Edit Display</button><button class="small-btn delete-btn" onclick="deleteVaultNFT('+idx+')">Delete</button>';
+    }else if(mode !== 'vault' && listed && !mine){
+      buttons += '<button class="small-btn buy-btn" onclick="pncBuyNowV2144(\''+esc(n.pncId)+'\')">Buy Now</button>';
     }
-    return -1;
+    return '<div class="actions">'+buttons+'</div>';
   }
-  function displayOnlyAlert(){
-    alert('This item is PNC display data.\n\nMarketplace List requires an ERC721 token connected to the PNCNFT contract.\nEdit Display changes only the PNC screen; it does not list on-chain.');
+  function renderNFTCard(n, mode){
+    if(!n || isHidden(n)) return '';
+    var sale = saleOf(n);
+    var displayStatus = sale === 'Listed' ? 'Listed' : (n.status === 'Draft' ? 'Draft' : (n.status === 'Sold Out' ? 'Sold Out' : 'Not For Sale'));
+    var owner = ownerOf(n);
+    var creator = creatorOf(n);
+    return '<div class="nft-card" data-pnc-id="'+esc(n.pncId || '')+'">'
+      + mediaHtml(n,'nft-img')
+      + '<div class="nft-body">'
+      + '<div class="nft-name">'+esc(n.name || 'Untitled NFT')+(n.verified?' <span class="verified">✔</span>':'')+'</div>'
+      + '<div class="meta">'+esc(n.collection || 'Collection')+'</div>'
+      + priceHtml(n)
+      + '<span class="status-badge '+statusClass2(displayStatus)+'">'+esc(displayStatus)+'</span><br>'
+      + '<span class="chain-badge">'+esc(n.pncId || 'PNC-NFT')+' / '+esc(cleanChainLabel(n))+'</span><br>'
+      + (creator ? '<span class="owner-badge">Creator: '+esc(shortAddr(creator))+'</span><br>' : '')
+      + (owner ? '<span class="owner-badge">Owner: '+esc(shortAddr(owner))+'</span>' : '')
+      + actionHtml(n, mode || 'public')
+      + '</div></div>';
   }
-  async function listThroughContract(index){
-    var n = arr()[index];
-    if(!n) return alert('NFT not found.');
-    if(!isTradeable(n)) return displayOnlyAlert();
-    if(typeof window.pnc21626ReliableCreateOnchainListing === 'function') return await window.pnc21626ReliableCreateOnchainListing(n, index);
-    if(typeof pnc21626ReliableCreateOnchainListing === 'function') return await pnc21626ReliableCreateOnchainListing(n, index);
-    if(typeof window.pnc21625CreateOnchainListing === 'function') return await window.pnc21625CreateOnchainListing(n, index);
-    if(typeof pnc21625CreateOnchainListing === 'function') return await pnc21625CreateOnchainListing(n, index);
-    alert('Marketplace List flow is not loaded. Listing stopped.');
+  function collectionItems(state, c){
+    var name = lc(c && c.name);
+    var id = lc(c && c.id);
+    return publicNFTs(state).filter(function(n){ return lc(n.collection) === name || lc(n.collectionId) === id; });
   }
-  async function unlistThroughContract(index){
-    var n = arr()[index];
-    if(!n) return alert('NFT not found.');
-    if(!isTradeable(n)) return displayOnlyAlert();
-    if(typeof window.pnc21625CancelListing === 'function') return await window.pnc21625CancelListing(n, index);
-    if(typeof pnc21625CancelListing === 'function') return await pnc21625CancelListing(n, index);
-    alert('Marketplace Unlist flow is not loaded. Unlist stopped.');
+  function renderCollectionCard(c, state){
+    var items = collectionItems(state, c);
+    var img = c && (c.image || c.imageData || c.banner || c.collectionImage);
+    var banner = img ? '<div class="collection-banner has-image" style="background-image:url(\''+esc(img)+'\')"></div>' : '<div class="collection-banner">🏪</div>';
+    return '<div class="collection-card" onclick="openCollection(\''+esc(c.name || '')+'\')">'+banner+'<div class="collection-body"><div class="collection-name">'+esc(c.name || 'Collection')+(c.verified?' <span class="verified">✔</span>':'')+'</div><div class="meta">NFTs: '+items.length+'</div></div></div>';
   }
-
-  window.pncReliableListFlow = async function(index){ return await listThroughContract(index); };
-  window.pncCancelListingFlow = async function(index){ return await unlistThroughContract(index); };
-  try{ pncReliableListFlow = window.pncReliableListFlow; }catch(e){}
-  try{ pncCancelListingFlow = window.pncCancelListingFlow; }catch(e){}
-
-  var previousSetStatus = window.setStatus || (typeof setStatus === 'function' ? setStatus : null);
-  window.setStatus = async function(index, status){
-    if(status === 'Listed') return await listThroughContract(index);
-    if(status === 'Not For Sale'){
-      var n = arr()[index];
-      if(n && isTradeable(n)) return await unlistThroughContract(index);
-      if(typeof previousSetStatus === 'function') return previousSetStatus.apply(this, arguments);
-      return;
+  function renderTopCollections(state){
+    var box = $('topCollections'); if(!box) return;
+    var rows = state.collections.map(function(c){ return {c:c, items:collectionItems(state,c)}; })
+      .sort(function(a,b){ return b.items.length - a.items.length; })
+      .slice(0,5);
+    box.innerHTML = rows.length ? rows.map(function(row,i){
+      var c = row.c;
+      var img = c && (c.image || c.imageData || c.banner || c.collectionImage);
+      var avatar = img ? '<div class="avatar" style="background-image:url(\''+esc(img)+'\');background-size:cover;background-position:center"></div>' : '<div class="avatar">'+esc(c.icon || '🏪')+'</div>';
+      return '<div class="collection-row" onclick="openCollection(\''+esc(c.name || '')+'\')"><div class="rank">'+(i+1)+'</div>'+avatar+'<div><div class="name">'+esc(c.name || 'Collection')+(c.verified?' <span class="verified">✔</span>':'')+'</div><div class="meta">Public NFTs: '+row.items.length+'</div></div><div class="volume">PNC</div></div>';
+    }).join('') : '<div class="panel">No collections yet.</div>';
+  }
+  function renderHome(state){
+    var listed = publicNFTs(state).filter(isListed);
+    var pub = publicNFTs(state);
+    if($('hotNfts')) $('hotNfts').innerHTML = listed.length ? listed.map(function(n){return renderNFTCard(n,'public');}).join('') : '<div class="panel">No listed NFTs yet.</div>';
+    if($('newNfts')) $('newNfts').innerHTML = pub.length ? pub.slice(0,8).map(function(n){return renderNFTCard(n,'public');}).join('') : '<div class="panel">No public NFTs yet.</div>';
+    renderTopCollections(state);
+  }
+  function renderCollections2180(state){
+    if($('allCollections')) $('allCollections').innerHTML = state.collections.length ? state.collections.map(function(c){return renderCollectionCard(c,state);}).join('') : '<div class="panel">No collections yet.</div>';
+    if($('newCollections')) $('newCollections').innerHTML = state.collections.length ? state.collections.slice(0,4).map(function(c){return renderCollectionCard(c,state);}).join('') : '<div class="panel">No new collections yet.</div>';
+    if($('featuredCollections')) $('featuredCollections').innerHTML = state.collections.filter(function(c){return !!c.verified;}).slice(0,4).map(function(c){return renderCollectionCard(c,state);}).join('') || '<div class="panel">No featured collections yet.</div>';
+  }
+  function renderVault(state){
+    var shop = [];
+    var purchased = [];
+    if(!state.walletLower){
+      if($('myShopNfts')) $('myShopNfts').innerHTML = '<div class="panel">Connect wallet to view your NFTs.</div>';
+      if($('purchasedNfts')) $('purchasedNfts').innerHTML = '<div class="panel">Connect wallet to view purchased NFTs.</div>';
+    }else{
+      state.nfts.filter(function(n){ return n.status !== 'Draft' && !isHidden(n) && isMine(n); }).forEach(function(n){
+        if(lc(creatorOf(n)) === state.walletLower) shop.push(n); else purchased.push(n);
+      });
+      if($('myShopNfts')) $('myShopNfts').innerHTML = shop.length ? shop.map(function(n){return renderNFTCard(n,'vault');}).join('') : '<div class="panel">No shop NFTs in My Vault yet.</div>';
+      if($('purchasedNfts')) $('purchasedNfts').innerHTML = purchased.length ? purchased.map(function(n){return renderNFTCard(n,'vault');}).join('') : '<div class="panel">No purchased NFTs in My Vault yet.</div>';
     }
-    if(typeof previousSetStatus === 'function') return previousSetStatus.apply(this, arguments);
-  };
-  try{ setStatus = window.setStatus; }catch(e){}
-
-  window.pncPromptListNFT = async function(index){ return await listThroughContract(index); };
-  try{ pncPromptListNFT = window.pncPromptListNFT; }catch(e){}
-
-  var previousButtons = window.pncMarketplaceActionButtons || (typeof pncMarketplaceActionButtons === 'function' ? pncMarketplaceActionButtons : null);
-  window.pncMarketplaceActionButtons = function(n, index){
-    var idx = Number.isInteger(index) ? index : findIndex(n);
-    var html = '<div class="actions"><button class="small-btn buy-btn" onclick="event.stopPropagation();showDetailById(\'' + String((n && (n.pncId || n.key || n.displayId)) || '').replace(/'/g,'\\&#39;') + '\')">View</button>';
-    var connected = lc(window.pncConnectedAccount || window.connectedWallet || (typeof pncConnectedAccount !== 'undefined' ? pncConnectedAccount : ''));
-    var owner = lc(n && (n.currentOwner || n.owner || n.creatorWallet || n.creator));
-    var mine = !!(connected && owner && connected === owner);
-    var listed = lc(n && (n.status || n.saleStatus)) === 'listed' || !!(n && (n.listingId || n.marketListingId));
-    if(mine && idx >= 0){
-      if(isTradeable(n)){
-        html += listed
-          ? '<button class="small-btn nfs-btn" onclick="event.stopPropagation();pncCancelListingFlow(' + idx + ')">Unlist</button>'
-          : '<button class="small-btn sell-btn" onclick="event.stopPropagation();pncReliableListFlow(' + idx + ')">List</button>';
-      }
-      if(typeof window.editOnchainDisplayNFT === 'function' || typeof editOnchainDisplayNFT === 'function') html += '<button class="small-btn edit-btn" onclick="event.stopPropagation();editOnchainDisplayNFT(' + idx + ')">Edit Display</button>';
-      if(typeof window.removeOnchainFromPNC === 'function' || typeof removeOnchainFromPNC === 'function') html += '<button class="small-btn delete-btn" onclick="event.stopPropagation();removeOnchainFromPNC(' + idx + ')">Remove from PNC</button>';
-    }else if(listed && isTradeable(n)){
-      html += '<button class="small-btn buy-btn" onclick="event.stopPropagation();pnc21625BuyOnchain ? pnc21625BuyOnchain(vaultNfts[' + idx + ']) : buyNFT(' + idx + ')">Buy Now</button>';
-    }else if(typeof previousButtons === 'function' && idx < 0){
-      return previousButtons.apply(this, arguments);
-    }
-    return html + '</div>';
-  };
-  try{ pncMarketplaceActionButtons = window.pncMarketplaceActionButtons; }catch(e){}
-
-  function cleanDom(){
+    if($('vaultStats')) $('vaultStats').innerHTML = '<div class="market-dashboard"><div class="market-stat"><strong>'+shop.length+'</strong><span>Created / Shop</span></div><div class="market-stat"><strong>'+purchased.length+'</strong><span>Purchased</span></div><div class="market-stat"><strong>'+publicNFTs(state).filter(isListed).length+'</strong><span>Listed Market</span></div></div>';
+  }
+  function renderFooter(){
+    var footers = document.querySelectorAll('footer .footer-bottom');
+    footers.forEach(function(f){
+      f.innerHTML = '© 2026 Pi Network NFT Center — Demo UI / v'+VERSION+' Render Rebuild Base';
+      f.setAttribute('data-pnc-version', VERSION);
+    });
+    window.PNC_APP_VERSION = VERSION;
+    window.PNC_STABLE_FOOTER_VERSION = VERSION;
+  }
+  function sanitizeLegacyLabels(root){
+    root = root || document;
     try{
-      document.querySelectorAll('.chain-badge').forEach(function(el){ el.textContent = cleanChainText(el.textContent); });
-      document.querySelectorAll('.status-badge').forEach(function(el){ el.textContent = cleanStatusText(el.textContent); });
-      document.querySelectorAll('.footer-bottom').forEach(function(el){
-        el.innerHTML = 'Pi Network NFT Center (Beta) — Version '+VERSION+'<br>Built for the Pi Ecosystem / Marketplace contract authority guard / No fake local List / v2.17.42 stable base';
+      root.querySelectorAll('.chain-badge').forEach(function(el){
+        el.textContent = el.textContent.replace(/Sepolia\s+Legacy/gi,'SepoliaETH').replace(/PNC\s+Display/gi,'PNC').replace(/Legacy\s+Display\s+Only/gi,'PNC');
       });
-      document.title = 'Pi Network NFT Center (Beta) v'+VERSION;
+      root.querySelectorAll('.footer-bottom').forEach(function(el){ if(!/2\.18\.0/.test(el.textContent)) renderFooter(); });
     }catch(e){}
   }
-
-  var previousRenderAll = window.renderAll || (typeof renderAll === 'function' ? renderAll : null);
-  window.renderAll = function(){
-    var r;
-    if(typeof previousRenderAll === 'function') r = previousRenderAll.apply(this, arguments);
-    cleanDom();
-    return r;
-  };
-  try{ renderAll = window.renderAll; }catch(e){}
-
-  var previousRenderNFTs = window.renderNFTs || (typeof renderNFTs === 'function' ? renderNFTs : null);
-  window.renderNFTs = function(){
-    var r;
-    if(typeof previousRenderNFTs === 'function') r = previousRenderNFTs.apply(this, arguments);
-    cleanDom();
-    return r;
-  };
-  try{ renderNFTs = window.renderNFTs; }catch(e){}
-
-  window.PNC_APP_VERSION = VERSION;
-  setTimeout(cleanDom, 0);
-  setTimeout(cleanDom, 800);
-  setTimeout(cleanDom, 2000);
-  setTimeout(cleanDom, 5000);
-  try{ console.log('PNC v'+VERSION+' Marketplace Flow Guard loaded from v2.17.42 stable base.'); }catch(e){}
-})();
-</script>
-
-
-<script>
-/* PNC v2.17.50 Render Authority Stabilizer
-   Base: v2.17.42 stable + v2.17.49 marketplace guard.
-   Purpose:
-   - Stop footer version flicker caused by older render/update paths.
-   - Do not change Mint/List/Unlist/Buy contract logic.
-   - Keep rendering low-risk: wrap existing render functions and re-apply only final footer authority.
-*/
-(function(){
-  'use strict';
-  var VERSION = '2.17.50';
-  var FOOTER_HTML =
-    'Pi Network NFT Center (Beta) — Version ' + VERSION +
-    '<br>Built for the Pi Ecosystem / Render authority stabilizer / Footer single write / Marketplace flow guard / v2.17.42 stable base';
-
-  var applying = false;
-
-  function applyFooterFinal(){
-    try{
-      window.PNC_CURRENT_VERSION = VERSION;
-      window.PNC_FOOTER_AUTHORITY_VERSION = VERSION;
-      window.PNC_RENDER_AUTHORITY_VERSION = VERSION;
-      document.title = 'Pi Network NFT Center (Beta) v' + VERSION;
-
-      var nodes = document.querySelectorAll('.footer-bottom');
-      nodes.forEach(function(el){
-        if(el && el.innerHTML !== FOOTER_HTML){
-          el.innerHTML = FOOTER_HTML;
-        }
-      });
-    }catch(e){}
+  function renderAll2180(){
+    var state = createMarketState();
+    window.PNC_MARKET_STATE = state;
+    renderHome(state);
+    renderCollections2180(state);
+    renderVault(state);
+    renderFooter();
+    sanitizeLegacyLabels(document);
+    try{ if(typeof refreshOpenDetailPanel === 'function') refreshOpenDetailPanel(); }catch(e){}
+    return state;
   }
-
-  function scheduleFooterFinal(){
-    if(applying) return;
-    applying = true;
-    try{
-      requestAnimationFrame(function(){
-        applying = false;
-        applyFooterFinal();
-      });
-    }catch(e){
-      applying = false;
-      applyFooterFinal();
-    }
+  function openCollection2180(name){
+    var state = window.PNC_MARKET_STATE || createMarketState();
+    var c = state.collections.find(function(x){ return lc(x.name) === lc(name) || lc(x.id) === lc(name); });
+    if(!c) return;
+    if(typeof showPage === 'function') showPage('collectionPage');
+    var box = $('collectionDetail'); if(!box) return;
+    var items = collectionItems(state,c);
+    var img = c && (c.image || c.imageData || c.banner || c.collectionImage);
+    var banner = img ? '<div class="collection-detail-banner has-image" style="background-image:url(\''+esc(img)+'\')"></div>' : '<div class="collection-detail-banner">🏪</div>';
+    box.innerHTML = banner + '<div class="hero"><h1>'+esc(c.name || 'Collection')+(c.verified?' <span class="verified">✔</span>':'')+'</h1><p>NFTs: '+items.length+'</p></div><div class="grid">'+(items.length?items.map(function(n){return renderNFTCard(n,'public');}).join(''):'<div class="panel">No public NFTs yet.</div>')+'</div>';
+    sanitizeLegacyLabels(box);
   }
-
-  function exposeFooterAuthority(){
-    try{
-      window.pncApplyFooterAuthority = applyFooterFinal;
-      window.applyFooterAuthority = applyFooterFinal;
-      window.renderFooter = applyFooterFinal;
-      window.updateFooter = applyFooterFinal;
-      window.footer = applyFooterFinal;
-    }catch(e){}
+  function showDetail2180(id){
+    var state = window.PNC_MARKET_STATE || createMarketState();
+    var n = state.nfts.find(function(x){ return x && x.pncId === id; });
+    if(!n) return;
+    if(typeof showPage === 'function') showPage('homePage');
+    var p = $('detailPanel'); if(!p) return;
+    p.classList.add('show'); p.dataset.currentId = id;
+    p.innerHTML = '<div class="detail-toolbar"><button class="detail-close" onclick="hideDetailPanel()" title="Close">×</button></div>'
+      + '<div class="detail-head">'+mediaHtml(n,'detail-image')+'<div><div class="detail-title">'+esc(n.name || 'Untitled NFT')+(n.verified?' <span class="verified">✔</span>':'')+'</div><div class="meta">'+esc(n.collection || '')+'</div><span class="status-badge '+statusClass2(saleOf(n))+'">'+esc(saleOf(n))+'</span><br><span class="chain-badge">'+esc(n.pncId || 'PNC-NFT')+' / '+esc(cleanChainLabel(n))+'</span></div></div>'
+      + '<div class="detail-price-box">'+priceHtml(n)+'</div>'
+      + '<div class="detail-section"><div class="detail-section-title">NFT Info</div><div class="info-grid">'
+      + '<div class="info-row"><span class="info-label">Creator</span><span class="info-value">'+esc(creatorOf(n))+'</span></div>'
+      + '<div class="info-row"><span class="info-label">Owner</span><span class="info-value">'+esc(ownerOf(n))+'</span></div>'
+      + '<div class="info-row"><span class="info-label">Collection</span><span class="info-value">'+esc(n.collection || '')+'</span></div>'
+      + '<div class="info-row"><span class="info-label">Chain</span><span class="info-value">'+esc(cleanChainLabel(n))+'</span></div>'
+      + '</div></div>'
+      + (n.description ? '<div class="detail-section"><div class="detail-section-title">Description</div><div class="meta">'+esc(n.description)+'</div></div>' : '')
+      + actionHtml(n, isMine(n)?'vault':'public');
+    sanitizeLegacyLabels(p);
   }
-
-  function wrapRenderFunction(name){
-    try{
-      var fn = window[name];
-      if(typeof fn !== 'function') return;
-      if(fn.__pnc_v21750_wrapped) return;
-
-      var wrapped = function(){
-        var result = fn.apply(this, arguments);
-        scheduleFooterFinal();
-        return result;
-      };
-      wrapped.__pnc_v21750_wrapped = true;
-      wrapped.__pnc_v21750_original = fn;
-      window[name] = wrapped;
-    }catch(e){}
+  function install(){
+    try{ window.createMarketState = createMarketState; }catch(e){}
+    try{ window.renderNFTCard = renderNFTCard; }catch(e){}
+    try{ nftCard = function(n){ return renderNFTCard(n,'public'); }; window.nftCard = nftCard; }catch(e){ window.nftCard = function(n){return renderNFTCard(n,'public');}; }
+    try{ vaultCard = function(n){ return renderNFTCard(n,'vault'); }; window.vaultCard = vaultCard; }catch(e){ window.vaultCard = function(n){return renderNFTCard(n,'vault');}; }
+    try{ purchasedVaultCard = function(n){ return renderNFTCard(n,'vault'); }; window.purchasedVaultCard = purchasedVaultCard; }catch(e){}
+    try{ renderAll = renderAll2180; window.renderAll = renderAll2180; }catch(e){ window.renderAll = renderAll2180; }
+    try{ renderNFTs = function(){ return renderAll2180(); }; window.renderNFTs = renderNFTs; }catch(e){}
+    try{ renderCollections = function(){ var s=window.PNC_MARKET_STATE || createMarketState(); renderCollections2180(s); renderTopCollections(s); }; window.renderCollections = renderCollections; }catch(e){}
+    try{ openCollection = openCollection2180; window.openCollection = openCollection2180; }catch(e){ window.openCollection = openCollection2180; }
+    try{ showDetailById = showDetail2180; window.showDetailById = showDetail2180; }catch(e){ window.showDetailById = showDetail2180; }
+    window.pncRenderTopCollections = function(){ renderTopCollections(window.PNC_MARKET_STATE || createMarketState()); };
+    window.pncApplyStableFooter = renderFooter;
   }
-
-  function wrapKnownRenderers(){
-    [
-      'renderAll',
-      'showPage',
-      'renderHome',
-      'renderCollections',
-      'renderVault',
-      'renderVaultFinal',
-      'renderVaultUnified',
-      'renderTopCollections',
-      'pncRenderTopCollections',
-      'updateWalletUI'
-    ].forEach(wrapRenderFunction);
-  }
-
-  function watchFooter(){
-    try{
-      var target = document.body || document.documentElement;
-      if(!target || window.__PNC_V21750_FOOTER_OBSERVER) return;
-
-      var observer = new MutationObserver(function(mutations){
-        for(var i=0;i<mutations.length;i++){
-          var t = mutations[i].target;
-          if(!t) continue;
-          var el = (t.nodeType === 1) ? t : t.parentElement;
-          if(el && (el.classList && el.classList.contains('footer-bottom') || (el.closest && el.closest('.footer-bottom')))){
-            var f = document.querySelector('.footer-bottom');
-            if(f && f.innerHTML !== FOOTER_HTML) scheduleFooterFinal();
-            break;
-          }
-        }
-      });
-      observer.observe(target, {subtree:true, childList:true, characterData:true});
-      window.__PNC_V21750_FOOTER_OBSERVER = observer;
-    }catch(e){}
-  }
-
-  function boot(){
-    exposeFooterAuthority();
-    wrapKnownRenderers();
-    applyFooterFinal();
-    watchFooter();
-  }
-
-  boot();
-  setTimeout(boot, 0);
-  setTimeout(boot, 300);
-  setTimeout(boot, 900);
-  setTimeout(boot, 1800);
-  setTimeout(boot, 3200);
-
-  var checks = 0;
-  var timer = setInterval(function(){
-    checks++;
-    exposeFooterAuthority();
-    wrapKnownRenderers();
-    applyFooterFinal();
-    if(checks >= 8) clearInterval(timer);
-  }, 1000);
-
-  try{ console.log('PNC v' + VERSION + ' Render Authority Stabilizer loaded. List/Buy/Mint logic untouched.'); }catch(e){}
+  install();
+  function schedule(){ try{ renderAll2180(); }catch(e){ try{ console.warn('PNC v'+VERSION+' render failed', e); }catch(_){} } }
+  document.addEventListener('DOMContentLoaded', schedule);
+  window.addEventListener('load', schedule);
+  [0,300,900,1800,2800,4200].forEach(function(ms){ setTimeout(schedule, ms); });
+  try{
+    var mo = new MutationObserver(function(muts){
+      var need = false;
+      muts.forEach(function(m){ if(m.addedNodes && m.addedNodes.length) need = true; });
+      if(need) setTimeout(function(){ sanitizeLegacyLabels(document); renderFooter(); }, 0);
+    });
+    mo.observe(document.documentElement, {childList:true, subtree:true});
+    window.PNC2180_RENDER_OBSERVER = mo;
+  }catch(e){}
+  window.PNC2180_RENDER_AUTHORITY = {version:VERSION, bootId:BOOT_ID, renderAll:renderAll2180, createMarketState:createMarketState};
+  try{ console.log('PNC v'+VERSION+' Render Rebuild Base installed', BOOT_ID); }catch(e){}
 })();
 </script>
 
