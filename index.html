@@ -1100,7 +1100,6 @@ function submitNFT(){
     existing.saleStatus=status;
     existing.updatedAt=new Date().toLocaleString();
     saveState();
-    );
     alert("Draft updated.\n\n"+existing.name+"\n"+existing.pncId+"\n\nこのままCreate NFT画面で編集を続けられます。");
     // keep the user on Create NFT and keep the same draft loaded
     showCreatorForm("nft");
