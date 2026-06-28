@@ -1137,6 +1137,7 @@ function searchPNC(){
 function safe(str){return String(str).replace(/"/g,'&quot;')}
 function showPage(id){document.querySelectorAll(".page").forEach(p=>p.classList.remove("show"));document.getElementById(id).classList.add("show");document.getElementById("menu").classList.remove("show");document.getElementById("searchResults").classList.remove("show");window.scrollTo({top:0,behavior:"smooth"})}
 function toggleMenu(){document.getElementById("menu").classList.toggle("show")}
+window.toggleMenu = toggleMenu;
 function setTheme(t){document.body.classList.toggle("dark",t==="dark")}
 let pncConnectedAccount = "";
 function shortAddress(a){return a ? String(a).slice(0,6)+"..."+String(a).slice(-4) : ""}
@@ -1225,6 +1226,7 @@ async function disconnectWallet(){
 }
 
 function openWalletModal(){document.getElementById("walletModal").classList.add("show");refreshMetaMaskAccount().catch(()=>updateWalletUI(pncConnectedAccount));}
+window.openWalletModal = openWalletModal;
 function closeWalletModal(){document.getElementById("walletModal").classList.remove("show")}
 function walletComingSoon(n){alert(n+" connection will be added in a future version.")}
 function comingSoon(f){alert(f+" will be added in a future version.")}
