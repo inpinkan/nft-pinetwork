@@ -1167,7 +1167,7 @@ function updateWalletUI(account){
     localStorage.setItem("PNC_CONNECTED_WALLET", pncConnectedAccount || "");
   }catch(e){}
   try{
-    if(typeof renderAll2180 === "function") );
+    if(typeof renderAll2180 === "function") renderAll2180();
   }catch(e){
     console.warn("PNC wallet vault refresh skipped", e);
   }
