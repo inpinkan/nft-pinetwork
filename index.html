@@ -618,13 +618,6 @@ function migrateBuyerVaultToMyVault(){
   saveState();
 }
 
-function renderAll(){
-  vaultNfts.forEach(n=>cleanOwnershipHistory(syncLegacyNftState(n)));
-  migrateBuyerVaultToMyVault();
-  renderCollections();
-  renderNFTs();
-  refreshOpenDetailPanel();
-}
 
 function renderCollections(){
   const rowHtml = collections.map((c,i)=>{
@@ -722,7 +715,7 @@ function buyNFT(id){
   nft.purchasedAt = new Date().toLocaleString();
 
   saveState();
-  renderAll();
+  );
   alert("Purchase completed.\nNFT moved to My Vault:\n" + nft.name + "\n" + nft.pncId);
   showPage("vaultPage");
 }
@@ -806,7 +799,7 @@ function sendSelectedNFT(){
 
   saveState();
   closeSendModal();
-  renderAll();
+  );
   alert("Send completed in local prototype.\nNFT moved out of My Vault:\n" + n.name);
 }
 
@@ -1053,7 +1046,7 @@ function submitCollection(){
   if(!name){alert("Please enter Collection Name.");return}
   if(collections.some(c=>c.name.toLowerCase()===name.toLowerCase())){alert("This collection already exists.");return}
   collections.unshift({id:"COL-"+String(collections.length+1).padStart(6,"0"),name,creator:creator||"You",icon:"🏪",image:uploadedCollectionImage,description:desc,verified:false,volume:"0 Pi",verification:"Unverified"});
-  saveState(); renderAll(); alert("Collection created:\n"+name); showPage("collectionsPage");
+  saveState(); ); alert("Collection created:\n"+name); showPage("collectionsPage");
 }
 
 
@@ -1108,7 +1101,7 @@ function submitNFT(){
     existing.saleStatus=status;
     existing.updatedAt=new Date().toLocaleString();
     saveState();
-    renderAll();
+    );
     alert("Draft updated.\n\n"+existing.name+"\n"+existing.pncId+"\n\nこのままCreate NFT画面で編集を続けられます。");
     // keep the user on Create NFT and keep the same draft loaded
     showCreatorForm("nft");
@@ -1116,7 +1109,7 @@ function submitNFT(){
     return;
   }
   const nft={pncId:newPncId(),name,description:desc,utilityType,utility,collectionId,collection,icon,image:uploadedImageData,price:priceRaw?priceRaw+" SepoliaETH":"Not Set",status,saleStatus:status,ownershipStatus:"Owned",verified:false,creator:"You",creatorWallet:"You",originalOwner:"You",owner:"PNC Vault",currentOwner:"PNC Vault",chainStatus:"Off-chain",metadataUri:"",chainTokenId:"",createdAt:new Date().toLocaleString(),ownershipHistory:[{from:"Mint",to:"You",action:"Created",at:new Date().toLocaleString()}]};
-  vaultNfts.unshift(nft); renderAll();
+  vaultNfts.unshift(nft); );
   const saved=saveState();
   window.pncEditingDraftId = nft.pncId;
   alert("NFT added to My Vault:\n"+name+"\nCollection: "+collection+"\n"+nft.pncId+(saved?"":"\n\n※画面には追加しましたが、保存容量の問題で次回起動時に残らない可能性があります。")+"\n\nこのままCreate NFT画面で編集を続けられます。");
@@ -1127,7 +1120,7 @@ function submitNFT(){
 function submitVerification(){
   const name=document.getElementById("verifyCollection").value; if(!name){alert("Select Collection.");return}
   const c=collections.find(x=>x.name===name); if(!c)return;
-  c.verification="Pending"; c.verified=false; saveState(); renderAll(); alert("Verification request submitted:\n"+name+"\nStatus: Pending");
+  c.verification="Pending"; c.verified=false; saveState(); ); alert("Verification request submitted:\n"+name+"\nStatus: Pending");
 }
 
 function searchPNC(){
@@ -1175,7 +1168,7 @@ function updateWalletUI(account){
     localStorage.setItem("PNC_CONNECTED_WALLET", pncConnectedAccount || "");
   }catch(e){}
   try{
-    if(typeof renderAll === "function") renderAll();
+    if(typeof renderAll2180 === "function") );
   }catch(e){
     console.warn("PNC wallet vault refresh skipped", e);
   }
@@ -1352,7 +1345,7 @@ function adminApplySync(){
     vaultNfts=payload.vaultNfts;
     nextId=Math.max(payload.nextId || 1, getMaxPncNumber()+1, 1);
     const saved=saveState();
-    renderAll();
+    );
     closeSyncModal();
     alert("Import complete." + (saved ? "" : "\n保存容量の問題で次回残らない可能性があります。"));
   }catch(e){
@@ -1426,15 +1419,7 @@ function loadState(){
   }catch(e){console.warn("Failed to load PNC state", e)}
 }
 
-function renderAll(){
-  normalizeCollectionLinks();
-  vaultNfts.forEach(n=>cleanOwnershipHistory(syncLegacyNftState(n)));
-  migrateBuyerVaultToMyVault();
-  normalizeCollectionLinks();
-  renderCollections();
-  renderNFTs();
-  refreshOpenDetailPanel();
-}
+
 function renderCollections(){
   normalizeCollectionLinks();
   const rowHtml=collections.map((c,i)=>{
@@ -1484,7 +1469,7 @@ function submitCollection(){
   if(!name){alert("Please enter Collection Name.");return}
   if(collectionNameExists(name)){alert("同じショップ名は既に存在します。\n既存ショップにNFTを追加する場合は、Create NFTでプルダウンからそのショップを選んでください。");return}
   collections.unshift({id:nextCollectionId(),name,creator:creator||"You",icon:"🏪",image:uploadedCollectionImage,description:desc,verified:false,volume:"0 Pi",verification:"Unverified"});
-  saveState(); renderAll(); alert("Collection created:\n"+name); showPage("collectionsPage");
+  saveState(); ); alert("Collection created:\n"+name); showPage("collectionsPage");
 }
 function submitNFT(){
   const name=document.getElementById("newNftName").value.trim();
@@ -1512,7 +1497,7 @@ function submitNFT(){
   }
   if(!name||!collectionId||!status){alert("Please enter NFT Name, Collection, and Status.");return}
   const nft={pncId:newPncId(),name,description:desc,utilityType,utility,collectionId,collection,icon,image:uploadedImageData,price:priceRaw?priceRaw+" SepoliaETH":"Not Set",status,saleStatus:status,ownershipStatus:"Owned",verified:false,creator:"You",creatorWallet:"You",originalOwner:"You",owner:"PNC Vault",currentOwner:"PNC Vault",chainStatus:"Off-chain",metadataUri:"",chainTokenId:"",createdAt:new Date().toLocaleString(),ownershipHistory:[{from:"Mint",to:"You",action:"Created",at:new Date().toLocaleString()}]};
-  vaultNfts.unshift(nft); renderAll();
+  vaultNfts.unshift(nft); );
   const saved=saveState();
   alert("NFT added to My Vault:\n"+name+"\nCollection: "+collection+"\n"+nft.pncId+(saved?"":"\n\n※画面には追加しましたが、保存容量の問題で次回起動時に残らない可能性があります。"));
   showPage("vaultPage");
@@ -1520,7 +1505,7 @@ function submitNFT(){
 function submitVerification(){
   const id=document.getElementById("verifyCollection").value; if(!id){alert("Select Collection.");return}
   const c=collectionById(id); if(!c)return;
-  c.verification="Pending"; c.verified=false; saveState(); renderAll(); alert("Verification request submitted:\n"+c.name+"\nStatus: Pending");
+  c.verification="pending"; c.verified=false; saveState(); ); alert("Verification request submitted:\n"+c.name+"\nStatus: Pending");
 }
 function editCollection(collectionId){
   const c=collectionById(collectionId); if(!c)return;
@@ -1531,7 +1516,7 @@ function editCollection(collectionId){
   const desc=prompt("Description:",c.description||""); if(desc===null)return;
   c.name=trimmed; c.creator=creator.trim()||c.creator; c.description=desc.trim()||c.description;
   vaultNfts.forEach(n=>{if(n.collectionId===c.id)n.collection=c.name});
-  saveState(); renderAll(); openCollection(c.id); alert("Collection updated:\n"+c.name);
+  saveState(); ); openCollection2180(c.name); alert("Collection updated:\n"+c.name);
 }
 function deleteCollection(collectionId){
   const c=collectionById(collectionId); if(!c)return;
@@ -1539,7 +1524,7 @@ function deleteCollection(collectionId){
   if(related>0&&!confirm("This collection has NFTs. Delete collection and related NFTs?\n\n"+c.name))return;
   if(related===0&&!confirm("Delete collection?\n\n"+c.name))return;
   collections=collections.filter(x=>x.id!==c.id); vaultNfts=vaultNfts.filter(n=>!(n.collectionId?n.collectionId===c.id:n.collection===c.name));
-  saveState(); renderAll(); showPage("collectionsPage"); alert("Collection deleted:\n"+c.name);
+  saveState(); ); showPage("collectionsPage"); alert("Collection deleted:\n"+c.name);
 }
 function searchPNC(){
   const q=document.getElementById("searchInput").value.trim().toLowerCase(), box=document.getElementById("searchResults");
@@ -2077,7 +2062,7 @@ async function syncOnchainPNCNFTs(){
   }
 
   normalizeCollectionLinks();
-  renderAll();
+  );
   console.log("PNC on-chain sync complete", found);
   return found;
 }
@@ -2136,7 +2121,7 @@ function purchasedNFTs(){
 function afterSaveDraftKeepEditing(nft){
   try{
     window.pncEditingDraftId = nft && nft.pncId;
-    renderAll();
+    );
     showCreatorForm("nft");
     setTimeout(()=>loadDraftIntoCreateForm(nft.pncId), 60);
   }catch(e){ console.warn('afterSaveDraftKeepEditing failed', e); }
@@ -2221,7 +2206,7 @@ function editOnchainDisplayNFT(index){
   pncSaveJson(PNC_ONCHAIN_OVERRIDES_KEY, ov);
   Object.assign(n, patch, {pncDisplayEdited:true});
   saveState();
-  renderAll();
+  renderAll2180();
   alert('PNC表示を更新しました。\n※チェーン上のmetadataは変更されません。');
 }
 function removeOnchainFromPNC(index){
@@ -2236,14 +2221,14 @@ function removeOnchainFromPNC(index){
   pncSaveJson(PNC_HIDDEN_ONCHAIN_KEY, hidden);
   vaultNfts = vaultNfts.filter((x,i)=> i !== index && pncOnchainKey(x) !== key);
   saveState();
-  renderAll();
+  renderAll2180();
   alert('PNC画面から非表示にしました。');
 }
 function restoreHiddenOnchainPNC(){
   if(!confirm('PNCで非表示にしたOn-chain NFTをすべて再表示しますか？')) return;
   pncSaveJson(PNC_HIDDEN_ONCHAIN_KEY, []);
   syncOnchainPNCNFTs().catch(e=>console.warn(e));
-  setTimeout(()=>renderAll(), 800);
+  setTimeout(()=>renderAll2180(), 800);
 }
 
 // Override cards and lists so on-chain owned NFTs also have controls.
@@ -2578,7 +2563,7 @@ function pncPromptListNFT(index){
   if(price===null) return;
   n.price=String(price).trim()||'Not Set';
   n.status='Listed'; n.saleStatus='Listed';
-  saveState(); renderAll(); alert('Listed: '+n.name+' / '+formatPiPrice(n)+' SepoliaETH');
+  saveState(); renderAll2180(); alert('Listed: '+n.name+' / '+formatPiPrice(n)+' SepoliaETH');
 }
 function vaultCard(n,index){
   pncApplyOnchainOverride(n); if(pncIsHiddenOnchain(n)) return '';
@@ -2627,7 +2612,7 @@ function buyNFT(id){
   const prev=n.currentOwner||n.owner||'PNC Vault';
   addOwnershipEvent(n, prev, buyer, 'Marketplace purchase preview');
   n.owner=buyer; n.currentOwner=buyer; n.status='Owned'; n.saleStatus='Not For Sale'; n.ownershipStatus='Purchased'; n.purchasedAt=new Date().toLocaleString();
-  saveState(); renderAll(); alert('Purchase preview completed. NFT moved to My Vault display.'); showPage('vaultPage');
+  saveState(); renderAll2180(); alert('Purchase preview completed. NFT moved to My Vault display.'); showPage('vaultPage');
 }
 function openCollection(collectionId){
   const c=collectionById(collectionId) || collections.find(x=>x.name===collectionId); if(!c) return;
@@ -2806,7 +2791,7 @@ function setStatus(index, status){
   }
 
   saveState();
-  renderAll();
+  renderAll2180();
 }
 
 function pncPromptListNFT(index){
@@ -2821,7 +2806,7 @@ function deleteVaultNFT(index){
   if(!ok) return;
   vaultNfts.splice(index, 1);
   saveState();
-  renderAll();
+  renderAll2180();
   alert('ローカル保存NFT/Draftを削除しました。');
 }
 
@@ -3005,7 +2990,7 @@ async function loadWalletState(walletAddress){
 
     saveState();
     ensureOnchainGenesisSeed();
-    renderAll();
+    renderAll2180();
 
     console.log("PNC cloud state loaded:", walletAddress);
   }catch(e){
@@ -3228,7 +3213,7 @@ function saveEditedCollection(collectionId){
     }
   });
   saveState();
-  renderAll();
+  renderAll2180();
   showCreatorForm('dashboard');
   alert('Shop / Collection updated:\n' + c.name);
 }
@@ -3338,7 +3323,7 @@ saveEditedCollection = function(collectionId){
     }
   });
   saveState();
-  renderAll();
+  renderAll2180();
   showCreatorForm('dashboard');
   alert('Shop / Collection updated:\n' + c.name);
 };
@@ -3467,7 +3452,7 @@ async function loadPublicListingState(){
     pncPublicListings = Array.isArray(state.listings) ? state.listings.filter(pncIsListed) : [];
     pncPublicCollections = Array.isArray(state.collections) ? state.collections : [];
     pncMergePublicCollectionsIntoLocal();
-    renderAll();
+    renderAll2180();
     console.log('PNC public listings loaded:', pncPublicListings.length);
   }catch(e){
     console.warn('PNC public listing load error', e);
@@ -3656,7 +3641,7 @@ try{
       pncPublicCollections = Array.isArray(state.collections) ? state.collections : [];
       pncPublicOwnershipTransfers = Array.isArray(state.sales) ? state.sales : [];
       pncMergePublicCollectionsIntoLocal();
-      renderAll();
+      renderAll2180();
       console.log('PNC public listings loaded:', pncPublicListings.length, 'sales:', pncPublicOwnershipTransfers.length);
     }catch(e){
       console.warn('PNC public listing load error', e);
@@ -3754,7 +3739,7 @@ buyNFT = function(id){
   saveState();
   try{ pncDebouncedSaveWalletState(); }catch(e){}
   try{ pncDebouncedSavePublicListingState(); }catch(e){ try{ savePublicListingState(); }catch(_){} }
-  renderAll();
+  renderAll2180();
   alert("Purchase preview completed. NFT moved to this wallet's My Vault display.");
   showPage('vaultPage');
 };
@@ -3818,7 +3803,7 @@ try{
   const pnc2138BaseUpdateWalletUI = updateWalletUI;
   updateWalletUI = function(account){
     const result = pnc2138BaseUpdateWalletUI.apply(this, arguments);
-    setTimeout(()=>renderAll(), 150);
+    setTimeout(()=>renderAll2180(), 150);
     return result;
   };
 }catch(e){}
@@ -3941,7 +3926,7 @@ buyNFT = async function(id){
   saveState();
   try{ pncDebouncedSaveWalletState(); }catch(e){}
   try{ await savePublicListingState(); }catch(e){ try{ pncDebouncedSavePublicListingState(); }catch(_){} }
-  renderAll();
+  renderAll2180();
   alert("Purchase completed. Ownership transferred to this wallet's My Vault.");
   showPage('vaultPage');
 };
@@ -4112,7 +4097,7 @@ loadPublicListingState = async function(){
     pncPublicListings = Array.isArray(state.listings) ? state.listings.filter(x => !sold.has(pnc2140Key(x)) && !sold.has(x.publicListingKey) && saleStatusValue(x) === 'Listed') : [];
     pncPublicCollections = Array.isArray(state.collections) ? state.collections : [];
     pncMergePublicCollectionsIntoLocal();
-    renderAll();
+    renderAll2180();
     console.log('PNC public registry loaded:', pncPublicListings.length, 'active listings /', pncPublicOwnershipTransfers.length, 'sales');
   }catch(e){
     console.warn('PNC public registry load error', e);
@@ -4186,7 +4171,7 @@ buyNFT = async function(id){
   saveState();
   try{ pncDebouncedSaveWalletState(); }catch(e){}
   try{ await savePublicListingState(); }catch(e){ console.warn('PNC sale registry save failed', e); }
-  renderAll();
+  renderAll2180();
   alert('Purchase completed. Ownership transferred to this wallet.');
   showPage('vaultPage');
 };
@@ -4445,7 +4430,7 @@ loadPublicListingState = async function(){
     pncPublicListings = Array.isArray(state.listings) ? state.listings.filter(n => pnc2141Aliases(n).every(a => !sold.has(a)) && saleStatusValue(n) === 'Listed') : [];
     pncPublicCollections = Array.isArray(state.collections) ? state.collections : [];
     pncMergePublicCollectionsIntoLocal();
-    try{ renderAll(); }catch(e){}
+    try{ renderAll2180(); }catch(e){}
     console.log('PNC public registry loaded v2.14.1:', pncPublicListings.length, 'active /', pncPublicOwnershipTransfers.length, 'sales');
   }catch(e){ console.warn('PNC public registry load error', e); }
   finally{ pncPublicListingLoading = false; }
@@ -4499,7 +4484,7 @@ window.buyNFT = buyNFT = async function(id){
   saveState();
   try{ pncDebouncedSaveWalletState(); }catch(e){}
   await pnc2141SavePublicRegistryNow();
-  renderAll();
+  renderAll2180();
   alert('Purchase completed. Ownership transferred to this wallet.');
   showPage('vaultPage');
 };
@@ -4730,7 +4715,7 @@ loadPublicListingState = async function(){
     pncPublicListings=Array.isArray(state.listings)?state.listings.filter(n=>pnc2142Aliases(n).every(a=>!sold.has(a)) && saleStatusValue(n)==='Listed'):[];
     pncPublicCollections=Array.isArray(state.collections)?state.collections:[];
     pncMergePublicCollectionsIntoLocal();
-    try{ renderAll(); }catch(e){}
+    try{ renderAll2180(); }catch(e){}
     console.log('PNC public registry loaded v2.14.2:',pncPublicListings.length,'active /',pncPublicOwnershipTransfers.length,'sales');
   }catch(e){ console.warn('PNC public registry load error',e); }
   finally{ pncPublicListingLoading=false; }
@@ -4773,7 +4758,7 @@ window.buyNFT = buyNFT = async function(id){
   saveState();
   try{ pncDebouncedSaveWalletState(); }catch(e){}
   await pnc2142SavePublicRegistryNow().catch(e=>console.warn('PNC v2.14.2 save public failed',e));
-  renderAll();
+  renderAll2180();
   alert(`Purchase completed by PNC ${PNC_BUY_HANDLER_VERSION}.\nOwner: ${shortAddress(buyer)}\nListing removed.`);
   showPage('vaultPage');
 };
@@ -5049,7 +5034,7 @@ try{
         pncPublicOwnershipTransfers = Array.isArray(state.sales) ? state.sales : [];
         pncPublicListings = Array.isArray(state.listings) ? state.listings.filter(pnc2143IsListed) : [];
       }
-      renderAll();
+      renderAll2180();
     }catch(e){ console.warn('PNC v2.14.3 public reload failed', e); }
   };
 }catch(e){}
@@ -5059,7 +5044,7 @@ try{
   loadWalletState = async function(walletAddress){
     await pnc2143BaseLoadWallet.apply(this, arguments);
     await loadPublicListingState().catch(()=>{});
-    try{ vaultNfts.forEach(n=>pnc2143ApplySale(n)); saveState(); renderAll(); }catch(e){}
+    try{ vaultNfts.forEach(n=>pnc2143ApplySale(n)); saveState(); renderAll2180(); }catch(e){}
   };
 }catch(e){}
 
@@ -5118,7 +5103,7 @@ window.buyNFT = buyNFT = async function(id){
 
   await pnc2143SavePublicNow();
   await loadPublicListingState().catch(()=>{});
-  renderAll();
+  renderAll2180();
   alert(`Purchase completed by PNC ${PNC_REAL_TRANSFER_VERSION}.\nOwner moved to: ${shortAddress(buyer)}\nListing removed from Marketplace.`);
   showPage('vaultPage');
 };
@@ -5308,7 +5293,7 @@ window.pncBuyNowV2144 = async function(id){
   if(seller){ const sellerState=pnc2144PatchSellerState(await pnc2144LoadWalletState(seller), original, purchased); await pnc2144SaveWalletState(seller,sellerState); }
   await pnc2144SavePublicSale(record, original);
   await loadPublicListingState().catch(()=>{});
-  renderAll(); showPage('vaultPage');
+  renderAll2180(); showPage('vaultPage');
   alert(`PNC TRUE BUY ${PNC_TRUE_BUY_VERSION} completed.\nOwner: ${shortAddress(buyer)}\nListing removed.`);
 };
 window.buyNFT = buyNFT = window.pncBuyNowV2144;
@@ -5462,7 +5447,7 @@ try{
 }catch(e){}
 try{
   const oldLoadWallet=loadWalletState;
-  loadWalletState=async function(walletAddress){ await pnc215LoadPublic(); const r=oldLoadWallet?await oldLoadWallet.apply(this,arguments):undefined; await pnc215LoadPublic(); pnc215ApplyLocalTransfers(); saveState(); renderAll(); return r; };
+  loadWalletState=async function(walletAddress){ await pnc215LoadPublic(); const r=oldLoadWallet?await oldLoadWallet.apply(this,arguments):undefined; await pnc215LoadPublic(); pnc215ApplyLocalTransfers(); saveState(); renderAll2180(); return r; };
 }catch(e){}
 try{
   const oldSavePublic=savePublicListingState;
@@ -5515,10 +5500,10 @@ window.pncBuyNowV2144=window.buyNFT=buyNFT=async function(id){
   await pnc215SavePublic();
   const buyerState=pnc215PatchStateForWallet(await pnc215LoadWalletState(buyer), buyer); await pnc215SaveWalletState(buyer,buyerState);
   if(seller){ const sellerState=pnc215PatchStateForWallet(await pnc215LoadWalletState(seller), seller); await pnc215SaveWalletState(seller,sellerState); }
-  await pnc215LoadPublic(); pnc215ApplyLocalTransfers(); saveState(); await saveWalletState().catch(()=>{}); renderAll(); showPage('vaultPage');
+  await pnc215LoadPublic(); pnc215ApplyLocalTransfers(); saveState(); await saveWalletState().catch(()=>{}); renderAll2180(); showPage('vaultPage');
   alert(`PNC TRUE MARKET BUY ${PNC_TRUE_MARKET_VERSION} completed.\nOwner moved to: ${shortAddress(buyer)}\nListing removed.`);
 };
-try{setTimeout(async()=>{await pnc215LoadPublic(); pnc215ApplyLocalTransfers(); saveState(); renderAll();},300);}catch(e){}
+try{setTimeout(async()=>{await pnc215LoadPublic(); pnc215ApplyLocalTransfers(); saveState(); renderAll2180();},300);}catch(e){}
 // === /v2.14.5 ===
 
 
@@ -5650,7 +5635,7 @@ async function pnc2151RefreshAfterTx(txHash, msg){
   try{ await syncOnchainPNCNFTs(); }catch(e){ console.warn('sync on-chain after tx failed', e); }
   try{ await loadPublicListingState(); }catch(e){}
   try{ saveState(); await saveWalletState(); }catch(e){}
-  try{ renderAll(); }catch(e){}
+  try{ renderAll2180(); }catch(e){}
 }
 
 async function pnc2151CreateOnchainListing(n, index){
@@ -5845,7 +5830,7 @@ try{
     const found = await pnc2161OriginalSyncOnchainPNCNFTs.apply(this, arguments);
     await pnc2161RefreshMarketplaceState();
     try{ saveState(); await saveWalletState(); }catch(e){}
-    try{ renderAll(); }catch(e){}
+    try{ renderAll2180(); }catch(e){}
     return found;
   };
 }catch(e){ console.warn('v2.17.35 sync wrapper failed', e); }
@@ -5901,7 +5886,7 @@ async function pnc2162PublicMarketplacePreload(){
       await pnc2161RefreshMarketplaceState();
     }
     try{ saveState(); }catch(e){}
-    try{ renderAll(); }catch(e){}
+    try{ renderAll2180(); }catch(e){}
     console.log('PNC v2.17.35 public marketplace preload complete');
   }catch(e){
     console.warn('PNC v2.17.35 public marketplace preload failed', e);
@@ -6150,7 +6135,7 @@ async function pnc2164FinalizeConfirmedBuy(n, buyer, txHash){
   if(!receipt){
     try{ await syncOnchainPNCNFTs(); }catch(e){}
     try{ await loadPublicListingState(); }catch(e){}
-    try{ saveState(); await saveWalletState(); renderAll(); }catch(e){}
+    try{ saveState(); await saveWalletState(); renderAll2180(); }catch(e){}
     alert('Transaction is still pending or could not be confirmed yet.\n\nPNC did not change the owner locally. Please refresh after the transaction is confirmed on Sepolia.');
     return false;
   }
@@ -6158,7 +6143,7 @@ async function pnc2164FinalizeConfirmedBuy(n, buyer, txHash){
   if(String(receipt.status || '').toLowerCase() === '0x0'){
     try{ await syncOnchainPNCNFTs(); }catch(e){}
     try{ await loadPublicListingState(); }catch(e){}
-    try{ renderAll(); }catch(e){}
+    try{ renderAll2180(); }catch(e){}
     alert('Buy transaction failed on-chain.\n\nPNC did not move this NFT to the buyer Vault.');
     return false;
   }
@@ -6167,7 +6152,7 @@ async function pnc2164FinalizeConfirmedBuy(n, buyer, txHash){
   if(!ownerCheck.ok){
     try{ await syncOnchainPNCNFTs(); }catch(e){}
     try{ await loadPublicListingState(); }catch(e){}
-    try{ saveState(); await saveWalletState(); renderAll(); }catch(e){}
+    try{ saveState(); await saveWalletState(); renderAll2180(); }catch(e){}
     alert('Transaction was confirmed, but ownerOf(tokenId) is not the buyer yet.\n\nCurrent owner: ' + (ownerCheck.owner ? shortAddress(ownerCheck.owner) : 'Unknown') + '\nBuyer: ' + shortAddress(buyer) + '\n\nPNC did not force ownership locally. Please refresh and check the transaction.');
     return false;
   }
@@ -6178,7 +6163,7 @@ async function pnc2164FinalizeConfirmedBuy(n, buyer, txHash){
   try{ await loadPublicListingState(); }catch(e){}
   try{ await savePublicListingState(); }catch(e){ console.warn('PNC v2.17.35 public save after buy failed', e); }
   try{ saveState(); await saveWalletState(); }catch(e){ console.warn('PNC v2.17.35 wallet save after buy failed', e); }
-  try{ renderAll(); }catch(e){}
+  try{ renderAll2180(); }catch(e){}
   try{ showPage('vaultPage'); }catch(e){}
 
   alert('Buy confirmed on-chain.\n\nownerOf(tokenId): ' + shortAddress(ownerCheck.owner || buyer) + '\nListing removed. Buyer Vault updated.');
@@ -6423,7 +6408,7 @@ loadState();
 ensureOnchainGenesisSeed();
 setupAdminMode();
 pnc2162PrepareMarketLoading();
-renderAll();
+renderAll2180();
 pnc2162PublicMarketplacePreload();
 
 try{
@@ -6596,7 +6581,7 @@ async function pnc21625CreateOnchainListing(n, index){
     var currentInfo = await pnc2151GetListing(n);
     if(currentInfo && currentInfo.listingId && currentInfo.listing && currentInfo.listing.active){
       pnc21625ApplyListingEverywhere(n, currentInfo);
-      try{ renderAll(); }catch(e){}
+      try{ renderAll2180(); }catch(e){}
       alert('This NFT is already listed on-chain.\n\nListing ID: '+currentInfo.listingId+'\nPrice: '+pnc2151WeiToEth(currentInfo.listing.priceWei)+' SepoliaETH');
       return true;
     }
@@ -6643,7 +6628,7 @@ async function pnc21625CreateOnchainListing(n, index){
     if(!info || !info.listingId || !info.listing || !info.listing.active) throw new Error('Marketplace listing is not active after tx.');
     pnc21625ApplyListingEverywhere(n, info);
   }catch(e){ console.warn('PNC v2.17.35 post-list sync failed', e); }
-  try{ if(typeof renderAll === 'function') renderAll(); }catch(e){}
+  try{ if(typeof renderAll2180 === 'function') renderAll2180(); }catch(e){}
   alert('Listed on-chain successfully.\n\nCreate Listing Tx:\n'+listTx);
   return true;
 }
@@ -6657,7 +6642,7 @@ async function pnc21625CancelListing(n, index){
   try{ info = await pnc2151GetListing(n); }catch(e){ alert('Could not read Marketplace listing.\n\n'+pnc21625Err(e)); return true; }
   if(!info || !info.listingId || !info.listing || !info.listing.active){
     pnc21625ApplyListingEverywhere(n, null);
-    try{ renderAll(); }catch(e){}
+    try{ renderAll2180(); }catch(e){}
     alert('This NFT is not listed on-chain.');
     return true;
   }
@@ -6672,7 +6657,7 @@ async function pnc21625CancelListing(n, index){
   try{ await pnc21625WaitReceipt(tx, 'Cancel Listing'); }catch(e){ alert('Cancel Listing confirmation problem.\n\n'+pnc21625Err(e)); return true; }
   try{ await pnc21625SyncOne(n, 'after-unlist'); }catch(e){}
   pnc21625ApplyListingEverywhere(n, null);
-  try{ renderAll(); }catch(e){}
+  try{ renderAll2180(); }catch(e){}
   alert('Unlisted on-chain.\n\nTx:\n'+tx);
   return true;
 }
@@ -6699,7 +6684,7 @@ async function pnc21625BuyOnchain(n){
   pnc21625ApplyListingEverywhere(n, null);
   try{ if(typeof saveState === 'function') saveState(); }catch(e){}
   try{ if(typeof saveWalletState === 'function') await saveWalletState().catch(function(){}); }catch(e){}
-  try{ renderAll(); showPage('vaultPage'); }catch(e){}
+  try{ renderAll2180(); showPage('vaultPage'); }catch(e){}
   alert('Buy confirmed on-chain.\n\nownerOf(tokenId): '+pnc21625Short(owner || buyer)+'\nListing removed.');
   return true;
 }
@@ -6781,9 +6766,9 @@ window.pnc21625SyncOne = pnc21625SyncOne;
 
 setTimeout(function(){
   try{ pnc21625RemoveDebugBadges(); pnc21625UpdateFooter(); }catch(e){}
-  pnc21625SyncAll('startup').then(function(){ try{ renderAll(); }catch(e){} }).catch(function(e){ console.warn('PNC v2.17.35 startup sync failed', e); });
+  pnc21625SyncAll('startup').then(function(){ try{ renderAll2180(); }catch(e){} }).catch(function(e){ console.warn('PNC v2.17.35 startup sync failed', e); });
 }, 600);
-setTimeout(function(){ pnc21625SyncAll('startup-late').then(function(){ try{ renderAll(); }catch(e){} }).catch(function(){}); }, 3500);
+setTimeout(function(){ pnc21625SyncAll('startup-late').then(function(){ try{ renderAll2180(); }catch(e){} }).catch(function(){}); }, 3500);
 
 console.log('PNC v2.17.35 Marketplace Core State Refactor loaded. Rule: Owner=ownerOf, Listing=Marketplace, Viewer=connectedWallet.');
 // === /v2.17.35 ===
@@ -6878,7 +6863,7 @@ async function pnc21626ReliableCreateOnchainListing(n, index){
   try{
     var already = await pnc2151GetListing(n);
     if(already && already.listingId && already.listing && already.listing.active){
-      try{ pnc21625ApplyListingEverywhere(n, already); renderAll(); }catch(e){}
+      try{ pnc21625ApplyListingEverywhere(n, already); renderAll2180(); }catch(e){}
       alert('This NFT is already listed on-chain.\n\nListing ID: '+already.listingId+'\nPrice: '+pnc2151WeiToEth(already.listing.priceWei)+' SepoliaETH');
       return true;
     }
@@ -6975,7 +6960,7 @@ async function pnc21626ReliableCreateOnchainListing(n, index){
     try{ await pnc21625SyncOne(n, 'after-list-'+PNC21626_VERSION); }catch(e){}
     try{ if(typeof saveState === 'function') saveState(); }catch(e){}
     try{ if(typeof saveWalletState === 'function') await saveWalletState().catch(function(){}); }catch(e){}
-    try{ renderAll(); }catch(e){}
+    try{ renderAll2180(); }catch(e){}
     pnc21626ClearPending(n, seller);
     pnc21626Status('Listed successfully. Price: '+pnc2151WeiToEth(info.listing.priceWei)+' SepoliaETH', false);
     alert('Listed on-chain successfully.\n\nCreate Listing Tx:\n'+listTx+'\nListing ID: '+info.listingId+'\nPrice: '+pnc2151WeiToEth(info.listing.priceWei)+' SepoliaETH');
@@ -7021,7 +7006,7 @@ try{
 }catch(e){ console.warn('PNC v2.17.35 cleanup boot failed', e); }
 // === /v2.17.35 ===
 
-setTimeout(function(){ try{ if(typeof pnc21627NormalizeFooter === 'function') pnc21627NormalizeFooter(); if(typeof renderAll === 'function') renderAll(); if(typeof pnc21627NormalizeFooter === 'function') pnc21627NormalizeFooter(); }catch(e){} }, 800);
+setTimeout(function(){ try{ if(typeof pnc21627NormalizeFooter === 'function') pnc21627NormalizeFooter(); if(typeof renderAll2180 === 'function') renderAll2180(); if(typeof pnc21627NormalizeFooter === 'function') pnc21627NormalizeFooter(); }catch(e){} }, 800);
 console.log('PNC v2.17.35 Cleanup & Core Stabilize loaded. Footer mutation removed; List remains resumable.');
 // === /v2.17.35 ===
 
@@ -8254,7 +8239,7 @@ console.log('PNC v2.17.35 Cleanup & Core Stabilize loaded. Footer mutation remov
     try{ if(typeof saveState==='function') saveState(); }catch(e){}
     try{ if(typeof saveWalletState==='function') saveWalletState(); }catch(e){}
     window.closeSendModal();
-    try{ if(typeof renderAll==='function') renderAll(); }catch(e){}
+    try{ if(typeof renderAll2180==='function') renderAll2180(); }catch(e){}
     alert('Send completed.\nOwner display has been updated to:\n'+to);
   };
   window.openReceiveModal=function(){
