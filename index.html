@@ -3808,7 +3808,9 @@ try{
   const pnc2138BaseUpdateWalletUI = updateWalletUI;
   updateWalletUI = function(account){
     const result = pnc2138BaseUpdateWalletUI.apply(this, arguments);
-    setTimeout(()=>renderAll2180(), 150);
+    setTimeout(()=>{
+  if(typeof renderAll2180 === "function") renderAll2180();
+}, 150);
     return result;
   };
 }catch(e){}
@@ -5039,7 +5041,7 @@ try{
         pncPublicOwnershipTransfers = Array.isArray(state.sales) ? state.sales : [];
         pncPublicListings = Array.isArray(state.listings) ? state.listings.filter(pnc2143IsListed) : [];
       }
-      renderAll2180();
+      if(typeof renderAll2180 === "function") renderAll2180();
     }catch(e){ console.warn('PNC v2.14.3 public reload failed', e); }
   };
 }catch(e){}
@@ -5049,7 +5051,7 @@ try{
   loadWalletState = async function(walletAddress){
     await pnc2143BaseLoadWallet.apply(this, arguments);
     await loadPublicListingState().catch(()=>{});
-    try{ vaultNfts.forEach(n=>pnc2143ApplySale(n)); saveState(); renderAll2180(); }catch(e){}
+    try{ vaultNfts.forEach(n=>pnc2143ApplySale(n)); saveState(); if(typeof renderAll2180 === "function") renderAll2180(); }catch(e){}
   };
 }catch(e){}
 
@@ -5505,10 +5507,10 @@ window.pncBuyNowV2144=window.buyNFT=buyNFT=async function(id){
   await pnc215SavePublic();
   const buyerState=pnc215PatchStateForWallet(await pnc215LoadWalletState(buyer), buyer); await pnc215SaveWalletState(buyer,buyerState);
   if(seller){ const sellerState=pnc215PatchStateForWallet(await pnc215LoadWalletState(seller), seller); await pnc215SaveWalletState(seller,sellerState); }
-  await pnc215LoadPublic(); pnc215ApplyLocalTransfers(); saveState(); await saveWalletState().catch(()=>{}); renderAll2180(); showPage('vaultPage');
+  await pnc215LoadPublic(); pnc215ApplyLocalTransfers(); saveState(); await saveWalletState().catch(()=>{}); if(typeof renderAll2180 === "function") renderAll2180(); showPage('vaultPage');
   alert(`PNC TRUE MARKET BUY ${PNC_TRUE_MARKET_VERSION} completed.\nOwner moved to: ${shortAddress(buyer)}\nListing removed.`);
 };
-try{setTimeout(async()=>{await pnc215LoadPublic(); pnc215ApplyLocalTransfers(); saveState(); renderAll2180();},300);}catch(e){}
+try{setTimeout(async()=>{await pnc215LoadPublic(); pnc215ApplyLocalTransfers(); saveState(); if(typeof renderAll2180 === "function") renderAll2180();},300);}catch(e){}
 // === /v2.14.5 ===
 
 
