@@ -2867,11 +2867,13 @@ function hotNfts(){
 }
 
 // Re-apply overrides after auto-sync and legacy normalization.
+/*
 const pnc123OriginalRenderAll = renderAll;
 renderAll = function(){
   try{ vaultNfts.forEach(n=>pncApplyOnchainOverride(n)); }catch(e){}
   pnc123OriginalRenderAll();
 };
+*/
 
 // === /v2.13.1 ===
 
