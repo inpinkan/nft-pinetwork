@@ -6389,10 +6389,10 @@ function formatPiPrice(n){
   return num.toLocaleString(undefined, {maximumFractionDigits: 8});
 }
 function formatPriceWithCurrency(n){
-  return `${formatPiPrice(n)} (${PNC_PRICE_CURRENCY})`;
+  return `${formatPiPrice(n)} SepoliaETH`;
 }
 function priceBlock(n){
-  return `<div class="price-block"><span class="price-label">PRICE</span><span class="price-line">${piPriceIcon()}<span class="price-value-wrap"><span>${formatPiPrice(n)}</span><span class="price-unit">(${PNC_PRICE_CURRENCY})</span></span></span></div>`;
+  return `<div class="price-block"><span class="price-label">PRICE</span><span class="price-line">${piPriceIcon()}<span class="price-value-wrap"><span>${formatPiPrice(n)}</span><span class="price-unit">SepoliaETH</span></span></span></div>`;
 }
 function pncNum(v){
   const n = parseFloat(pncCleanPriceString(v && typeof v === 'object' ? v.price : v));
