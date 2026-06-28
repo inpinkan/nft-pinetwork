@@ -6541,19 +6541,34 @@ async function pnc21625SyncOne(n, reason){
   return n;
 }
 async function pnc21625SyncAll(reason){
-  if(!Array.isArray(vaultNfts)) return;
-  var seen = {};
-  for(var i=0;i<vaultNfts.length;i++){
-    var n=vaultNfts[i];
-    if(!pnc21625IsChainNFT(n)) continue;
-    var key=pnc21625Lc(pnc21625Contract(n))+':'+pnc21625TokenId(n);
-    if(seen[key]) continue; seen[key]=true;
-    try{ await pnc21625SyncOne(n, reason || 'sync-all'); }catch(e){ console.warn('PNC v2.17.35 sync failed for', key, e); }
-  }
-  try{ if(typeof saveState === 'function') saveState(); }catch(e){}
-  try{ if(typeof saveWalletState === 'function') await saveWalletState().catch(function(){}); }catch(e){}
-}
+  var syncVaultNfts = Array.isArray(window.vaultNfts) ? window.vaultNfts : [];
+  if(!Array.isArray(syncVaultNfts)) return;
 
+  var seen = {};
+
+  for(var i=0;i<syncVaultNfts.length;i++){
+    var n = syncVaultNfts[i];
+    if(!pnc21625IsChainNFT(n)) continue;
+    var key = pnc21625Lc(pnc21625Contract(n)) + ':' + pnc21625TokenId(n);
+    if(seen[key]) continue;
+    seen[key] = true;
+    try{
+      await pnc21625SyncOne(n, reason || 'sync-all');
+    }catch(e){
+      console.warn('PNC v2.17.35 sync failed for', key, e);
+    }
+  }
+
+  try{
+    if(typeof saveState === 'function') saveState();
+  }catch(e){}
+
+  try{
+    if(typeof saveWalletState === 'function')
+      await saveWalletState().catch(function(){});
+  }catch(e){}
+}
+  
 async function pnc21625WaitReceipt(txHash, label){
   if(typeof pncWaitForReceipt !== 'function') return null;
   var receipt = await pncWaitForReceipt(txHash, 90);
