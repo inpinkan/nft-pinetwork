@@ -2119,7 +2119,6 @@ function purchasedNFTs(){
 function afterSaveDraftKeepEditing(nft){
   try{
     window.pncEditingDraftId = nft && nft.pncId;
-    );
     showCreatorForm("nft");
     setTimeout(()=>loadDraftIntoCreateForm(nft.pncId), 60);
   }catch(e){ console.warn('afterSaveDraftKeepEditing failed', e); }
