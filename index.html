@@ -2622,14 +2622,16 @@ function openCollection(collectionId){
     <section><div class="section-title">🖼 ${pncEscapeHtml(c.name)} NFTs</div><div class="grid">${items.length?items.map(n=>nftCard(n)).join(''):'<div class="panel">No public NFTs yet.</div>'}</div></section>`;
   showPage('collectionPage');
 }
-const pnc121OriginalRenderAll = renderAll;
+/*
+const pnc1210originalRenderAll = renderAll;
 renderAll = function(){
-  pnc121OriginalRenderAll();
+  pnc1210originalRenderAll();
   try{
     const hero=document.querySelector('#vaultPage .hero');
     if(hero && !document.getElementById('pncMarketDashWrap')) hero.insertAdjacentHTML('beforeend', `<div id="pncMarketDashWrap">${pncWalletDashboardHtml()}</div>`);
   }catch(e){ console.warn('market dashboard inject failed', e); }
 };
+*/
 // === /v2.12.1 ===
 
 
