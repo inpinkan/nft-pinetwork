@@ -1045,7 +1045,7 @@ function submitCollection(){
   if(!name){alert("Please enter Collection Name.");return}
   if(collections.some(c=>c.name.toLowerCase()===name.toLowerCase())){alert("This collection already exists.");return}
   collections.unshift({id:"COL-"+String(collections.length+1).padStart(6,"0"),name,creator:creator||"You",icon:"🏪",image:uploadedCollectionImage,description:desc,verified:false,volume:"0 Pi",verification:"Unverified"});
-  saveState(); ); alert("Collection created:\n"+name); showPage("collectionsPage");
+  saveState(); alert("Collection created:\n"+name); showPage("collectionsPage");
 }
 
 
@@ -1108,7 +1108,7 @@ function submitNFT(){
     return;
   }
   const nft={pncId:newPncId(),name,description:desc,utilityType,utility,collectionId,collection,icon,image:uploadedImageData,price:priceRaw?priceRaw+" SepoliaETH":"Not Set",status,saleStatus:status,ownershipStatus:"Owned",verified:false,creator:"You",creatorWallet:"You",originalOwner:"You",owner:"PNC Vault",currentOwner:"PNC Vault",chainStatus:"Off-chain",metadataUri:"",chainTokenId:"",createdAt:new Date().toLocaleString(),ownershipHistory:[{from:"Mint",to:"You",action:"Created",at:new Date().toLocaleString()}]};
-  vaultNfts.unshift(nft); );
+  vaultNfts.unshift(nft); renderAll();
   const saved=saveState();
   window.pncEditingDraftId = nft.pncId;
   alert("NFT added to My Vault:\n"+name+"\nCollection: "+collection+"\n"+nft.pncId+(saved?"":"\n\n※画面には追加しましたが、保存容量の問題で次回起動時に残らない可能性があります。")+"\n\nこのままCreate NFT画面で編集を続けられます。");
@@ -1119,7 +1119,7 @@ function submitNFT(){
 function submitVerification(){
   const name=document.getElementById("verifyCollection").value; if(!name){alert("Select Collection.");return}
   const c=collections.find(x=>x.name===name); if(!c)return;
-  c.verification="Pending"; c.verified=false; saveState(); ); alert("Verification request submitted:\n"+name+"\nStatus: Pending");
+  c.verification="Pending"; c.verified=false; saveState(); alert("Verification request submitted:\n"+name+"\nStatus: Pending");
 }
 
 function searchPNC(){
@@ -1470,7 +1470,7 @@ function submitCollection(){
   if(!name){alert("Please enter Collection Name.");return}
   if(collectionNameExists(name)){alert("同じショップ名は既に存在します。\n既存ショップにNFTを追加する場合は、Create NFTでプルダウンからそのショップを選んでください。");return}
   collections.unshift({id:nextCollectionId(),name,creator:creator||"You",icon:"🏪",image:uploadedCollectionImage,description:desc,verified:false,volume:"0 Pi",verification:"Unverified"});
-  saveState(); ); alert("Collection created:\n"+name); showPage("collectionsPage");
+  saveState(); alert("Collection created:\n"+name); showPage("collectionsPage");
 }
 function submitNFT(){
   const name=document.getElementById("newNftName").value.trim();
@@ -1498,7 +1498,7 @@ function submitNFT(){
   }
   if(!name||!collectionId||!status){alert("Please enter NFT Name, Collection, and Status.");return}
   const nft={pncId:newPncId(),name,description:desc,utilityType,utility,collectionId,collection,icon,image:uploadedImageData,price:priceRaw?priceRaw+" SepoliaETH":"Not Set",status,saleStatus:status,ownershipStatus:"Owned",verified:false,creator:"You",creatorWallet:"You",originalOwner:"You",owner:"PNC Vault",currentOwner:"PNC Vault",chainStatus:"Off-chain",metadataUri:"",chainTokenId:"",createdAt:new Date().toLocaleString(),ownershipHistory:[{from:"Mint",to:"You",action:"Created",at:new Date().toLocaleString()}]};
-  vaultNfts.unshift(nft); );
+  vaultNfts.unshift(nft); renderAll();
   const saved=saveState();
   alert("NFT added to My Vault:\n"+name+"\nCollection: "+collection+"\n"+nft.pncId+(saved?"":"\n\n※画面には追加しましたが、保存容量の問題で次回起動時に残らない可能性があります。"));
   showPage("vaultPage");
@@ -1506,7 +1506,7 @@ function submitNFT(){
 function submitVerification(){
   const id=document.getElementById("verifyCollection").value; if(!id){alert("Select Collection.");return}
   const c=collectionById(id); if(!c)return;
-  c.verification="pending"; c.verified=false; saveState(); ); alert("Verification request submitted:\n"+c.name+"\nStatus: Pending");
+  c.verification="pending"; c.verified=false; saveState(); alert("Verification request submitted:\n"+c.name+"\nStatus: Pending");
 }
 function editCollection(collectionId){
   const c=collectionById(collectionId); if(!c)return;
@@ -1517,7 +1517,7 @@ function editCollection(collectionId){
   const desc=prompt("Description:",c.description||""); if(desc===null)return;
   c.name=trimmed; c.creator=creator.trim()||c.creator; c.description=desc.trim()||c.description;
   vaultNfts.forEach(n=>{if(n.collectionId===c.id)n.collection=c.name});
-  saveState(); ); openCollection2180(c.name); alert("Collection updated:\n"+c.name);
+  saveState(); openCollection2180(c.name); alert("Collection updated:\n"+c.name);
 }
 function deleteCollection(collectionId){
   const c=collectionById(collectionId); if(!c)return;
@@ -1525,7 +1525,7 @@ function deleteCollection(collectionId){
   if(related>0&&!confirm("This collection has NFTs. Delete collection and related NFTs?\n\n"+c.name))return;
   if(related===0&&!confirm("Delete collection?\n\n"+c.name))return;
   collections=collections.filter(x=>x.id!==c.id); vaultNfts=vaultNfts.filter(n=>!(n.collectionId?n.collectionId===c.id:n.collection===c.name));
-  saveState(); ); showPage("collectionsPage"); alert("Collection deleted:\n"+c.name);
+  saveState(); showPage("collectionsPage"); alert("Collection deleted:\n"+c.name);
 }
 function searchPNC(){
   const q=document.getElementById("searchInput").value.trim().toLowerCase(), box=document.getElementById("searchResults");
