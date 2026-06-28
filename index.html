@@ -715,7 +715,6 @@ function buyNFT(id){
   nft.purchasedAt = new Date().toLocaleString();
 
   saveState();
-  );
   alert("Purchase completed.\nNFT moved to My Vault:\n" + nft.name + "\n" + nft.pncId);
   showPage("vaultPage");
 }
