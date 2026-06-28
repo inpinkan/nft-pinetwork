@@ -1345,7 +1345,6 @@ function adminApplySync(){
     vaultNfts=payload.vaultNfts;
     nextId=Math.max(payload.nextId || 1, getMaxPncNumber()+1, 1);
     const saved=saveState();
-    );
     closeSyncModal();
     alert("Import complete." + (saved ? "" : "\n保存容量の問題で次回残らない可能性があります。"));
   }catch(e){
