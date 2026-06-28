@@ -2836,12 +2836,16 @@ function getCollectionNFTsById(collectionId, onlyPublic=false){
   const c = collectionById(collectionId);
   if(!c) return [];
   return vaultNfts.filter(n=>{
-    const match = n.collectionId ? n.collectionId === collectionId : n.collection === c.name;
+    const match =
+      n.collectionId === c.id ||
+      n.collectionId === collectionId ||
+      n.collection === c.name ||
+      n.collectionName === c.name;
     if(!match) return false;
     if(!onlyPublic) return true;
-    if(n.status === 'Draft') return false;
-    // Local/off-chain leftovers are drafts or device-local records. They should not appear as public collection NFTs.
-    if(pncIsLocalOffchainNFT(n)) return false;
+    if(n.status === "Draft") return false;
+    if(typeof pncIsLocalOffchainNFT === "function" && pncIsLocalOffchainNFT(n)) return false;
+    if(typeof pncIsHiddenOnchain === "function" && pncIsHiddenOnchain(n)) return false;
     return true;
   });
 }
