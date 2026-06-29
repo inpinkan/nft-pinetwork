@@ -8874,11 +8874,33 @@ console.log('PNC v2.17.35 Cleanup & Core Stabilize loaded. Footer mutation remov
     return n;
   }
   function createMarketState(){
-    var nfts = arr('vaultNfts').map(function(n){ return maybeApply(n); }).filter(Boolean);
-    var cols = arr('collections').filter(Boolean);
-    var wallet = currentWallet();
-    return { version: VERSION, wallet: wallet, walletLower: lc(wallet), nfts: nfts, collections: cols, createdAt: Date.now() };
+  var source = [];
+
+  try{
+    if(typeof window.publicNfts === "function"){
+      source = window.publicNfts() || [];
+    }
+  }catch(e){}
+
+  if(!source.length){
+    source = arr('vaultNfts');
   }
+
+  var seen = {};
+  var nfts = source.map(function(n){
+    return maybeApply(n);
+  }).filter(function(n){
+    if(!n) return false;
+    var key = lc(n.key || '') || lc(n.contractAddress || '') + ':' + lc(n.chainTokenId || '') || lc(n.pncId || '') || lc(n.name || '');
+    if(seen[key]) return false;
+    seen[key] = true;
+    return true;
+  });
+
+  var cols = arr('collections').filter(Boolean);
+  var wallet = currentWallet();
+  return { version: VERSION, wallet: wallet, walletLower: lc(wallet), nfts: nfts, collections: cols, createdAt: Date.now() };
+}
   function actionHtml(n, mode){
     var idx = arr('vaultNfts').findIndex(function(x){ return x && n && x.pncId === n.pncId; });
     var buttons = '<button class="small-btn buy-btn" onclick="showDetailById(\''+esc(n.pncId)+'\')">View</button>';
