@@ -1386,14 +1386,18 @@ function normalizeCollectionLinks(){
     }
   });
 }
+/*
 function getCollectionNFTsById(collectionId, onlyPublic=false){
-  const c=collectionById(collectionId);
+  const c = collectionById(collectionId);
   if(!c) return [];
   return vaultNfts.filter(n=>{
-    const match = n.collectionId ? n.collectionId===collectionId : n.collection===c.name;
-    return match && (!onlyPublic || n.status!=="Draft");
+    const match = n.collectionId
+      ? n.collectionId === collectionId
+      : n.collection === c.name;
+    return match && (!onlyPublic || n.status !== "Draft");
   });
 }
+*/
 
 function saveState(){
   normalizeCollectionLinks();
