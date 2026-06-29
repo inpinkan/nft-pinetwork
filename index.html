@@ -8945,11 +8945,22 @@ console.log('PNC v2.17.35 Cleanup & Core Stabilize loaded. Footer mutation remov
   });
 }
   function renderCollectionCard(c, state){
-    var items = collectionItems(state, c);
-    var img = c && (c.image || c.imageData || c.banner || c.collectionImage);
-    var banner = img ? '<div class="collection-banner has-image" style="background-image:url(\''+esc(img)+'\')"></div>' : '<div class="collection-banner">🏪</div>';
-    return '<div class="collection-card" onclick="openCollection(\''+esc(c.name || '')+'\')">'+banner+'<div class="collection-body"><div class="collection-name">'+esc(c.name || 'Collection')+(c.verified?' <span class="verified">✔</span>':'')+'</div><div class="meta">NFTs: '+items.length+'</div></div></div>';
-  }
+  var items = collectionItems(state, c);
+  var img = c && (c.image || c.imageData || c.banner || c.collectionImage);
+  var key = (c && (c.id || c.name)) || '';
+  var banner = img
+    ? '<div class="collection-banner has-image" style="background-image:url(\''+esc(img)+'\')"></div>'
+    : '<div class="collection-banner">🖼️</div>';
+
+  return '<div class="collection-card" onclick="openCollection2180(\''+esc(key)+'\')">'
+    + banner
+    + '<div class="collection-body"><div class="collection-name">'
+    + esc(c.name || 'Collection')
+    + (c.verified ? ' <span class="verified">✓</span>' : '')
+    + '</div><div class="meta">Public NFTs: '
+    + items.length
+    + '</div></div></div>';
+}
   function renderTopCollections(state){
     var box = $('topCollections'); if(!box) return;
     var rows = state.collections.map(function(c){ return {c:c, items:collectionItems(state,c)}; })
