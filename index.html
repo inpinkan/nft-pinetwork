@@ -7164,7 +7164,7 @@ console.log('PNC v2.17.35 Cleanup & Core Stabilize loaded. Footer mutation remov
   window.PNC_APP_VERSION=VERSION; window.publicNfts=canonicalNFTs; window.hotNfts=()=>canonicalNFTs().filter(listed); window.getCollectionNFTs=itemsFor; window.getCollectionNFTsById=itemsFor; window.nftCard=card; window.collectionCard=collectionCard; window.renderCollections=renderCollectionsFixed; window.renderNFTs=renderNFTsFixed; window.openCollection=openCollectionFixed; window.showDetailById=showDetailFixed; window.hideDetail=hideDetailFixed; window.closeNFTDetail=hideDetailFixed; window.renderAll=render; window.syncOnchainPNCNFTs=ownerSync;
   try{ renderAll=render; syncOnchainPNCNFTs=ownerSync; }catch(e){}
   window.editOnchainDisplayNFT=function(index){ const n=arr()[index]; if(!n) return alert('NFT not found.'); const name=prompt('NFT name', n.name||''); if(name===null) return; const desc=prompt('Description', n.description||''); if(desc===null) return; const img=prompt('Image URL / IPFS gateway URL', n.image||''); if(img===null) return; const col=prompt('Shop / Collection name', n.collection||''); if(col===null) return; n.name=name.trim()||n.name; n.description=desc.trim(); n.image=img.trim(); n.collection=col.trim()||n.collection; try{ if(typeof saveState==='function') saveState(); }catch(e){} render(); };
-  setTimeout(render,0); setTimeout(ownerSync,900); setTimeout(render,1800); setTimeout(render,4200);
+  setTimeout(ownerSync,900);
   console.log('PNC v2.17.35 display identity fix loaded.');
 })();
 // === /v2.17.35 ===
@@ -7349,7 +7349,8 @@ console.log('PNC v2.17.35 Cleanup & Core Stabilize loaded. Footer mutation remov
 
   window.PNC_APP_VERSION=VERSION; window.publicNfts=nftModel; window.hotNfts=()=>nftModel().filter(listed); window.getCollectionNFTs=itemsFor; window.getCollectionNFTsById=itemsFor; window.nftCard=card; window.collectionCard=collectionCard; window.renderCollections=renderCollections; window.renderNFTs=renderNFTs; window.openCollection=openCollection; window.showDetailById=showDetail; window.hideDetail=hideDetail; window.closeNFTDetail=hideDetail; window.renderAll=render; window.syncOnchainPNCNFTs=ownerSync;
   try{ renderAll=render; syncOnchainPNCNFTs=ownerSync; }catch(e){}
-  setTimeout(render,0); setTimeout(ownerSync,700); setTimeout(render,1200); setTimeout(render,2300); setTimeout(render,4500); setTimeout(ownerSync,6500);
+  setTimeout(ownerSync,700);
+  setTimeout(ownerSync,6500);
   console.log('PNC v2.17.35 core data model fix loaded');
 })();
 // === /v2.17.35 ===
