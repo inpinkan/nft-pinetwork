@@ -8962,17 +8962,32 @@ console.log('PNC v2.17.35 Cleanup & Core Stabilize loaded. Footer mutation remov
     + '</div></div></div>';
 }
   function renderTopCollections(state){
-    var box = $('topCollections'); if(!box) return;
-    var rows = state.collections.map(function(c){ return {c:c, items:collectionItems(state,c)}; })
-      .sort(function(a,b){ return b.items.length - a.items.length; })
-      .slice(0,5);
-    box.innerHTML = rows.length ? rows.map(function(row,i){
-      var c = row.c;
-      var img = c && (c.image || c.imageData || c.banner || c.collectionImage);
-      var avatar = img ? '<div class="avatar" style="background-image:url(\''+esc(img)+'\');background-size:cover;background-position:center"></div>' : '<div class="avatar">'+esc(c.icon || '🏪')+'</div>';
-      return '<div class="collection-row" onclick="openCollection(\''+esc(c.name || '')+'\')"><div class="rank">'+(i+1)+'</div>'+avatar+'<div><div class="name">'+esc(c.name || 'Collection')+(c.verified?' <span class="verified">✔</span>':'')+'</div><div class="meta">Public NFTs: '+row.items.length+'</div></div><div class="volume">PNC</div></div>';
-    }).join('') : '<div class="panel">No collections yet.</div>';
-  }
+  var box = $('topCollections');
+  if(!box) return;
+
+  var rows = state.collections.map(function(c){
+    return { c:c, items:collectionItems(state,c) };
+  })
+  .sort(function(a,b){ return b.items.length - a.items.length; })
+  .slice(0,5);
+
+  box.innerHTML = rows.length ? rows.map(function(row,i){
+    var c = row.c;
+    var img = c && (c.image || c.imageData || c.banner || c.collectionImage);
+    var key = (c && (c.id || c.name)) || '';
+    var avatar = img
+      ? '<div class="avatar" style="background-image:url(\''+esc(img)+'\');background-size:cover;background-position:center"></div>'
+      : '<div class="avatar">'+esc(c.icon || '🖼️')+'</div>';
+
+    return '<div class="collection-row" onclick="openCollection2180(\''+esc(key)+'\')">'
+      + '<div class="rank">'+(i+1)+'</div>'
+      + avatar
+      + '<div><div class="name">'+esc(c.name || 'Collection')
+      + (c.verified ? ' <span class="verified">✓</span>' : '')
+      + '</div><div class="meta">Public NFTs: '+row.items.length+'</div></div>'
+      + '<div class="chain-badge">PNC</div></div>';
+  }).join('') : '<div class="panel">No collections yet.</div>';
+}
   function renderHome(state){
     var listed = publicNFTs(state).filter(isListed);
     var pub = publicNFTs(state);
