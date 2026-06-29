@@ -6419,7 +6419,7 @@ loadState();
 ensureOnchainGenesisSeed();
 setupAdminMode();
 pnc2162PrepareMarketLoading();
-renderAll2180();
+if(typeof renderAll2180 === "function") renderAll2180();
 pnc2162PublicMarketplacePreload();
 
 try{
