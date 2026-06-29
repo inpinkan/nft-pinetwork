@@ -9004,6 +9004,7 @@ console.log('PNC v2.17.35 Cleanup & Core Stabilize loaded. Footer mutation remov
     box.innerHTML = banner + '<div class="hero"><h1>'+esc(c.name || 'Collection')+(c.verified?' <span class="verified">✔</span>':'')+'</h1><p>NFTs: '+items.length+'</p></div><div class="grid">'+(items.length?items.map(function(n){return renderNFTCard(n,'public');}).join(''):'<div class="panel">No public NFTs yet.</div>')+'</div>';
     sanitizeLegacyLabels(box);
   }
+  window.openCollection = openCollection2180;
   function showDetail2180(id){
     var state = window.PNC_MARKET_STATE || createMarketState();
     var n = state.nfts.find(function(x){ return x && x.pncId === id; });
