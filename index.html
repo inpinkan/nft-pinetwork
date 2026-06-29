@@ -5458,7 +5458,15 @@ try{
 }catch(e){}
 try{
   const oldLoadWallet=loadWalletState;
-  loadWalletState=async function(walletAddress){ await pnc215LoadPublic(); const r=oldLoadWallet?await oldLoadWallet.apply(this,arguments):undefined; await pnc215LoadPublic(); pnc215ApplyLocalTransfers(); saveState(); renderAll2180(); return r; };
+  loadWalletState = async function(walletAddress){
+  await pnc215LoadPublic();
+  const r = oldLoadWallet ? await oldLoadWallet.apply(this, arguments) : undefined;
+  await pnc215LoadPublic();
+  pnc215ApplyLocalTransfers();
+  saveState();
+  if(typeof renderAll2180 === "function") renderAll2180();
+  return r;
+};
 }catch(e){}
 try{
   const oldSavePublic=savePublicListingState;
