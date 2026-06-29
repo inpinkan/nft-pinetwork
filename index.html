@@ -8914,10 +8914,14 @@ console.log('PNC v2.17.35 Cleanup & Core Stabilize loaded. Footer mutation remov
       + '</div></div>';
   }
   function collectionItems(state, c){
-    var name = lc(c && c.name);
-    var id = lc(c && c.id);
-    return publicNFTs(state).filter(function(n){ return lc(n.collection) === name || lc(n.collectionId) === id; });
-  }
+  var name = lc(c && c.name);
+  var id = lc(c && c.id);
+  return publicNFTs(state).filter(function(n){
+    return lc(n.collection) === name
+      || lc(n.collectionName) === name
+      || lc(n.collectionId) === id;
+  });
+}
   function renderCollectionCard(c, state){
     var items = collectionItems(state, c);
     var img = c && (c.image || c.imageData || c.banner || c.collectionImage);
