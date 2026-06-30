@@ -260,7 +260,7 @@
     <button class="menu-btn" onclick="toggleMenu()">☰</button>
   </div>
   <div class="search-wrap">
-    <div class="search-row"><input id="searchInput" oninput="searchPNC()" placeholder="Search NFTs or Collections"/><button class="wallet-btn" id="walletConnectBtn" onclick="connectWallet()">Connect</button></div>
+    <div class="search-row"><input id="searchInput" oninput="searchPNC()" placeholder="Search NFTs or Collections"/><button class="wallet-btn" id="walletConnectBtn" onclick="openWalletModal()">Connect</button></div>
     <div class="search-results" id="searchResults"></div>
   </div>
   <div class="menu" id="menu">
@@ -276,7 +276,7 @@
 </header>
 <main>
   <div class="page show" id="homePage">
-    <div class="hero"><h1>Pi NFT Center <span class="beta">v1.1.2 Clean Core</span></h1><p>Single MarketState / detail actions cleaned / no debug alerts.</p></div>
+    <div class="hero"><h1>Pi NFT Center <span class="beta">v1.1.4 Clean Core</span></h1><p>Media loading / wallet selector / logout added. Single MarketState only.</p></div>
     <section><div class="section-title">🏆 Top Collections</div><div class="collection-list" id="topCollections"></div></section>
     <section><div class="section-title">🔥 Hot NFTs</div><div class="grid" id="hotNfts"></div></section>
     <section><div class="section-title">🆕 New NFTs</div><div class="grid" id="newNfts"></div></section>
@@ -299,11 +299,21 @@
 </main>
 <footer id="appFooter"></footer>
 <div class="detail-overlay" id="nftDetailOverlay" onclick="closeNftDetail(event)"><div class="detail-box" id="nftDetailBox"></div></div>
+<div class="wallet-modal" id="walletModal">
+  <div class="wallet-box">
+    <h2>Connect Wallet</h2>
+    <p class="meta" id="walletModalStatus">Choose a wallet provider.</p>
+    <button class="wallet-option" onclick="connectMetaMask()">🦊 MetaMask</button>
+    <button class="wallet-option" onclick="piWalletComingSoon()">π Pi Wallet <span class="meta">Coming soon</span></button>
+    <button class="wallet-option" id="logoutWalletOption" onclick="logoutWallet()">🚪 Logout</button>
+    <button class="close-btn" onclick="closeWalletModal()">Close</button>
+  </div>
+</div>
 
 <script>
 'use strict';
 
-const PNC_VERSION = 'v1.1.3 Clean Core';
+const PNC_VERSION = 'v1.1.4 Clean Core';
 const SEPOLIA_CHAIN_ID = '0xaa36a7';
 const NFT_CONTRACT = '0x63C8AbE6a0e7867B7812A1237a2781D460702382';
 const MARKETPLACE_CONTRACT = '0x33Ed6866A85d9C00AD5e028750939E545ee4556f';
@@ -355,13 +365,30 @@ function toggleMenu(){ $('menu')?.classList.toggle('show'); }
 function setTheme(mode){ document.body.className = mode === 'light' ? '' : 'dark'; }
 function showPage(id){ document.querySelectorAll('.page').forEach(p=>p.classList.remove('show')); $(id)?.classList.add('show'); $('menu')?.classList.remove('show'); }
 
-async function connectWallet(){
+function openWalletModal(){
+  const modal = $('walletModal');
+  const status = $('walletModalStatus');
+  const logout = $('logoutWalletOption');
+  if(status) status.textContent = PNC_STATE.wallet ? `Connected: ${short(PNC_STATE.wallet)}` : 'Choose a wallet provider.';
+  if(logout) logout.style.display = PNC_STATE.wallet ? 'block' : 'none';
+  modal?.classList.add('show');
+}
+function closeWalletModal(){ $('walletModal')?.classList.remove('show'); }
+function piWalletComingSoon(){ alert('Pi Wallet connection is prepared for the future. Current testnet build uses MetaMask / Sepolia.'); }
+async function connectMetaMask(){
   if(!window.ethereum){ alert('MetaMask is not available.'); return; }
   const accounts = await ethereum.request({ method:'eth_requestAccounts' });
   PNC_STATE.wallet = accounts[0] || null;
   try{ await ethereum.request({ method:'wallet_switchEthereumChain', params:[{ chainId: SEPOLIA_CHAIN_ID }] }); }catch(e){ console.warn(e); }
+  closeWalletModal();
   await loadBlockchainState();
 }
+async function logoutWallet(){
+  PNC_STATE.wallet = null;
+  closeWalletModal();
+  await loadBlockchainState();
+}
+async function connectWallet(){ return openWalletModal(); }
 
 async function ethCall(to, data){
   if(!window.ethereum) return null;
@@ -384,6 +411,28 @@ function weiToEth(wei){
   return frac ? `${whole}.${frac}` : String(whole);
 }
 async function readOwnerOf(tokenId){ const r = await ethCall(NFT_CONTRACT, sig4('ownerOf(uint256)') + toHex(tokenId).slice(2)); return decodeAddress(r); }
+function decodeAbiString(hex){
+  const h = String(hex||'').replace(/^0x/,'');
+  if(!h || h.length < 128) return '';
+  const len = Number(BigInt('0x' + h.slice(64,128)));
+  const data = h.slice(128, 128 + len * 2);
+  try{ return decodeURIComponent(data.match(/.{1,2}/g).map(b => '%' + b).join('')); }catch(e){ try{ return new TextDecoder().decode(Uint8Array.from(data.match(/.{1,2}/g).map(b=>parseInt(b,16)))); }catch(_){ return ''; } }
+}
+async function readTokenURI(tokenId){ const r = await ethCall(NFT_CONTRACT, sig4('tokenURI(uint256)') + toHex(tokenId).slice(2)); return decodeAbiString(r); }
+async function hydrateMetadata(nft){
+  const metaUrl = nft.metadataUrl || nft.tokenURI || '';
+  if(!metaUrl) return;
+  try{
+    const res = await fetch(ipfs(metaUrl), { cache:'no-store' });
+    if(!res.ok) throw new Error('metadata fetch failed');
+    const meta = await res.json();
+    nft.metadata = meta;
+    if(meta.name && (!nft.name || nft.name === nft.id)) nft.name = meta.name;
+    if(meta.description) nft.description = meta.description;
+    if(meta.image && !nft.image) nft.image = meta.image;
+    if(meta.animation_url) nft.animation_url = meta.animation_url;
+  }catch(e){ nft.metadataError = e.message || String(e); }
+}
 async function readListingId(nftContract, tokenId){ const data = sig4('listingIdByNFT(address,uint256)') + addrWord(nftContract) + toHex(tokenId).slice(2); return decodeUint(await ethCall(MARKETPLACE_CONTRACT, data)); }
 async function readListing(listingId){
   const r = await ethCall(MARKETPLACE_CONTRACT, sig4('listings(uint256)') + toHex(listingId).slice(2));
@@ -428,6 +477,8 @@ async function createMarketState(){
     nft.status = 'not_for_sale';
     if(lc(nft.contractAddress) === lc(NFT_CONTRACT) && nft.tokenId){
       try{ const owner = await readOwnerOf(nft.tokenId); if(owner) nft.owner = owner; }catch(e){ state.errors.push(nft.name+' ownerOf failed'); }
+      try{ const uri = await readTokenURI(nft.tokenId); if(uri) nft.tokenURI = uri; }catch(e){ state.errors.push(nft.name+' tokenURI failed'); }
+      await hydrateMetadata(nft);
       try{
         const listingId = await readListingId(NFT_CONTRACT, nft.tokenId);
         nft.listingId = listingId;
@@ -442,6 +493,8 @@ async function createMarketState(){
           }
         }
       }catch(e){ state.errors.push(nft.name+' listing read failed'); }
+    }else{
+      await hydrateMetadata(nft);
     }
   }
   return state;
@@ -463,10 +516,11 @@ function detailActionButtons(n){
     <button class="small-btn buy-btn" ${canBuy ? '' : 'disabled'} onclick="event.stopPropagation(); handleBuy('${esc(n.id)}')">Buy</button>
     <button class="small-btn sell-btn" ${canList ? '' : 'disabled'} onclick="event.stopPropagation(); handleList('${esc(n.id)}')">List</button>
     <button class="small-btn delete-btn" onclick="event.stopPropagation(); closeNftDetail();">Close</button>
-  </div><div class="clean-note mini-note">Buy/List adapters are intentionally disabled until Marketplace wiring is connected in Clean Core. No debug popup.</div>`;
+  </div><div class="clean-note mini-note">Buy/List adapters are prepared, but full Marketplace write wiring is a later step.</div>`;
 }
-function handleBuy(id){ console.warn('PNC Clean Core: Buy adapter not wired yet', id); }
-function handleList(id){ console.warn('PNC Clean Core: List adapter not wired yet', id); }
+function requireWallet(){ if(PNC_STATE.wallet) return true; alert('WalletをConnectしてください。'); openWalletModal(); return false; }
+function handleBuy(id){ if(!requireWallet()) return; alert('Buy接続は次の段階で実装します。まず表示とMarketStateを固定しています。'); }
+function handleList(id){ if(!requireWallet()) return; alert('List接続は次の段階で実装します。まず表示とMarketStateを固定しています。'); }
 function nftCard(n){
   return `<div class="nft-card" onclick="showDetailById('${esc(n.id)}')">${mediaBox(n,'nft-img')}<div class="nft-body"><div class="nft-title-row"><div class="nft-name">${esc(n.name)}</div><div class="nft-token-chip">${esc(n.tokenId ? '#'+n.tokenId : 'Legacy')}</div></div>${priceLine(n)}<div class="nft-info-list">${infoRow('Collection', collectionNameById(n.collectionId))}${infoRow('Owner', short(n.owner))}${infoRow('Creator', short(n.creator))}${n.seller ? infoRow('Seller', short(n.seller)) : ''}</div><div class="nft-badge-row"><span class="status-badge ${statusClass(n)}">${esc(statusLabel(n))}</span><span class="chain-badge">${esc(chainLabel(n))}</span></div></div></div>`;
 }
