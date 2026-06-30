@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Pi NFT Center v1.1.1 Clean Core</title>
+<title>Pi NFT Center v1.1.2 Clean Core</title>
 <style>
 
     :root{--purple:#5b2d82;--gold:#f5b041;--bg:#f7f4fb;--card:#fff;--text:#19151f;--muted:#8b8195;--border:#e5d8ef;--green:#2ecc71;--red:#ff5c5c;--blue:#2f80ed}
@@ -227,6 +227,25 @@
 @media(max-width:720px){.price-unit{font-size:.76em!important}.detail-price-box .price-unit{font-size:.58em!important}}
 
 
+/* v1.1.2 Clean Core NFT card information */
+.nft-card{position:relative}
+.nft-card .nft-body{display:grid;gap:6px}
+.nft-title-row{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+.nft-token-chip{border:1px solid var(--border);border-radius:999px;padding:2px 7px;color:var(--muted);font-size:10px;font-weight:900;white-space:nowrap;background:rgba(255,255,255,.045)}
+.nft-info-list{display:grid;gap:3px;margin-top:2px}
+.nft-info-row{display:flex;justify-content:space-between;gap:8px;border-top:1px solid rgba(255,255,255,.06);padding-top:4px;font-size:11px}
+.nft-info-row span:first-child{color:var(--muted);font-weight:800}
+.nft-info-row span:last-child{font-weight:900;text-align:right;word-break:break-word}
+.nft-badge-row{display:flex;gap:5px;flex-wrap:wrap;margin-top:3px}
+.status-not-for-sale{color:var(--muted);border-color:var(--border);background:rgba(255,255,255,.045)}
+.status-legacy{color:#b084ff;border-color:rgba(176,132,255,.45);background:rgba(176,132,255,.12)}
+.detail-overlay{position:fixed;inset:0;background:rgba(0,0,0,.62);z-index:90;display:none;align-items:center;justify-content:center;padding:18px}
+.detail-overlay.show{display:flex}
+.detail-box{width:100%;max-width:720px;max-height:90vh;overflow:auto;background:var(--card);border:1px solid var(--border);border-radius:24px;padding:18px;color:var(--text)}
+.detail-box .grid{grid-template-columns:1fr}
+.detail-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+@media(max-width:720px){.nft-info-row{font-size:10px}.detail-box{border-radius:18px;padding:14px}}
+
 .clean-note{border:1px solid var(--border);border-radius:18px;padding:12px;background:rgba(47,128,237,.08);color:var(--muted);font-size:13px;line-height:1.5}
 .code-mini{font-family:Consolas,monospace;font-size:12px;word-break:break-all}
 </style>
@@ -254,7 +273,7 @@
 </header>
 <main>
   <div class="page show" id="homePage">
-    <div class="hero"><h1>Pi NFT Center <span class="beta">v1.1.1 Clean Core</span></h1><p>Single MarketState / 6 render functions / no wallet-specific patches.</p></div>
+    <div class="hero"><h1>Pi NFT Center <span class="beta">v1.1.2 Clean Core</span></h1><p>Single MarketState / NFT card display upgrade / no wallet-specific patches.</p></div>
     <section><div class="section-title">🏆 Top Collections</div><div class="collection-list" id="topCollections"></div></section>
     <section><div class="section-title">🔥 Hot NFTs</div><div class="grid" id="hotNfts"></div></section>
     <section><div class="section-title">🆕 New NFTs</div><div class="grid" id="newNfts"></div></section>
@@ -276,11 +295,12 @@
   </div>
 </main>
 <footer id="appFooter"></footer>
+<div class="detail-overlay" id="nftDetailOverlay" onclick="closeNftDetail(event)"><div class="detail-box" id="nftDetailBox"></div></div>
 
 <script>
 'use strict';
 
-const PNC_VERSION = 'v1.1.1 Clean Core';
+const PNC_VERSION = 'v1.1.2 Clean Core';
 const SEPOLIA_CHAIN_ID = '0xaa36a7';
 const NFT_CONTRACT = '0x63C8AbE6a0e7867B7812A1237a2781D460702382';
 const MARKETPLACE_CONTRACT = '0x33Ed6866A85d9C00AD5e028750939E545ee4556f';
@@ -353,8 +373,27 @@ function sig4(signature){
 }
 function decodeAddress(hex){ return hex && hex !== '0x' ? '0x'+hex.slice(-40) : ''; }
 function decodeUint(hex){ return hex && hex !== '0x' ? BigInt(hex).toString() : '0'; }
+function words(hex){ const h=String(hex||'').replace(/^0x/,''); return h ? h.match(/.{1,64}/g) || [] : []; }
+function weiToEth(wei){
+  const v = BigInt(String(wei||0));
+  const whole = v / 1000000000000000000n;
+  const frac = String(v % 1000000000000000000n).padStart(18,'0').replace(/0+$/,'').slice(0,6);
+  return frac ? `${whole}.${frac}` : String(whole);
+}
 async function readOwnerOf(tokenId){ const r = await ethCall(NFT_CONTRACT, sig4('ownerOf(uint256)') + toHex(tokenId).slice(2)); return decodeAddress(r); }
 async function readListingId(nftContract, tokenId){ const data = sig4('listingIdByNFT(address,uint256)') + addrWord(nftContract) + toHex(tokenId).slice(2); return decodeUint(await ethCall(MARKETPLACE_CONTRACT, data)); }
+async function readListing(listingId){
+  const r = await ethCall(MARKETPLACE_CONTRACT, sig4('listings(uint256)') + toHex(listingId).slice(2));
+  const w = words(r);
+  if(w.length < 5) return null;
+  return {
+    nftContract: decodeAddress('0x'+w[0]),
+    tokenId: BigInt('0x'+w[1]).toString(),
+    seller: decodeAddress('0x'+w[2]),
+    priceWei: BigInt('0x'+w[3]).toString(),
+    active: BigInt('0x'+w[4]) === 1n
+  };
+}
 
 async function loadKVState(wallet){
   if(!wallet) return null;
@@ -389,7 +428,16 @@ async function createMarketState(){
       try{
         const listingId = await readListingId(NFT_CONTRACT, nft.tokenId);
         nft.listingId = listingId;
-        if(listingId !== '0'){ nft.status = 'listed'; state.market.listings.push({ listingId, nftId:nft.id }); }
+        if(listingId !== '0'){
+          const listing = await readListing(listingId);
+          if(listing && listing.active){
+            nft.status = 'listed';
+            nft.priceWei = listing.priceWei;
+            nft.priceEth = weiToEth(listing.priceWei);
+            nft.seller = listing.seller;
+            state.market.listings.push({ listingId, nftId:nft.id, priceWei:listing.priceWei, seller:listing.seller });
+          }
+        }
       }catch(e){ state.errors.push(nft.name+' listing read failed'); }
     }
   }
@@ -397,10 +445,16 @@ async function createMarketState(){
 }
 
 function collectionItems(state, collectionId){ return state.nfts.filter(n => n.collectionId === collectionId); }
-function priceLine(n){ return n.status === 'listed' ? '<div class="price-block"><span class="price-label">Price</span><span class="price-line">SepoliaETH</span></div>' : ''; }
+function collectionNameById(id){ return (PNC_STATE.collections.find(c=>c.id===id)||{}).name || id || '-'; }
+function chainLabel(n){ return lc(n.contractAddress) === lc(NFT_CONTRACT) ? 'ERC721 On-chain' : 'Legacy'; }
+function statusLabel(n){ return n.status === 'listed' ? 'Listed' : (chainLabel(n)==='Legacy' ? 'Legacy' : 'Not for sale'); }
+function statusClass(n){ return n.status === 'listed' ? 'status-listed' : (chainLabel(n)==='Legacy' ? 'status-legacy' : 'status-not-for-sale'); }
+function priceText(n){ return n.status === 'listed' ? `${n.priceEth || '-'} SepoliaETH` : 'Not for sale'; }
+function priceLine(n){ return `<div class="price-block"><span class="price-label">Price</span><span class="price-line"><span class="price-value-wrap">${esc(priceText(n))}</span></span></div>`; }
 function mediaBox(item, cls){ const img=ipfs(item.image || item.banner); return img ? `<div class="${cls} has-image" style="background-image:url('${esc(img)}')"></div>` : `<div class="${cls}">${esc(item.icon||'🖼')}</div>`; }
+function infoRow(label, value){ return `<div class="nft-info-row"><span>${esc(label)}</span><span>${esc(value)}</span></div>`; }
 function nftCard(n){
-  return `<div class="nft-card" onclick="showDetailById('${esc(n.id)}')">${mediaBox(n,'nft-img')}<div class="nft-body"><div class="nft-name">${esc(n.name)}</div><div class="meta">Owner: ${esc(short(n.owner))}</div>${priceLine(n)}<span class="status-badge ${n.status==='listed'?'status-listed':'status-owned'}">${esc(n.status)}</span><span class="chain-badge">${esc(n.contractAddress===NFT_CONTRACT?'ERC721 On-chain':'Legacy')}</span></div></div>`;
+  return `<div class="nft-card" onclick="showDetailById('${esc(n.id)}')">${mediaBox(n,'nft-img')}<div class="nft-body"><div class="nft-title-row"><div class="nft-name">${esc(n.name)}</div><div class="nft-token-chip">${esc(n.tokenId ? '#'+n.tokenId : 'Legacy')}</div></div>${priceLine(n)}<div class="nft-info-list">${infoRow('Collection', collectionNameById(n.collectionId))}${infoRow('Owner', short(n.owner))}${infoRow('Creator', short(n.creator))}${n.seller ? infoRow('Seller', short(n.seller)) : ''}</div><div class="nft-badge-row"><span class="status-badge ${statusClass(n)}">${esc(statusLabel(n))}</span><span class="chain-badge">${esc(chainLabel(n))}</span></div></div></div>`;
 }
 function collectionCard(c, state, featured=false){
   const items = collectionItems(state, c.id);
@@ -443,11 +497,11 @@ function renderFooter(state){
 function openCollection(collectionId){ renderCollectionPage(PNC_STATE, collectionId); showPage('collectionPage'); }
 function showDetailById(id){
   const n = PNC_STATE.nfts.find(x=>x.id===id); if(!n) return;
-  alert(`${n.name}
-Owner: ${n.owner||'-'}
-Status: ${n.status}
-Token ID: ${n.tokenId||'-'}`);
+  const c = PNC_STATE.collections.find(x=>x.id===n.collectionId) || {};
+  $('nftDetailBox').innerHTML = `<div class="detail-toolbar"><button class="detail-close" onclick="closeNftDetail()">×</button></div><div class="detail-head">${mediaBox(n,'detail-image')}<div><div class="detail-title">${esc(n.name)}</div><div class="meta">${esc(c.name||'-')} ${c.verified?'<span class="verified">✔</span>':''}</div>${priceLine(n)}<div class="nft-badge-row"><span class="status-badge ${statusClass(n)}">${esc(statusLabel(n))}</span><span class="chain-badge">${esc(chainLabel(n))}</span></div></div></div><div class="detail-section"><div class="detail-section-title">NFT Information</div><div class="info-grid"><div>${infoRow('NFT ID', n.id)}${infoRow('Token ID', n.tokenId || '-')}${infoRow('Collection', c.name || '-')} ${infoRow('Contract', n.contractAddress || '-')}</div><div>${infoRow('Owner', n.owner || '-')}${infoRow('Creator', n.creator || '-')}${infoRow('Seller', n.seller || '-')}${infoRow('Listing ID', n.listingId || '-')}</div></div></div><div class="detail-actions"><button class="small-btn buy-btn" onclick="event.stopPropagation(); alert('Buy adapter wiring comes after card/state check.');">Buy</button><button class="small-btn sell-btn" onclick="event.stopPropagation(); alert('List adapter wiring comes after card/state check.');">List</button><button class="small-btn delete-btn" onclick="event.stopPropagation(); closeNftDetail();">Close</button></div>`;
+  $('nftDetailOverlay').classList.add('show');
 }
+function closeNftDetail(ev){ if(ev && ev.target && ev.target.id !== 'nftDetailOverlay') return; $('nftDetailOverlay')?.classList.remove('show'); }
 function searchPNC(){
   const q = lc($('searchInput').value).trim(), box=$('searchResults');
   if(!q){ box.classList.remove('show'); box.innerHTML=''; return; }
