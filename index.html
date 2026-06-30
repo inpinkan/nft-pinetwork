@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Pi NFT Center v1.1.7 Clean Core</title>
+<title>Pi NFT Center v1.1.8 Clean Core</title>
 <style>
 
     :root{--purple:#5b2d82;--gold:#f5b041;--bg:#f7f4fb;--card:#fff;--text:#19151f;--muted:#8b8195;--border:#e5d8ef;--green:#2ecc71;--red:#ff5c5c;--blue:#2f80ed}
@@ -276,7 +276,7 @@
 </header>
 <main>
   <div class="page show" id="homePage">
-    <div class="hero"><h1>Pi NFT Center <span class="beta">v1.1.7 Clean Core</span></h1><p>Wallet account selection improved. PNC Logout keeps MetaMask connection untouched.</p></div>
+    <div class="hero"><h1>Pi NFT Center <span class="beta">v1.1.8 Clean Core</span></h1><p>Wallet account selection reset. PNC reconnect asks MetaMask account permission again.</p></div>
     <section><div class="section-title">🏆 Top Collections</div><div class="collection-list" id="topCollections"></div></section>
     <section><div class="section-title">🔥 Hot NFTs</div><div class="grid" id="hotNfts"></div></section>
     <section><div class="section-title">🆕 New NFTs</div><div class="grid" id="newNfts"></div></section>
@@ -311,7 +311,7 @@
 <script>
 'use strict';
 
-const PNC_VERSION = 'v1.1.7 Clean Core';
+const PNC_VERSION = 'v1.1.8 Clean Core';
 const SEPOLIA_CHAIN_ID = '0xaa36a7';
 const NFT_CONTRACT = '0x63C8AbE6a0e7867B7812A1237a2781D460702382';
 const MARKETPLACE_CONTRACT = '0x33Ed6866A85d9C00AD5e028750939E545ee4556f';
@@ -389,23 +389,39 @@ function openWalletModal(){
 }
 function closeWalletModal(){ $('walletModal')?.classList.remove('show'); }
 function piWalletComingSoon(){ alert('Pi Wallet接続は将来用です。現在のテスト版は MetaMask / Sepolia を使います。'); }
-async function requestSelectedMetaMaskAccount(){
+function isMetaMaskPendingError(e){ return e && e.code === -32002; }
+function isMetaMaskUserRejected(e){ return e && e.code === 4001; }
+async function resetMetaMaskAccountPermission(){
   if(!window.ethereum) throw new Error('MetaMask not found');
   try{
     await ethereum.request({
-      method:'wallet_requestPermissions',
+      method:'wallet_revokePermissions',
       params:[{ eth_accounts:{} }]
     });
   }catch(e){
-    if(e && e.code === -32002){
-      alert('MetaMaskの確認画面がすでに開いています。MetaMaskを確認してください。');
-      throw e;
-    }
-    if(e && e.code === 4001) throw e;
-    console.warn('wallet_requestPermissions skipped:', e);
+    // Some wallets or older MetaMask versions do not support revoke.
+    // In that case we continue to request permissions normally.
+    if(isMetaMaskPendingError(e)) throw e;
+    console.warn('wallet_revokePermissions skipped:', e);
   }
-  const accounts = await ethereum.request({ method:'eth_requestAccounts' });
-  return accounts && accounts[0] ? accounts[0] : null;
+}
+async function requestSelectedMetaMaskAccount(){
+  if(!window.ethereum) throw new Error('MetaMask not found');
+
+  // Important: reset the site's existing account permission first.
+  // This prevents MetaMask from reusing the last account allowed for nft-pinetwork.vercel.app.
+  await resetMetaMaskAccountPermission();
+
+  await ethereum.request({
+    method:'wallet_requestPermissions',
+    params:[{ eth_accounts:{} }]
+  });
+
+  const accounts = await ethereum.request({ method:'eth_accounts' });
+  if(accounts && accounts[0]) return accounts[0];
+
+  const requestedAccounts = await ethereum.request({ method:'eth_requestAccounts' });
+  return requestedAccounts && requestedAccounts[0] ? requestedAccounts[0] : null;
 }
 async function connectMetaMask(){
   if(!window.ethereum){ alert('MetaMaskが見つかりません。'); return; }
@@ -419,7 +435,11 @@ async function connectMetaMask(){
     closeWalletModal();
     await loadBlockchainState();
   }catch(e){
-    if(!(e && e.code === -32002)) alert('MetaMask接続がキャンセル、または失敗しました。');
+    if(isMetaMaskPendingError(e)){
+      alert('MetaMaskの確認画面がすでに開いています。MetaMaskを確認してください。');
+    }else if(!isMetaMaskUserRejected(e)){
+      alert('MetaMask接続が失敗しました。');
+    }
     console.warn(e);
   }finally{
     PNC_WALLET_CONNECTING = false;
@@ -472,9 +492,15 @@ function decodeAbiString(hex){
   try{ return decodeURIComponent(data.match(/.{1,2}/g).map(b => '%' + b).join('')); }catch(e){ try{ return new TextDecoder().decode(Uint8Array.from(data.match(/.{1,2}/g).map(b=>parseInt(b,16)))); }catch(_){ return ''; } }
 }
 async function readTokenURI(tokenId){ const r = await ethCall(NFT_CONTRACT, sig4('tokenURI(uint256)') + toHex(tokenId).slice(2)); return decodeAbiString(r); }
+function isUsableMetadataUrl(u){
+  const s = String(u || '').trim();
+  if(!s) return false;
+  if(s === 'ipfs://test' || s === 'test') return false;
+  return s.startsWith('ipfs://') || s.startsWith('https://') || s.startsWith('http://');
+}
 async function hydrateMetadata(nft){
   const metaUrl = nft.metadataUrl || nft.tokenURI || '';
-  if(!metaUrl) return;
+  if(!isUsableMetadataUrl(metaUrl)) return;
   try{
     const res = await fetch(ipfs(metaUrl), { cache:'no-store' });
     if(!res.ok) throw new Error('metadata fetch failed');
