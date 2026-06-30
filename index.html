@@ -276,7 +276,7 @@
 </header>
 <main>
   <div class="page show" id="homePage">
-    <div class="hero"><h1>Pi NFT Center <span class="beta">v1.1.4 Clean Core</span></h1><p>Media loading / wallet selector / logout added. Single MarketState only.</p></div>
+    <div class="hero"><h1>Pi NFT Center <span class="beta">v1.1.5 Clean Core</span></h1><p>Wallet switch UX improved. PNC Disconnect only; MetaMask account selection stays in MetaMask.</p></div>
     <section><div class="section-title">🏆 Top Collections</div><div class="collection-list" id="topCollections"></div></section>
     <section><div class="section-title">🔥 Hot NFTs</div><div class="grid" id="hotNfts"></div></section>
     <section><div class="section-title">🆕 New NFTs</div><div class="grid" id="newNfts"></div></section>
@@ -303,9 +303,7 @@
   <div class="wallet-box">
     <h2>Connect Wallet</h2>
     <p class="meta" id="walletModalStatus">Choose a wallet provider.</p>
-    <button class="wallet-option" onclick="connectMetaMask()">🦊 MetaMask</button>
-    <button class="wallet-option" onclick="piWalletComingSoon()">π Pi Wallet <span class="meta">Coming soon</span></button>
-    <button class="wallet-option" id="logoutWalletOption" onclick="logoutWallet()">🚪 Logout</button>
+    <div id="walletModalActions"></div>
     <button class="close-btn" onclick="closeWalletModal()">Close</button>
   </div>
 </div>
@@ -313,7 +311,7 @@
 <script>
 'use strict';
 
-const PNC_VERSION = 'v1.1.4 Clean Core';
+const PNC_VERSION = 'v1.1.5 Clean Core';
 const SEPOLIA_CHAIN_ID = '0xaa36a7';
 const NFT_CONTRACT = '0x63C8AbE6a0e7867B7812A1237a2781D460702382';
 const MARKETPLACE_CONTRACT = '0x33Ed6866A85d9C00AD5e028750939E545ee4556f';
@@ -365,30 +363,61 @@ function toggleMenu(){ $('menu')?.classList.toggle('show'); }
 function setTheme(mode){ document.body.className = mode === 'light' ? '' : 'dark'; }
 function showPage(id){ document.querySelectorAll('.page').forEach(p=>p.classList.remove('show')); $(id)?.classList.add('show'); $('menu')?.classList.remove('show'); }
 
+function walletModalHtmlConnected(){
+  return `<button class="wallet-option" onclick="disconnectWallet()">🚪 PNC Disconnect</button>
+    <button class="wallet-option" onclick="walletSwitchGuide()">🔁 Wallet切替ガイド</button>
+    <button class="wallet-option" onclick="connectMetaMask()">🦊 現在MetaMaskで選択中のWalletを再取得</button>`;
+}
+function walletModalHtmlDisconnected(){
+  return `<button class="wallet-option" onclick="connectMetaMask()">🦊 MetaMask</button>
+    <button class="wallet-option" onclick="piWalletComingSoon()">π Pi Wallet <span class="meta">Coming soon</span></button>`;
+}
 function openWalletModal(){
   const modal = $('walletModal');
   const status = $('walletModalStatus');
-  const logout = $('logoutWalletOption');
-  if(status) status.textContent = PNC_STATE.wallet ? `Connected: ${short(PNC_STATE.wallet)}` : 'Choose a wallet provider.';
-  if(logout) logout.style.display = PNC_STATE.wallet ? 'block' : 'none';
+  const actions = $('walletModalActions');
+  if(status){
+    status.textContent = PNC_STATE.wallet
+      ? `PNC connected: ${short(PNC_STATE.wallet)} / MetaMask側は切断しません。`
+      : 'Choose a wallet provider. MetaMaskで選択中のAccountをPNCに接続します。';
+  }
+  if(actions) actions.innerHTML = PNC_STATE.wallet ? walletModalHtmlConnected() : walletModalHtmlDisconnected();
   modal?.classList.add('show');
 }
 function closeWalletModal(){ $('walletModal')?.classList.remove('show'); }
-function piWalletComingSoon(){ alert('Pi Wallet connection is prepared for the future. Current testnet build uses MetaMask / Sepolia.'); }
-async function connectMetaMask(){
-  if(!window.ethereum){ alert('MetaMask is not available.'); return; }
-  const accounts = await ethereum.request({ method:'eth_requestAccounts' });
-  PNC_STATE.wallet = accounts[0] || null;
-  try{ await ethereum.request({ method:'wallet_switchEthereumChain', params:[{ chainId: SEPOLIA_CHAIN_ID }] }); }catch(e){ console.warn(e); }
-  closeWalletModal();
-  await loadBlockchainState();
+function piWalletComingSoon(){ alert('Pi Wallet接続は将来用です。現在のテスト版は MetaMask / Sepolia を使います。'); }
+function walletSwitchGuide(){
+  alert('Wallet切替手順:\n1. PNC Disconnectを押す\n2. MetaMask側で使いたいAccountを選ぶ\n3. PNCでConnect → MetaMaskを押す\n※MetaMaskのサイト接続解除までは不要です。');
 }
-async function logoutWallet(){
+async function connectMetaMask(){
+  if(!window.ethereum){ alert('MetaMaskが見つかりません。'); return; }
+  try{
+    const accounts = await ethereum.request({ method:'eth_requestAccounts' });
+    PNC_STATE.wallet = accounts && accounts[0] ? accounts[0] : null;
+    try{ await ethereum.request({ method:'wallet_switchEthereumChain', params:[{ chainId: SEPOLIA_CHAIN_ID }] }); }catch(e){ console.warn('Network switch skipped:', e); }
+    closeWalletModal();
+    await loadBlockchainState();
+  }catch(e){
+    alert('MetaMask接続がキャンセル、または失敗しました。');
+    console.warn(e);
+  }
+}
+async function disconnectWallet(){
   PNC_STATE.wallet = null;
   closeWalletModal();
   await loadBlockchainState();
 }
+async function logoutWallet(){ return disconnectWallet(); }
 async function connectWallet(){ return openWalletModal(); }
+function installWalletListeners(){
+  if(!window.ethereum || window.__PNC_WALLET_LISTENERS__) return;
+  window.__PNC_WALLET_LISTENERS__ = true;
+  ethereum.on?.('accountsChanged', async (accounts)=>{
+    PNC_STATE.wallet = accounts && accounts[0] ? accounts[0] : null;
+    await loadBlockchainState();
+  });
+  ethereum.on?.('chainChanged', async ()=>{ await loadBlockchainState(); });
+}
 
 async function ethCall(to, data){
   if(!window.ethereum) return null;
@@ -579,7 +608,7 @@ function searchPNC(){
   box.classList.toggle('show', !!box.innerHTML);
 }
 
-document.addEventListener('DOMContentLoaded', loadBlockchainState);
+document.addEventListener('DOMContentLoaded', async ()=>{ installWalletListeners(); await loadBlockchainState(); });
 </script>
 </body>
 </html>
