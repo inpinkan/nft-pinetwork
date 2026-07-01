@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Pi NFT Center v1.2.5 Clean Core</title>
+<title>Pi NFT Center v1.2.7 Clean Core</title>
 <style>
 
     :root{--purple:#5b2d82;--gold:#f5b041;--bg:#f7f4fb;--card:#fff;--text:#19151f;--muted:#8b8195;--border:#e5d8ef;--green:#2ecc71;--red:#ff5c5c;--blue:#2f80ed}
@@ -237,7 +237,7 @@
 .nft-info-row span:first-child{color:var(--muted);font-weight:800}
 .nft-info-row span:last-child{font-weight:900;text-align:right;word-break:break-word}
 .nft-badge-row{display:flex;gap:5px;flex-wrap:wrap;margin-top:3px}
-.currency-mark{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;background:#5b2d82;color:#f5b041;border:2px solid #f5b041;font-weight:950;font-size:13px;line-height:1;margin-right:5px;vertical-align:middle}.currency-unit{font-size:.72em;font-weight:950;margin-left:4px;color:var(--muted)}
+.currency-unit{font-size:.72em;font-weight:950;margin-left:4px;color:var(--muted)}
 .status-not-for-sale{color:var(--muted);border-color:var(--border);background:rgba(255,255,255,.045)}
 .status-legacy{color:#b084ff;border-color:rgba(176,132,255,.45);background:rgba(176,132,255,.12)}
 .detail-overlay{position:fixed;inset:0;background:rgba(0,0,0,.62);z-index:90;display:none;align-items:center;justify-content:center;padding:18px}
@@ -251,7 +251,7 @@
 @media(max-width:720px){.nft-info-row{font-size:10px}.detail-box{border-radius:18px;padding:14px}}
 
 .clean-note{border:1px solid var(--border);border-radius:18px;padding:12px;background:rgba(47,128,237,.08);color:var(--muted);font-size:13px;line-height:1.5}
-.ui-icon{display:inline-flex;align-items:center;justify-content:center;vertical-align:middle;flex:0 0 auto}.ui-icon-pi{width:18px;height:18px;border-radius:50%;background:#5b2d82;color:#f5b041;border:2px solid #f5b041;font-weight:950;font-size:13px;line-height:1;margin-right:5px}.footer-social{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.footer-social a{display:inline-flex!important;align-items:center;gap:7px;border:1px solid var(--border);border-radius:999px;padding:7px 10px!important;text-decoration:none}.footer-social-mark{width:18px;height:18px;border-radius:5px;display:inline-flex;align-items:center;justify-content:center;background:#111;color:#fff;font-size:12px;font-weight:950}.footer-social-mark.telegram{border-radius:50%;background:linear-gradient(135deg,#2aa8ff,#ff7ad9);font-size:13px}
+.ui-icon{display:inline-flex;align-items:center;justify-content:center;vertical-align:middle;flex:0 0 auto}.ui-icon-pi{width:22px;height:22px;margin-right:6px}.ui-icon-pi img{width:100%;height:100%;display:block;border-radius:50%;object-fit:contain}.footer-social{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.footer-social a{display:inline-flex!important;align-items:center;gap:7px;border:1px solid var(--border);border-radius:999px;padding:7px 10px!important;text-decoration:none}.footer-social-mark{width:18px;height:18px;border-radius:5px;display:inline-flex;align-items:center;justify-content:center;background:#111;color:#fff;font-size:12px;font-weight:950}.footer-social-mark.telegram{border-radius:50%;background:linear-gradient(135deg,#2aa8ff,#ff7ad9);font-size:13px}
 .media-skeleton{position:relative;overflow:hidden;color:transparent!important}.media-skeleton::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,rgba(255,255,255,.04),rgba(255,255,255,.13),rgba(255,255,255,.04));animation:pncShimmer 1.2s infinite;transform:translateX(-100%)}@keyframes pncShimmer{100%{transform:translateX(100%)}}
 .code-mini{font-family:Consolas,monospace;font-size:12px;word-break:break-all}
 
@@ -273,7 +273,7 @@
   .nft-img{height:128px!important}.collection-banner{height:96px!important}
   .nft-body,.collection-body{padding:9px!important}
   .nft-name,.collection-name{font-size:13px!important}
-  .price-line{font-size:13px!important}.currency-mark,.ui-icon-pi{width:15px;height:15px;font-size:11px;border-width:2px}
+  .price-line{font-size:13px!important}.ui-icon-pi{width:17px;height:17px}
   footer{padding:20px 10px 48px}.footer-grid{grid-template-columns:repeat(2,1fr)!important;gap:12px}
 }
 @media(max-width:390px){
@@ -307,7 +307,7 @@
 </header>
 <main>
   <div class="page show" id="homePage">
-    <div class="hero"><h1>Pi NFT Center <span class="beta">v1.2.5 Clean Core</span></h1><p>Unified PC/mobile render path. Footer links restored. UI icons managed in one place.</p></div>
+    <div class="hero"><h1>Pi NFT Center <span class="beta">v1.2.7 Clean Core</span></h1><p>Unified PC/mobile render path. Footer links restored. UI icons managed in one place.</p></div>
     <section><div class="section-title">🏆 Top Collections</div><div class="collection-list" id="topCollections"></div></section>
     <section><div class="section-title">🔥 Hot NFTs</div><div class="grid" id="hotNfts"></div></section>
     <section><div class="section-title">🆕 New NFTs</div><div class="grid" id="newNfts"></div></section>
@@ -342,7 +342,7 @@
 <script>
 'use strict';
 
-const PNC_VERSION = 'v1.2.5 Clean Core';
+const PNC_VERSION = 'v1.2.7 Clean Core';
 const SEPOLIA_CHAIN_ID = '0xaa36a7';
 const NFT_CONTRACT = '0x63C8AbE6a0e7867B7812A1237a2781D460702382';
 const MARKETPLACE_CONTRACT = '0x33Ed6866A85d9C00AD5e028750939E545ee4556f';
@@ -361,7 +361,7 @@ const PNC_LINKS = {
   telegram: 'https://t.me/PiAnnouncements'
 };
 const PNC_UI_ICONS = {
-  pi: '<span class="ui-icon ui-icon-pi">π</span>',
+  pi: '<span class="ui-icon ui-icon-pi" aria-label="Pi"><img src="data:image/webp;base64,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" alt="Pi"/></span>',
   x: '<span class="footer-social-mark">𝕏</span>',
   telegram: '<span class="footer-social-mark telegram">✈</span>'
 };
@@ -399,7 +399,7 @@ const CATALOG_SEED = {
   ],
   nfts: [
     { id:'pnc-onchain-000003', name:'Cyber Tabby', collectionId:'corner-cat-shop', tokenId:'3', contractAddress:NFT_CONTRACT, creator:'0x5c2A000000000000000000000000000000003862', knownOwner:'0xf69000000000000000000000000000000000e20b', image:'', metadataUrl:'' },
-    { id:'pnc-onchain-000001', name:'PNCNFT #1', collectionId:'ddream-genesis', tokenId:'1', contractAddress:NFT_CONTRACT, creator:FEE_WALLET, knownOwner:'0x8699000000000000000000000000000000004047', image:'', metadataUrl:'', icon:'🏆' },
+    { id:'pnc-onchain-000001', name:'PNCNFT #1', collectionId:'ddream-genesis', tokenId:'1', contractAddress:NFT_CONTRACT, creator:FEE_WALLET, knownOwner:'0x8699000000000000000000000000000000004047', image:'', metadataUrl:'', icon:'👑', noMedia:true },
     { id:'pnc-onchain-000002', name:'DDREAM Genesis #1', collectionId:'ddream-genesis', tokenId:'2', contractAddress:'legacy', creator:FEE_WALLET, knownOwner:FEE_WALLET, image:'ipfs://bafybeiclpv7r7kyw5nzxo2r5f5olsr6juc7hrmdwsegnnezctnv6ymodfu', metadataUrl:'', icon:'🏆' },
     { id:'ddream-genesis-no-1', name:'DDREAM genesis no.1', collectionId:'ddream-genesis-shop', tokenId:'', contractAddress:'legacy', creator:FEE_WALLET, knownOwner:FEE_WALLET, image:'', metadataUrl:'ipfs://QmfA71puFSCNCARMGdZqSbavm1FzPiKau52RwqSsXCDndf', icon:'🖼' }
   ]
@@ -666,7 +666,7 @@ function createSeedState(){
     nft.owner = nft.knownOwner || '';
     nft.status = 'not_for_sale';
     applyCachedMetadata(nft);
-    if(!resolveMediaUrl(nft) && (nft.metadataUrl || nft.tokenURI || (lc(nft.contractAddress) === lc(NFT_CONTRACT) && nft.tokenId))) nft.mediaPending = true;
+    if(!nft.noMedia && !resolveMediaUrl(nft) && (nft.metadataUrl || nft.tokenURI || (lc(nft.contractAddress) === lc(NFT_CONTRACT) && nft.tokenId))) nft.mediaPending = true;
   }
   applyCollectionMedia(state);
   return state;
@@ -691,7 +691,7 @@ async function createMarketState(){
     nft.owner = nft.knownOwner || '';
     nft.status = 'not_for_sale';
     applyCachedMetadata(nft);
-    if(!resolveMediaUrl(nft) && (nft.metadataUrl || nft.tokenURI || (lc(nft.contractAddress) === lc(NFT_CONTRACT) && nft.tokenId))) nft.mediaPending = true;
+    if(!nft.noMedia && !resolveMediaUrl(nft) && (nft.metadataUrl || nft.tokenURI || (lc(nft.contractAddress) === lc(NFT_CONTRACT) && nft.tokenId))) nft.mediaPending = true;
 
     if(lc(nft.contractAddress) === lc(NFT_CONTRACT) && nft.tokenId && window.ethereum && (state.wallet || PNC_PERFORMANCE.readChainBeforeWalletConnect)){
       try{ const owner = await readOwnerOf(nft.tokenId); if(owner) nft.owner = owner; }catch(e){ state.errors.push(nft.name+' ownerOf failed'); }
