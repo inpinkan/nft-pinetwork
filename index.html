@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Pi NFT Center v1.2.1 Clean Core</title>
+<title>Pi NFT Center v1.2.2 Clean Core</title>
 <style>
 
     :root{--purple:#5b2d82;--gold:#f5b041;--bg:#f7f4fb;--card:#fff;--text:#19151f;--muted:#8b8195;--border:#e5d8ef;--green:#2ecc71;--red:#ff5c5c;--blue:#2f80ed}
@@ -277,7 +277,7 @@
 </header>
 <main>
   <div class="page show" id="homePage">
-    <div class="hero"><h1>Pi NFT Center <span class="beta">v1.2.1 Clean Core</span></h1><p>Pi-first display core: media URLs only. No Base64 image embedding.</p></div>
+    <div class="hero"><h1>Pi NFT Center <span class="beta">v1.2.1 Clean Core</span></h1><p>Pi-first display core: unified metadata/image resolver. No Base64 image embedding.</p></div>
     <section><div class="section-title">🏆 Top Collections</div><div class="collection-list" id="topCollections"></div></section>
     <section><div class="section-title">🔥 Hot NFTs</div><div class="grid" id="hotNfts"></div></section>
     <section><div class="section-title">🆕 New NFTs</div><div class="grid" id="newNfts"></div></section>
@@ -312,7 +312,7 @@
 <script>
 'use strict';
 
-const PNC_VERSION = 'v1.2.1 Clean Core';
+const PNC_VERSION = 'v1.2.2 Clean Core';
 const SEPOLIA_CHAIN_ID = '0xaa36a7';
 const NFT_CONTRACT = '0x63C8AbE6a0e7867B7812A1237a2781D460702382';
 const MARKETPLACE_CONTRACT = '0x33Ed6866A85d9C00AD5e028750939E545ee4556f';
@@ -357,7 +357,7 @@ const CATALOG_SEED = {
     { id:'pnc-onchain-000003', name:'Cyber Tabby', collectionId:'corner-cat-shop', tokenId:'3', contractAddress:NFT_CONTRACT, creator:'0x5c2A000000000000000000000000000000003862', knownOwner:'0xf69000000000000000000000000000000000e20b', image:'', metadataUrl:'' },
     { id:'pnc-onchain-000001', name:'PNCNFT #1', collectionId:'ddream-genesis', tokenId:'1', contractAddress:NFT_CONTRACT, creator:FEE_WALLET, knownOwner:'0x8699000000000000000000000000000000004047', image:'', metadataUrl:'', icon:'🏆' },
     { id:'pnc-onchain-000002', name:'DDREAM Genesis #1', collectionId:'ddream-genesis', tokenId:'2', contractAddress:'legacy', creator:FEE_WALLET, knownOwner:FEE_WALLET, image:'ipfs://bafybeiclpv7r7kyw5nzxo2r5f5olsr6juc7hrmdwsegnnezctnv6ymodfu', metadataUrl:'', icon:'🏆' },
-    { id:'ddream-genesis-no-1', name:'DDREAM genesis no.1', collectionId:'ddream-genesis-shop', tokenId:'', contractAddress:'legacy', creator:FEE_WALLET, knownOwner:FEE_WALLET, image:'', metadataUrl:'', icon:'🖼' }
+    { id:'ddream-genesis-no-1', name:'DDREAM genesis no.1', collectionId:'ddream-genesis-shop', tokenId:'', contractAddress:'legacy', creator:FEE_WALLET, knownOwner:FEE_WALLET, image:'', metadataUrl:'ipfs://QmfA71puFSCNCARMGdZqSbavm1FzPiKau52RwqSsXCDndf', icon:'🖼' }
   ]
 };
 
@@ -368,16 +368,21 @@ const $ = id => document.getElementById(id);
 const lc = v => String(v||'').toLowerCase();
 const esc = v => String(v ?? '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 const short = a => /^0x[a-fA-F0-9]{40}$/.test(String(a||'')) ? a.slice(0,6)+'...'+a.slice(-4) : (a||'-');
-const ipfs = u => String(u||'').startsWith('ipfs://') ? 'https://ipfs.io/ipfs/'+String(u).slice(7) : String(u||'');
+const IPFS_GATEWAY = 'https://gateway.pinata.cloud/ipfs/';
 function isUsableMediaUrl(u){
   const s = String(u || '').trim();
   if(!s || s === 'test' || s === 'ipfs://test') return false;
   return s.startsWith('ipfs://') || s.startsWith('https://') || s.startsWith('http://');
 }
-function mediaUrlFrom(item){
-  const raw = item && (item.image || item.media || item.imageUrl || item.banner || item.collectionImage || item.shopImage || (item.metadata && item.metadata.image) || '');
+function ipfs(u){
+  const s = String(u || '').trim();
+  return s.startsWith('ipfs://') ? IPFS_GATEWAY + s.slice(7) : s;
+}
+function resolveMediaUrl(item){
+  const raw = item && ((item.metadata && item.metadata.image) || item.image || item.media || item.imageUrl || item.banner || item.collectionImage || item.shopImage || '');
   return isUsableMediaUrl(raw) ? ipfs(raw) : '';
 }
+function mediaUrlFrom(item){ return resolveMediaUrl(item); }
 const toHex = n => '0x'+BigInt(n).toString(16).padStart(64,'0');
 const addrWord = a => String(a).toLowerCase().replace(/^0x/,'').padStart(64,'0');
 
@@ -568,8 +573,8 @@ function applyCollectionMedia(state){
     if(isUsableMediaUrl(c.image || c.banner)) continue;
     const candidates = (preferred[c.id] || []).map(id => byId[id]).filter(Boolean)
       .concat(state.nfts.filter(n => n.collectionId === c.id));
-    const found = candidates.find(n => isUsableMediaUrl(n.image || (n.metadata && n.metadata.image)));
-    if(found){ c.image = found.image || (found.metadata && found.metadata.image); c.banner = c.image; }
+    const found = candidates.find(n => resolveMediaUrl(n));
+    if(found){ c.image = (found.metadata && found.metadata.image) || found.image || found.banner || ''; c.banner = c.image; }
   }
 }
 
