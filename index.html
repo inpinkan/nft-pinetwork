@@ -3,7 +3,8 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Pi NFT Center v1.3.0 Creator Center</title>
+<title>Pi NFT Center v1.3.1 Creator Center</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%235b2d82'/%3E%3Ctext x='32' y='42' text-anchor='middle' font-size='34' fill='%23f5b041' font-family='Arial' font-weight='900'%3Eπ%3C/text%3E%3C/svg%3E">
 <style>
 
     :root{--purple:#5b2d82;--gold:#f5b041;--bg:#f7f4fb;--card:#fff;--text:#19151f;--muted:#8b8195;--border:#e5d8ef;--green:#2ecc71;--red:#ff5c5c;--blue:#2f80ed}
@@ -40,7 +41,7 @@
     @media (min-width:720px){.grid{grid-template-columns:repeat(4,1fr)}.nft-img{height:170px}.footer-grid{grid-template-columns:repeat(4,1fr)}}@media (max-width:420px){.search-row{grid-template-columns:1fr 82px}.logo-text{font-size:19px}}
   
 
-/* v1.3.0 Creator Center Price display */
+/* v1.3.1 Creator Center Price display */
 .price-block{margin:6px 0 6px!important;display:flex!important;align-items:flex-start!important;gap:6px!important;min-height:22px!important}
 .price-label{font-size:10px!important;font-weight:900!important;color:var(--muted)!important;text-transform:uppercase!important;letter-spacing:.08em!important;margin:0!important;line-height:1.2!important}
 .price-line{display:inline-flex!important;align-items:flex-start!important;gap:5px!important;font-size:17px!important;font-weight:950!important;line-height:1!important;color:var(--text)!important}
@@ -280,7 +281,7 @@
 
 
 
-/* v1.3.0 Creator Center foundation */
+/* v1.3.1 Creator Center foundation */
 .creator-dashboard{display:grid;grid-template-columns:1fr;gap:12px}
 .creator-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
 .creator-tab{border:1px solid var(--border);background:rgba(255,255,255,.055);color:var(--text);border-radius:999px;padding:10px 12px;font-weight:900;cursor:pointer}
@@ -301,6 +302,25 @@
 .creator-status-box{border:1px solid var(--border);border-radius:14px;padding:10px;background:rgba(255,255,255,.035);text-align:center}
 .creator-status-box strong{display:block;color:var(--gold);font-size:18px}
 @media(min-width:720px){.creator-two-col{grid-template-columns:1fr 1fr}.creator-dashboard{grid-template-columns:1fr 1fr}.creator-status-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
+
+
+/* v1.3.1 Creator Center readability + locked-tab behavior */
+.creator-card h2{font-size:22px;margin:0 0 10px;color:var(--text)}
+.creator-card h3{font-size:18px;margin:0 0 10px;color:var(--text)}
+.creator-help,.creator-owner-note,.clean-note{font-size:14px!important;line-height:1.65!important}
+.creator-card input,.creator-card textarea,.creator-card select{font-size:16px!important}
+.creator-tab.is-locked{opacity:.45;filter:grayscale(.45);cursor:pointer;background:rgba(255,255,255,.035);color:var(--muted);border-color:var(--border)}
+.creator-tab.is-locked:hover{opacity:.72;border-color:rgba(245,176,65,.55)}
+.code-mini{font-size:13px!important;line-height:1.6!important}
+.market-rules-title{font-size:16px}
+@media(max-width:720px){
+  .creator-tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .creator-tab{min-height:44px;font-size:13px;padding:10px 8px}
+  .creator-card{padding:13px;border-radius:16px}
+  .creator-card h2{font-size:20px}
+  .creator-help,.creator-owner-note,.clean-note{font-size:13px!important}
+  .code-mini{font-size:12px!important}
+}
 
 </style>
 </head>
@@ -327,7 +347,7 @@
 </header>
 <main>
   <div class="page show" id="homePage">
-    <div class="hero"><h1>Pi NFT Center <span class="beta">v1.3.0 Creator Center</span></h1><p>Creator Center foundation. Shop/NFT creation UI uses connected-wallet permissions and single MarketState render path.</p></div>
+    <div class="hero"><h1>Pi NFT Center <span class="beta">v1.3.1 Creator Center</span></h1><p>Creator Center foundation. Settings and messages are moving into CONFIG / TEXT. Locked creator actions guide users to Connect Wallet.</p></div>
     <section><div class="section-title">🏆 Top Collections</div><div class="collection-list" id="topCollections"></div></section>
     <section><div class="section-title">🔥 Hot NFTs</div><div class="grid" id="hotNfts"></div></section>
     <section><div class="section-title">🆕 New NFTs</div><div class="grid" id="newNfts"></div></section>
@@ -362,23 +382,53 @@
 <script>
 'use strict';
 
-const PNC_VERSION = 'v1.3.0 Creator Center';
-const SEPOLIA_CHAIN_ID = '0xaa36a7';
-const NFT_CONTRACT = '0x63C8AbE6a0e7867B7812A1237a2781D460702382';
-const MARKETPLACE_CONTRACT = '0x33Ed6866A85d9C00AD5e028750939E545ee4556f';
-const FEE_WALLET = '0x4a45Cd6Aa78C7AB51b0d9ba0e36E035A47a0BC1b';
-
-// Currency display is centralized so Pi token/mainnet replacement is one edit.
-// Current settlement adapter still reads SepoliaETH, but the UI is Pi-first.
-const PNC_CURRENCY = {
-  icon: 'π',
-  testnetSymbol: 'SepoliaETH',
-  futureSymbol: 'Pi',
-  activeSymbol: 'SepoliaETH'
+const PNC_CONFIG = {
+  app: { version: 'v1.3.1 Creator Center' },
+  network: { chainId: '0xaa36a7', name: 'Sepolia Testnet' },
+  contracts: {
+    nft: '0x63C8AbE6a0e7867B7812A1237a2781D460702382',
+    marketplace: '0x33Ed6866A85d9C00AD5e028750939E545ee4556f',
+    feeWallet: '0x4a45Cd6Aa78C7AB51b0d9ba0e36E035A47a0BC1b'
+  },
+  pinata: { gateway: 'https://gateway.pinata.cloud/ipfs/' },
+  currency: { icon: 'π', testnetSymbol: 'SepoliaETH', futureSymbol: 'Pi', activeSymbol: 'SepoliaETH' },
+  links: {
+    x: 'https://x.com/picoreteam?s=21&t=OEh4osxhpQf_YpLWZaL1kQ',
+    telegram: 'https://t.me/PiAnnouncements'
+  },
+  performance: {
+    // Single rule for PC and mobile: do not run RPC before wallet connect.
+    // Initial public display uses seed + metadata URLs only; wallet connection enables owner/listing RPC.
+    readChainBeforeWalletConnect: false
+  }
 };
-const PNC_LINKS = {
-  x: 'https://x.com/picoreteam?s=21&t=OEh4osxhpQf_YpLWZaL1kQ',
-  telegram: 'https://t.me/PiAnnouncements'
+const PNC_TEXT = {
+  wallet: {
+    connectRequired: 'WalletをConnectしてください。',
+    metamaskNotFound: 'MetaMaskが見つかりません。',
+    metamaskPending: 'MetaMaskの確認画面がすでに開いています。MetaMaskを確認してください。',
+    connectFailed: 'MetaMask接続が失敗しました。',
+    piComingSoon: 'Pi Wallet接続は将来用です。現在のテスト版は MetaMask / Sepolia を使います。'
+  },
+  creator: {
+    ruleTitle: 'Creator Center v1.3.1 rule:',
+    ruleBody: 'Wallet別処理なし。connected walletのcreator/owner権限だけでCreate Shop / Create NFT / Listを制御します。',
+    lockedTitle: 'Wallet required',
+    lockedBody: 'Create Shop / Create NFT / Mint / List はWallet接続後に使えます。',
+    dashboardHelp: '${esc(PNC_TEXT.creator.dashboardHelp)}',
+    shopOwnerNote: 'Creator is fixed to connected wallet:',
+    nftOwnerNote: 'Creator / initial Owner is connected wallet:',
+    listHelp: '${esc(PNC_TEXT.creator.listHelp)}'
+  },
+  market: {
+    buyPrepared: 'Buy接続は次の段階で実装します。まず表示とMarketStateを固定しています。',
+    listPrepared: 'List接続は次の段階で実装します。まず表示とMarketStateを固定しています。',
+    unlistNext: 'Unlist adapter is next.'
+  },
+  pinata: {
+    uploadNext: 'Pinata upload is wired in the next step.',
+    metadataNext: 'metadata.json → Pinata → Mint is the next wiring step.'
+  }
 };
 const PNC_UI_ICONS = {
   pi: '<span class="ui-icon ui-icon-pi" aria-label="Pi"><img src="data:image/png;base64,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" alt="Pi"/></span>',
@@ -386,11 +436,6 @@ const PNC_UI_ICONS = {
   telegram: '<span class="ui-icon ui-icon-social" aria-label="Telegram"><img src="data:image/webp;base64,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" alt="Telegram"/></span>'
 };
 const TOP_COLLECTION_LIMIT = 3;
-const PNC_PERFORMANCE = {
-  // Single rule for PC and mobile: do not run RPC before wallet connect.
-  // Initial public display uses seed + metadata URLs only; wallet connection enables owner/listing RPC.
-  readChainBeforeWalletConnect: false
-};
 
 
 const NFT_ABI = [
@@ -418,10 +463,10 @@ const CATALOG_SEED = {
     { id:'ddream-genesis-shop', name:'DDREAM Genesis shop', creator:'0x4a45Cd6Aa78C7AB51b0d9ba0e36E035A47a0BC1b', verified:true, description:'DDREAM Genesis shop.', icon:'🏪', image:'', banner:'' }
   ],
   nfts: [
-    { id:'pnc-onchain-000003', name:'Cyber Tabby', collectionId:'corner-cat-shop', tokenId:'3', contractAddress:NFT_CONTRACT, creator:'0x5c2A000000000000000000000000000000003862', knownOwner:'0xf69000000000000000000000000000000000e20b', image:'', metadataUrl:'' },
-    { id:'pnc-onchain-000001', name:'PNCNFT #1', collectionId:'ddream-genesis', tokenId:'1', contractAddress:NFT_CONTRACT, creator:FEE_WALLET, knownOwner:'0x8699000000000000000000000000000000004047', image:'', metadataUrl:'', icon:'👑', noMedia:true },
-    { id:'pnc-onchain-000002', name:'DDREAM Genesis #1', collectionId:'ddream-genesis', tokenId:'2', contractAddress:'legacy', creator:FEE_WALLET, knownOwner:FEE_WALLET, image:'ipfs://bafybeiclpv7r7kyw5nzxo2r5f5olsr6juc7hrmdwsegnnezctnv6ymodfu', metadataUrl:'', icon:'🏆' },
-    { id:'ddream-genesis-no-1', name:'DDREAM genesis no.1', collectionId:'ddream-genesis-shop', tokenId:'', contractAddress:'legacy', creator:FEE_WALLET, knownOwner:FEE_WALLET, image:'', metadataUrl:'ipfs://QmfA71puFSCNCARMGdZqSbavm1FzPiKau52RwqSsXCDndf', icon:'🖼' }
+    { id:'pnc-onchain-000003', name:'Cyber Tabby', collectionId:'corner-cat-shop', tokenId:'3', contractAddress:PNC_CONFIG.contracts.nft, creator:'0x5c2A000000000000000000000000000000003862', knownOwner:'0xf69000000000000000000000000000000000e20b', image:'', metadataUrl:'' },
+    { id:'pnc-onchain-000001', name:'PNCNFT #1', collectionId:'ddream-genesis', tokenId:'1', contractAddress:PNC_CONFIG.contracts.nft, creator:PNC_CONFIG.contracts.feeWallet, knownOwner:'0x8699000000000000000000000000000000004047', image:'', metadataUrl:'', icon:'👑', noMedia:true },
+    { id:'pnc-onchain-000002', name:'DDREAM Genesis #1', collectionId:'ddream-genesis', tokenId:'2', contractAddress:'legacy', creator:PNC_CONFIG.contracts.feeWallet, knownOwner:PNC_CONFIG.contracts.feeWallet, image:'ipfs://bafybeiclpv7r7kyw5nzxo2r5f5olsr6juc7hrmdwsegnnezctnv6ymodfu', metadataUrl:'', icon:'🏆' },
+    { id:'ddream-genesis-no-1', name:'DDREAM genesis no.1', collectionId:'ddream-genesis-shop', tokenId:'', contractAddress:'legacy', creator:PNC_CONFIG.contracts.feeWallet, knownOwner:PNC_CONFIG.contracts.feeWallet, image:'', metadataUrl:'ipfs://QmfA71puFSCNCARMGdZqSbavm1FzPiKau52RwqSsXCDndf', icon:'🖼' }
   ]
 };
 
@@ -456,7 +501,6 @@ const esc = v => String(v ?? '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt
 const short = a => /^0x[a-fA-F0-9]{40}$/.test(String(a||'')) ? a.slice(0,6)+'...'+a.slice(-4) : (a||'-');
 function isZeroPaddedPlaceholderAddress(a){ return /^0x[0-9a-fA-F]{4}0{28,}[0-9a-fA-F]{4}$/.test(String(a||'')); }
 function displayAddress(a){ return isZeroPaddedPlaceholderAddress(a) ? short(a) : (a || '-'); }
-const IPFS_GATEWAY = 'https://gateway.pinata.cloud/ipfs/';
 function isUsableMediaUrl(u){
   const s = String(u || '').trim();
   if(!s || s === 'test' || s === 'ipfs://test') return false;
@@ -464,7 +508,7 @@ function isUsableMediaUrl(u){
 }
 function ipfs(u){
   const s = String(u || '').trim();
-  return s.startsWith('ipfs://') ? IPFS_GATEWAY + s.slice(7) : s;
+  return s.startsWith('ipfs://') ? PNC_CONFIG.pinata.gateway + s.slice(7) : s;
 }
 function resolveMediaUrl(item){
   const raw = item && ((item.metadata && item.metadata.image) || item.image || item.media || item.imageUrl || item.banner || item.collectionImage || item.shopImage || '');
@@ -503,7 +547,7 @@ function openWalletModal(){
   modal?.classList.add('show');
 }
 function closeWalletModal(){ $('walletModal')?.classList.remove('show'); }
-function piWalletComingSoon(){ alert('Pi Wallet接続は将来用です。現在のテスト版は MetaMask / Sepolia を使います。'); }
+function piWalletComingSoon(){ alert(PNC_TEXT.wallet.piComingSoon); }
 function isMetaMaskPendingError(e){ return e && e.code === -32002; }
 function isMetaMaskUserRejected(e){ return e && e.code === 4001; }
 async function resetMetaMaskAccountPermission(){
@@ -539,21 +583,21 @@ async function requestSelectedMetaMaskAccount(){
   return requestedAccounts && requestedAccounts[0] ? requestedAccounts[0] : null;
 }
 async function connectMetaMask(){
-  if(!window.ethereum){ alert('MetaMaskが見つかりません。'); return; }
+  if(!window.ethereum){ alert(PNC_TEXT.wallet.metamaskNotFound); return; }
   if(PNC_WALLET_CONNECTING) return;
   PNC_WALLET_CONNECTING = true;
   try{
     const selectedAccount = await requestSelectedMetaMaskAccount();
     if(!selectedAccount) throw new Error('No account selected');
     PNC_STATE.wallet = selectedAccount;
-    try{ await ethereum.request({ method:'wallet_switchEthereumChain', params:[{ chainId: SEPOLIA_CHAIN_ID }] }); }catch(e){ console.warn('Network switch skipped:', e); }
+    try{ await ethereum.request({ method:'wallet_switchEthereumChain', params:[{ chainId: PNC_CONFIG.network.chainId }] }); }catch(e){ console.warn('Network switch skipped:', e); }
     closeWalletModal();
     await loadBlockchainState();
   }catch(e){
     if(isMetaMaskPendingError(e)){
-      alert('MetaMaskの確認画面がすでに開いています。MetaMaskを確認してください。');
+      alert(PNC_TEXT.wallet.metamaskPending);
     }else if(!isMetaMaskUserRejected(e)){
-      alert('MetaMask接続が失敗しました。');
+      alert(PNC_TEXT.wallet.connectFailed);
     }
     console.warn(e);
   }finally{
@@ -598,7 +642,7 @@ function weiToEth(wei){
   const frac = String(v % 1000000000000000000n).padStart(18,'0').replace(/0+$/,'').slice(0,6);
   return frac ? `${whole}.${frac}` : String(whole);
 }
-async function readOwnerOf(tokenId){ const r = await ethCall(NFT_CONTRACT, sig4('ownerOf(uint256)') + toHex(tokenId).slice(2)); return decodeAddress(r); }
+async function readOwnerOf(tokenId){ const r = await ethCall(PNC_CONFIG.contracts.nft, sig4('ownerOf(uint256)') + toHex(tokenId).slice(2)); return decodeAddress(r); }
 function decodeAbiString(hex){
   const h = String(hex||'').replace(/^0x/,'');
   if(!h || h.length < 128) return '';
@@ -606,7 +650,7 @@ function decodeAbiString(hex){
   const data = h.slice(128, 128 + len * 2);
   try{ return decodeURIComponent(data.match(/.{1,2}/g).map(b => '%' + b).join('')); }catch(e){ try{ return new TextDecoder().decode(Uint8Array.from(data.match(/.{1,2}/g).map(b=>parseInt(b,16)))); }catch(_){ return ''; } }
 }
-async function readTokenURI(tokenId){ const r = await ethCall(NFT_CONTRACT, sig4('tokenURI(uint256)') + toHex(tokenId).slice(2)); return decodeAbiString(r); }
+async function readTokenURI(tokenId){ const r = await ethCall(PNC_CONFIG.contracts.nft, sig4('tokenURI(uint256)') + toHex(tokenId).slice(2)); return decodeAbiString(r); }
 function isUsableMetadataUrl(u){
   const s = String(u || '').trim();
   if(!s) return false;
@@ -635,9 +679,9 @@ async function hydrateMetadata(nft){
     if(meta.animation_url) nft.animation_url = meta.animation_url;
   }catch(e){ nft.metadataError = e.message || String(e); }
 }
-async function readListingId(nftContract, tokenId){ const data = sig4('listingIdByNFT(address,uint256)') + addrWord(nftContract) + toHex(tokenId).slice(2); return decodeUint(await ethCall(MARKETPLACE_CONTRACT, data)); }
+async function readListingId(nftContract, tokenId){ const data = sig4('listingIdByNFT(address,uint256)') + addrWord(nftContract) + toHex(tokenId).slice(2); return decodeUint(await ethCall(PNC_CONFIG.contracts.marketplace, data)); }
 async function readListing(listingId){
-  const r = await ethCall(MARKETPLACE_CONTRACT, sig4('listings(uint256)') + toHex(listingId).slice(2));
+  const r = await ethCall(PNC_CONFIG.contracts.marketplace, sig4('listings(uint256)') + toHex(listingId).slice(2));
   const w = words(r);
   if(w.length < 5) return null;
   return {
@@ -655,7 +699,7 @@ async function loadKVState(wallet){
 }
 async function saveKVState(){
   if(!PNC_STATE.wallet) return;
-  try{ await fetch('/api/save-state', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ walletAddress:PNC_STATE.wallet, state:{ at:Date.now(), version:PNC_VERSION } }) }); }catch(e){ console.warn(e); }
+  try{ await fetch('/api/save-state', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ walletAddress:PNC_STATE.wallet, state:{ at:Date.now(), version:PNC_CONFIG.app.version } }) }); }catch(e){ console.warn(e); }
 }
 
 
@@ -691,31 +735,34 @@ function setCreatorTab(tab){
   renderCreatorCenter(PNC_STATE);
 }
 function lockedCreatorPanel(){
-  return `<div class="creator-card creator-locked"><h2>Wallet required</h2><p class="creator-help">Create Shop / Create NFT / Mint / List はWallet接続後に使えます。</p><button class="primary-btn" onclick="openWalletModal()">Connect Wallet</button></div>`;
+  return `<div class="creator-card creator-locked"><h2>${esc(PNC_TEXT.creator.lockedTitle)}</h2><p class="creator-help">${esc(PNC_TEXT.creator.lockedBody)}</p><button class="primary-btn" onclick="openWalletModal()">Connect Wallet</button></div>`;
 }
 function creatorTabButton(tab,label){
   const active = PNC_CREATOR_TAB === tab ? 'active' : '';
-  return `<button class="creator-tab ${active}" onclick="setCreatorTab('${tab}')">${label}</button>`;
+  const locked = !PNC_STATE.wallet && tab !== 'dashboard';
+  const lockedClass = locked ? 'is-locked' : '';
+  const action = locked ? 'openWalletModal()' : `setCreatorTab('${tab}')`;
+  return `<button class="creator-tab ${active} ${lockedClass}" onclick="${action}" aria-disabled="${locked}">${label}</button>`;
 }
 function creatorDashboardHtml(state){
   const shops = creatorOwnedCollections(state);
   const nfts = creatorOwnedNFTs(state);
   const listed = nfts.filter(n=>n.status==='listed');
-  return `<div class="creator-card"><h2>Creator Dashboard</h2><p class="creator-help">接続WalletをCreatorとして扱います。表示は公開データ、操作権限はconnected walletで判定します。</p><div class="creator-status-grid"><div class="creator-status-box"><strong>${shops.length}</strong><span>My Shops</span></div><div class="creator-status-box"><strong>${nfts.length}</strong><span>My NFTs</span></div><div class="creator-status-box"><strong>${listed.length}</strong><span>Listed</span></div><div class="creator-status-box"><strong>${short(state.wallet)}</strong><span>Wallet</span></div></div></div><div class="creator-dashboard"><div class="creator-card"><h3>My Shops</h3><div class="creator-list">${shops.map(c=>`<div class="creator-list-item"><div class="creator-list-title">${esc(c.name)}</div><div class="creator-help">Creator: ${esc(short(c.creator))}<br>Public NFTs: ${collectionItems(state,c.id).length}</div></div>`).join('') || '<div class="creator-help">No shop for this wallet yet.</div>'}</div></div><div class="creator-card"><h3>My NFTs</h3><div class="creator-list">${nfts.map(n=>`<div class="creator-list-item"><div class="creator-list-title">${esc(n.name)}</div><div class="creator-help">${esc(collectionNameById(n.collectionId))}<br>Owner: ${esc(short(n.owner))}<br>Status: ${esc(statusLabel(n))}</div></div>`).join('') || '<div class="creator-help">No NFT for this wallet yet.</div>'}</div></div></div>`;
+  return `<div class="creator-card"><h2>Creator Dashboard</h2><p class="creator-help">${esc(PNC_TEXT.creator.dashboardHelp)}</p><div class="creator-status-grid"><div class="creator-status-box"><strong>${shops.length}</strong><span>My Shops</span></div><div class="creator-status-box"><strong>${nfts.length}</strong><span>My NFTs</span></div><div class="creator-status-box"><strong>${listed.length}</strong><span>Listed</span></div><div class="creator-status-box"><strong>${short(state.wallet)}</strong><span>Wallet</span></div></div></div><div class="creator-dashboard"><div class="creator-card"><h3>My Shops</h3><div class="creator-list">${shops.map(c=>`<div class="creator-list-item"><div class="creator-list-title">${esc(c.name)}</div><div class="creator-help">Creator: ${esc(short(c.creator))}<br>Public NFTs: ${collectionItems(state,c.id).length}</div></div>`).join('') || '<div class="creator-help">No shop for this wallet yet.</div>'}</div></div><div class="creator-card"><h3>My NFTs</h3><div class="creator-list">${nfts.map(n=>`<div class="creator-list-item"><div class="creator-list-title">${esc(n.name)}</div><div class="creator-help">${esc(collectionNameById(n.collectionId))}<br>Owner: ${esc(short(n.owner))}<br>Status: ${esc(statusLabel(n))}</div></div>`).join('') || '<div class="creator-help">No NFT for this wallet yet.</div>'}</div></div></div>`;
 }
 function creatorShopFormHtml(state){
   if(!state.wallet) return lockedCreatorPanel();
-  return `<div class="creator-card"><h2>Create Shop</h2><div class="creator-owner-note">Creator is fixed to connected wallet: <strong>${esc(short(state.wallet))}</strong><br>Wallet別コードは使わず、登録データのcreatorで権限判定します。</div><form class="creator-form" onsubmit="event.preventDefault(); createShopDraftFromForm(this);"><label>Shop Name<input name="name" placeholder="Example: DDREAM Genesis shop" required></label><label>Description<textarea name="description" placeholder="Shop description"></textarea></label><div class="creator-two-col"><label>Banner Image<span>Pinata upload adapter will use this file.</span><input name="bannerFile" type="file" accept="image/*"></label><label>Icon Image<span>Optional square icon.</span><input name="iconFile" type="file" accept="image/*"></label></div><div class="creator-toolbar"><button class="primary-btn" type="submit">Save Shop Draft</button><button class="small-btn delete-btn" type="button" onclick="alert('Pinata upload is wired in the next step.')">Upload to Pinata</button></div></form></div>`;
+  return `<div class="creator-card"><h2>Create Shop</h2><div class="creator-owner-note">${esc(PNC_TEXT.creator.shopOwnerNote)} <strong>${esc(short(state.wallet))}</strong><br>Wallet別コードは使わず、登録データのcreatorで権限判定します。</div><form class="creator-form" onsubmit="event.preventDefault(); createShopDraftFromForm(this);"><label>Shop Name<input name="name" placeholder="Example: DDREAM Genesis shop" required></label><label>Description<textarea name="description" placeholder="Shop description"></textarea></label><div class="creator-two-col"><label>Banner Image<span>Pinata upload adapter will use this file.</span><input name="bannerFile" type="file" accept="image/*"></label><label>Icon Image<span>Optional square icon.</span><input name="iconFile" type="file" accept="image/*"></label></div><div class="creator-toolbar"><button class="primary-btn" type="submit">Save Shop Draft</button><button class="small-btn delete-btn" type="button" onclick="alert(PNC_TEXT.pinata.uploadNext)">Upload to Pinata</button></div></form></div>`;
 }
 function creatorNFTFormHtml(state){
   if(!state.wallet) return lockedCreatorPanel();
   const shops = creatorOwnedCollections(state);
-  return `<div class="creator-card"><h2>Create NFT</h2><div class="creator-owner-note">Creator / initial Owner is connected wallet: <strong>${esc(short(state.wallet))}</strong><br>Mint後はownerOf(tokenId)を基準にMy Vaultへ反映します。</div><form class="creator-form" onsubmit="event.preventDefault(); createNFTDraftFromForm(this);"><label>Shop<select name="collectionId" required>${shops.map(c=>`<option value="${esc(c.id)}">${esc(c.name)}</option>`).join('') || '<option value="" disabled selected>No editable shop for this wallet</option>'}</select></label><label>NFT Name<input name="name" placeholder="NFT name" required></label><label>Description<textarea name="description" placeholder="NFT description"></textarea></label><label>Utility<textarea name="utility" placeholder="Utility / benefits / memo"></textarea></label><div class="creator-two-col"><label>Price<span>SepoliaETH test price. Leave empty if Not for sale.</span><input name="price" type="number" step="0.000001" min="0" placeholder="0.01"></label><label>NFT Image<span>Pinata upload adapter will use this file.</span><input name="imageFile" type="file" accept="image/*"></label></div><label><span><input name="notForSale" type="checkbox" checked> Not for sale</span></label><div class="creator-toolbar"><button class="primary-btn" type="submit" ${shops.length ? '' : 'disabled'}>Save NFT Draft</button><button class="small-btn delete-btn" type="button" onclick="alert('metadata.json → Pinata → Mint is the next wiring step.')">Prepare Metadata</button></div></form></div>`;
+  return `<div class="creator-card"><h2>Create NFT</h2><div class="creator-owner-note">${esc(PNC_TEXT.creator.nftOwnerNote)} <strong>${esc(short(state.wallet))}</strong><br>Mint後はownerOf(tokenId)を基準にMy Vaultへ反映します。</div><form class="creator-form" onsubmit="event.preventDefault(); createNFTDraftFromForm(this);"><label>Shop<select name="collectionId" required>${shops.map(c=>`<option value="${esc(c.id)}">${esc(c.name)}</option>`).join('') || '<option value="" disabled selected>No editable shop for this wallet</option>'}</select></label><label>NFT Name<input name="name" placeholder="NFT name" required></label><label>Description<textarea name="description" placeholder="NFT description"></textarea></label><label>Utility<textarea name="utility" placeholder="Utility / benefits / memo"></textarea></label><div class="creator-two-col"><label>Price<span>SepoliaETH test price. Leave empty if Not for sale.</span><input name="price" type="number" step="0.000001" min="0" placeholder="0.01"></label><label>NFT Image<span>Pinata upload adapter will use this file.</span><input name="imageFile" type="file" accept="image/*"></label></div><label><span><input name="notForSale" type="checkbox" checked> Not for sale</span></label><div class="creator-toolbar"><button class="primary-btn" type="submit" ${shops.length ? '' : 'disabled'}>Save NFT Draft</button><button class="small-btn delete-btn" type="button" onclick="alert(PNC_TEXT.pinata.metadataNext)">Prepare Metadata</button></div></form></div>`;
 }
 function creatorMarketplaceHtml(state){
   if(!state.wallet) return lockedCreatorPanel();
   const mine = creatorOwnedNFTs(state);
-  return `<div class="creator-card"><h2>Marketplace Actions</h2><p class="creator-help">Mint済みNFTだけをList対象にします。Buy後は必ずownerOf(tokenId)を再読込します。</p><div class="creator-list">${mine.map(n=>`<div class="creator-list-item"><div class="creator-list-title">${esc(n.name)}</div><div class="creator-help">Owner: ${esc(short(n.owner))}<br>Chain: ${esc(chainLabel(n))}<br>Status: ${esc(statusLabel(n))}</div><div class="creator-toolbar"><button class="small-btn sell-btn" ${chainLabel(n)==='ERC721 On-chain' && n.status!=='listed' ? '' : 'disabled'} onclick="handleList('${esc(n.id)}')">List</button><button class="small-btn delete-btn" ${n.status==='listed' ? '' : 'disabled'} onclick="alert('Unlist adapter is next.')">Unlist</button></div></div>`).join('') || '<div class="creator-help">No editable NFT for this wallet.</div>'}</div></div>`;
+  return `<div class="creator-card"><h2>Marketplace Actions</h2><p class="creator-help">${esc(PNC_TEXT.creator.listHelp)}</p><div class="creator-list">${mine.map(n=>`<div class="creator-list-item"><div class="creator-list-title">${esc(n.name)}</div><div class="creator-help">Owner: ${esc(short(n.owner))}<br>Chain: ${esc(chainLabel(n))}<br>Status: ${esc(statusLabel(n))}</div><div class="creator-toolbar"><button class="small-btn sell-btn" ${chainLabel(n)==='ERC721 On-chain' && n.status!=='listed' ? '' : 'disabled'} onclick="handleList('${esc(n.id)}')">List</button><button class="small-btn delete-btn" ${n.status==='listed' ? '' : 'disabled'} onclick="alert(PNC_TEXT.market.unlistNext)">Unlist</button></div></div>`).join('') || '<div class="creator-help">No editable NFT for this wallet.</div>'}</div></div>`;
 }
 function createShopDraftFromForm(form){
   if(!requireWallet()) return;
@@ -744,7 +791,7 @@ function createSeedState(){
     nft.owner = nft.knownOwner || '';
     nft.status = 'not_for_sale';
     applyCachedMetadata(nft);
-    if(!nft.noMedia && !resolveMediaUrl(nft) && (nft.metadataUrl || nft.tokenURI || (lc(nft.contractAddress) === lc(NFT_CONTRACT) && nft.tokenId))) nft.mediaPending = true;
+    if(!nft.noMedia && !resolveMediaUrl(nft) && (nft.metadataUrl || nft.tokenURI || (lc(nft.contractAddress) === lc(PNC_CONFIG.contracts.nft) && nft.tokenId))) nft.mediaPending = true;
   }
   applyCollectionMedia(state);
   return state;
@@ -769,14 +816,14 @@ async function createMarketState(){
     nft.owner = nft.knownOwner || '';
     nft.status = 'not_for_sale';
     applyCachedMetadata(nft);
-    if(!nft.noMedia && !resolveMediaUrl(nft) && (nft.metadataUrl || nft.tokenURI || (lc(nft.contractAddress) === lc(NFT_CONTRACT) && nft.tokenId))) nft.mediaPending = true;
+    if(!nft.noMedia && !resolveMediaUrl(nft) && (nft.metadataUrl || nft.tokenURI || (lc(nft.contractAddress) === lc(PNC_CONFIG.contracts.nft) && nft.tokenId))) nft.mediaPending = true;
 
-    if(lc(nft.contractAddress) === lc(NFT_CONTRACT) && nft.tokenId && window.ethereum && (state.wallet || PNC_PERFORMANCE.readChainBeforeWalletConnect)){
+    if(lc(nft.contractAddress) === lc(PNC_CONFIG.contracts.nft) && nft.tokenId && window.ethereum && (state.wallet || PNC_CONFIG.performance.readChainBeforeWalletConnect)){
       try{ const owner = await readOwnerOf(nft.tokenId); if(owner) nft.owner = owner; }catch(e){ state.errors.push(nft.name+' ownerOf failed'); }
       try{ const uri = await readTokenURI(nft.tokenId); if(uri) nft.tokenURI = uri; }catch(e){ state.errors.push(nft.name+' tokenURI failed'); }
       await hydrateMetadata(nft);
       try{
-        const listingId = await readListingId(NFT_CONTRACT, nft.tokenId);
+        const listingId = await readListingId(PNC_CONFIG.contracts.nft, nft.tokenId);
         nft.listingId = listingId;
         if(listingId !== '0'){
           const listing = await readListing(listingId);
@@ -799,10 +846,10 @@ async function createMarketState(){
 
 function collectionItems(state, collectionId){ return state.nfts.filter(n => n.collectionId === collectionId); }
 function collectionNameById(id){ return (PNC_STATE.collections.find(c=>c.id===id)||{}).name || id || '-'; }
-function chainLabel(n){ return lc(n.contractAddress) === lc(NFT_CONTRACT) ? 'ERC721 On-chain' : 'Legacy'; }
+function chainLabel(n){ return lc(n.contractAddress) === lc(PNC_CONFIG.contracts.nft) ? 'ERC721 On-chain' : 'Legacy'; }
 function statusLabel(n){ return n.status === 'listed' ? 'Listed' : (chainLabel(n)==='Legacy' ? 'Legacy' : 'Not for sale'); }
 function statusClass(n){ return n.status === 'listed' ? 'status-listed' : (chainLabel(n)==='Legacy' ? 'status-legacy' : 'status-not-for-sale'); }
-function currencyUnit(){ return PNC_CURRENCY.activeSymbol || PNC_CURRENCY.futureSymbol || 'Pi'; }
+function currencyUnit(){ return PNC_CONFIG.currency.activeSymbol || PNC_CONFIG.currency.futureSymbol || 'Pi'; }
 function uiIcon(name){ return PNC_UI_ICONS[name] || ''; }
 function priceLine(n){
   const value = n.status === 'listed' ? esc(n.priceEth || '-') : esc('Not for sale');
@@ -820,9 +867,9 @@ function detailActionButtons(n){
     <button class="small-btn delete-btn" onclick="event.stopPropagation(); closeNftDetail();">Close</button>
   </div><div class="clean-note mini-note">Buy/List adapters are prepared, but full Marketplace write wiring is a later step.</div>`;
 }
-function requireWallet(){ if(PNC_STATE.wallet) return true; alert('WalletをConnectしてください。'); openWalletModal(); return false; }
-function handleBuy(id){ if(!requireWallet()) return; alert('Buy接続は次の段階で実装します。まず表示とMarketStateを固定しています。'); }
-function handleList(id){ if(!requireWallet()) return; alert('List接続は次の段階で実装します。まず表示とMarketStateを固定しています。'); }
+function requireWallet(){ if(PNC_STATE.wallet) return true; alert(PNC_TEXT.wallet.connectRequired); openWalletModal(); return false; }
+function handleBuy(id){ if(!requireWallet()) return; alert(PNC_TEXT.market.buyPrepared); }
+function handleList(id){ if(!requireWallet()) return; alert(PNC_TEXT.market.listPrepared); }
 function nftCard(n){
   return `<div class="nft-card" onclick="showDetailById('${esc(n.id)}')">${mediaBox(n,'nft-img')}<div class="nft-body"><div class="nft-title-row"><div class="nft-name">${esc(n.name)}</div><div class="nft-token-chip">${esc(n.tokenId ? '#'+n.tokenId : 'Legacy')}</div></div>${priceLine(n)}<div class="nft-info-list">${infoRow('Collection', collectionNameById(n.collectionId))}${infoRow('Owner', short(n.owner))}${infoRow('Creator', short(n.creator))}${n.seller ? infoRow('Seller', short(n.seller)) : ''}</div><div class="nft-badge-row"><span class="status-badge ${statusClass(n)}">${esc(statusLabel(n))}</span><span class="chain-badge">${esc(chainLabel(n))}</span></div></div></div>`;
 }
@@ -872,10 +919,10 @@ function renderCreatorCenter(state){
   }else{
     body = creatorDashboardHtml(state);
   }
-  $('creatorForm').innerHTML = `<div class="clean-note"><strong>Creator Center v1.3.0 rule:</strong><br>Wallet別処理なし。connected walletのcreator/owner権限だけでCreate Shop / Create NFT / Listを制御します。</div><div class="creator-tabs">${creatorTabButton('dashboard','Dashboard')}${creatorTabButton('shop','Create Shop')}${creatorTabButton('nft','Create NFT')}${creatorTabButton('market','List / Unlist')}</div>${body}<div class="market-rules"><div class="market-rules-title">Contracts</div><div class="code-mini">NFT: ${NFT_CONTRACT}<br>Marketplace: ${MARKETPLACE_CONTRACT}<br>Fee Wallet: ${FEE_WALLET}</div></div>`;
+  $('creatorForm').innerHTML = `<div class="clean-note"><strong>${esc(PNC_TEXT.creator.ruleTitle)}</strong><br>${esc(PNC_TEXT.creator.ruleBody)}</div><div class="creator-tabs">${creatorTabButton('dashboard','Dashboard')}${creatorTabButton('shop','Create Shop')}${creatorTabButton('nft','Create NFT')}${creatorTabButton('market','List / Unlist')}</div>${body}<div class="market-rules"><div class="market-rules-title">Contracts</div><div class="code-mini">NFT: ${PNC_CONFIG.contracts.nft}<br>Marketplace: ${PNC_CONFIG.contracts.marketplace}<br>Fee Wallet: ${PNC_CONFIG.contracts.feeWallet}</div></div>`;
 }
 function renderFooter(state){
-  $('appFooter').innerHTML = `<div class="footer-grid"><div><div class="footer-title">PNC Clean Core</div><button onclick="showPage('homePage')">Home</button><button onclick="showPage('collectionsPage')">Collections</button><button onclick="showPage('vaultPage')">My Vault</button></div><div><div class="footer-title">State</div><span class="meta">Wallet: ${esc(short(state.wallet))}</span><br><span class="meta">NFTs: ${state.nfts.length}</span><br><span class="meta">Collections: ${state.collections.length}</span></div><div><div class="footer-title">Rules</div><span class="meta">Single MarketState</span><br><span class="meta">6 render functions</span><br><span class="meta">No legacy renderer</span></div><div><div class="footer-title">Official Links</div><div class="footer-social"><a href="${PNC_LINKS.x}" target="_blank" rel="noopener noreferrer">${uiIcon('x')} X</a><a href="${PNC_LINKS.telegram}" target="_blank" rel="noopener noreferrer">${uiIcon('telegram')} Telegram</a></div><div class="meta" style="margin-top:8px">Pi-ready / Sepolia adapter<br>Unified PC/mobile path</div></div></div><div class="footer-bottom">Pi Network NFT Center — ${PNC_VERSION}<br>Built for the Pi Ecosystem / Clean Core${state.resolving ? '<div class="resolving-note">Resolving metadata...</div>' : ''}</div>`;
+  $('appFooter').innerHTML = `<div class="footer-grid"><div><div class="footer-title">PNC Clean Core</div><button onclick="showPage('homePage')">Home</button><button onclick="showPage('collectionsPage')">Collections</button><button onclick="showPage('vaultPage')">My Vault</button></div><div><div class="footer-title">State</div><span class="meta">Wallet: ${esc(short(state.wallet))}</span><br><span class="meta">NFTs: ${state.nfts.length}</span><br><span class="meta">Collections: ${state.collections.length}</span></div><div><div class="footer-title">Rules</div><span class="meta">Single MarketState</span><br><span class="meta">6 render functions</span><br><span class="meta">No legacy renderer</span></div><div><div class="footer-title">Official Links</div><div class="footer-social"><a href="${PNC_CONFIG.links.x}" target="_blank" rel="noopener noreferrer">${uiIcon('x')} X</a><a href="${PNC_CONFIG.links.telegram}" target="_blank" rel="noopener noreferrer">${uiIcon('telegram')} Telegram</a></div><div class="meta" style="margin-top:8px">Pi-ready / Sepolia adapter<br>Unified PC/mobile path</div></div></div><div class="footer-bottom">Pi Network NFT Center — ${PNC_CONFIG.app.version}<br>Built for the Pi Ecosystem / Clean Core${state.resolving ? '<div class="resolving-note">Resolving metadata...</div>' : ''}</div>`;
 }
 
 function openCollection(collectionId){ renderCollectionPage(PNC_STATE, collectionId); showPage('collectionPage'); }
