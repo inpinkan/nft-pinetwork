@@ -237,7 +237,7 @@
 .nft-info-row span:first-child{color:var(--muted);font-weight:800}
 .nft-info-row span:last-child{font-weight:900;text-align:right;word-break:break-word}
 .nft-badge-row{display:flex;gap:5px;flex-wrap:wrap;margin-top:3px}
-.currency-mark{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;background:var(--gold);color:#2d1743;font-weight:950;font-size:13px;line-height:1;margin-right:5px;vertical-align:middle}.currency-unit{font-size:.72em;font-weight:950;margin-left:4px;color:var(--muted)}
+.currency-mark{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;background:#5b2d82;color:#f5b041;border:2px solid #f5b041;font-weight:950;font-size:13px;line-height:1;margin-right:5px;vertical-align:middle}.currency-unit{font-size:.72em;font-weight:950;margin-left:4px;color:var(--muted)}
 .status-not-for-sale{color:var(--muted);border-color:var(--border);background:rgba(255,255,255,.045)}
 .status-legacy{color:#b084ff;border-color:rgba(176,132,255,.45);background:rgba(176,132,255,.12)}
 .detail-overlay{position:fixed;inset:0;background:rgba(0,0,0,.62);z-index:90;display:none;align-items:center;justify-content:center;padding:18px}
@@ -251,6 +251,8 @@
 @media(max-width:720px){.nft-info-row{font-size:10px}.detail-box{border-radius:18px;padding:14px}}
 
 .clean-note{border:1px solid var(--border);border-radius:18px;padding:12px;background:rgba(47,128,237,.08);color:var(--muted);font-size:13px;line-height:1.5}
+.social-links{display:flex;gap:8px;align-items:center;margin-left:auto;margin-right:10px}.social-link{width:34px;height:34px;border-radius:12px;border:1px solid rgba(245,176,65,.55);display:inline-flex;align-items:center;justify-content:center;color:#fff;text-decoration:none;font-weight:950;background:rgba(255,255,255,.06)}.social-link:hover{background:rgba(245,176,65,.18)}
+.media-skeleton{position:relative;overflow:hidden;color:transparent!important}.media-skeleton::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,rgba(255,255,255,.04),rgba(255,255,255,.13),rgba(255,255,255,.04));animation:pncShimmer 1.2s infinite;transform:translateX(-100%)}@keyframes pncShimmer{100%{transform:translateX(100%)}}
 .code-mini{font-family:Consolas,monospace;font-size:12px;word-break:break-all}
 
 
@@ -271,7 +273,7 @@
   .nft-img{height:128px!important}.collection-banner{height:96px!important}
   .nft-body,.collection-body{padding:9px!important}
   .nft-name,.collection-name{font-size:13px!important}
-  .price-line{font-size:13px!important}.currency-mark{width:15px;height:15px;font-size:11px}
+  .price-line{font-size:13px!important}.currency-mark{width:15px;height:15px;font-size:11px;border-width:2px}.social-links{gap:6px;margin-right:8px}.social-link{width:32px;height:32px}
   footer{padding:20px 10px 48px}.footer-grid{grid-template-columns:repeat(2,1fr)!important;gap:12px}
 }
 @media(max-width:390px){
@@ -286,7 +288,7 @@
 <header>
   <div class="topbar">
     <div class="logo-text" onclick="showPage('homePage')">PI NFT CENTER</div>
-    <button class="menu-btn" onclick="toggleMenu()">☰</button>
+    <div class="social-links"><a class="social-link" href="https://x.com/picoreteam?s=21&t=OEh4osxhpQf_YpLWZaL1kQ" target="_blank" rel="noopener noreferrer" title="Pi Core Team on X">𝕏</a><a class="social-link" href="https://t.me/PiAnnouncements" target="_blank" rel="noopener noreferrer" title="Pi Announcements on Telegram">✈</a></div><button class="menu-btn" onclick="toggleMenu()">☰</button>
   </div>
   <div class="search-wrap">
     <div class="search-row"><input id="searchInput" oninput="searchPNC()" placeholder="Search NFTs or Collections"/><button class="wallet-btn" id="walletConnectBtn" onclick="openWalletModal()">Connect</button></div>
@@ -298,6 +300,8 @@
     <button onclick="showPage('collectionsPage')">🏪 Collections</button>
     <button onclick="showPage('vaultPage')">🏦 My Vault</button>
     <button onclick="showPage('creatorPage')">🎨 Creator Center</button>
+    <a href="https://x.com/picoreteam?s=21&t=OEh4osxhpQf_YpLWZaL1kQ" target="_blank" rel="noopener noreferrer">𝕏 Pi Core Team</a>
+    <a href="https://t.me/PiAnnouncements" target="_blank" rel="noopener noreferrer">✈ Pi Announcements</a>
     <div class="menu-title">Appearance</div>
     <button onclick="setTheme('light')">☀️ Light</button>
     <button onclick="setTheme('dark')">🌙 Dark</button>
@@ -305,7 +309,7 @@
 </header>
 <main>
   <div class="page show" id="homePage">
-    <div class="hero"><h1>Pi NFT Center <span class="beta">v1.2.1 Clean Core</span></h1><p>Pi-first display core: instant seed render + unified PC/mobile responsive layer.</p></div>
+    <div class="hero"><h1>Pi NFT Center <span class="beta">v1.2.4 Clean Core</span></h1><p>Unified PC/mobile render path. Faster first paint, no wrong-image placeholder, Pi links restored.</p></div>
     <section><div class="section-title">🏆 Top Collections</div><div class="collection-list" id="topCollections"></div></section>
     <section><div class="section-title">🔥 Hot NFTs</div><div class="grid" id="hotNfts"></div></section>
     <section><div class="section-title">🆕 New NFTs</div><div class="grid" id="newNfts"></div></section>
@@ -340,7 +344,7 @@
 <script>
 'use strict';
 
-const PNC_VERSION = 'v1.2.3 Clean Core';
+const PNC_VERSION = 'v1.2.4 Clean Core';
 const SEPOLIA_CHAIN_ID = '0xaa36a7';
 const NFT_CONTRACT = '0x63C8AbE6a0e7867B7812A1237a2781D460702382';
 const MARKETPLACE_CONTRACT = '0x33Ed6866A85d9C00AD5e028750939E545ee4556f';
@@ -355,6 +359,11 @@ const PNC_CURRENCY = {
   activeSymbol: 'SepoliaETH'
 };
 const TOP_COLLECTION_LIMIT = 3;
+const PNC_PERFORMANCE = {
+  // Single rule for PC and mobile: do not run RPC before wallet connect.
+  // Initial public display uses seed + metadata URLs only; wallet connection enables owner/listing RPC.
+  readChainBeforeWalletConnect: false
+};
 
 
 const NFT_ABI = [
@@ -426,6 +435,7 @@ function resolveMediaUrl(item){
   return isUsableMediaUrl(raw) ? ipfs(raw) : '';
 }
 function mediaUrlFrom(item){ return resolveMediaUrl(item); }
+function hasPendingMedia(item){ return !!(item && item.mediaPending); }
 const toHex = n => '0x'+BigInt(n).toString(16).padStart(64,'0');
 const addrWord = a => String(a).toLowerCase().replace(/^0x/,'').padStart(64,'0');
 
@@ -643,6 +653,7 @@ function createSeedState(){
     nft.owner = nft.knownOwner || '';
     nft.status = 'not_for_sale';
     applyCachedMetadata(nft);
+    if(!resolveMediaUrl(nft) && (nft.metadataUrl || nft.tokenURI || (lc(nft.contractAddress) === lc(NFT_CONTRACT) && nft.tokenId))) nft.mediaPending = true;
   }
   applyCollectionMedia(state);
   return state;
@@ -667,8 +678,9 @@ async function createMarketState(){
     nft.owner = nft.knownOwner || '';
     nft.status = 'not_for_sale';
     applyCachedMetadata(nft);
+    if(!resolveMediaUrl(nft) && (nft.metadataUrl || nft.tokenURI || (lc(nft.contractAddress) === lc(NFT_CONTRACT) && nft.tokenId))) nft.mediaPending = true;
 
-    if(lc(nft.contractAddress) === lc(NFT_CONTRACT) && nft.tokenId && window.ethereum){
+    if(lc(nft.contractAddress) === lc(NFT_CONTRACT) && nft.tokenId && window.ethereum && (state.wallet || PNC_PERFORMANCE.readChainBeforeWalletConnect)){
       try{ const owner = await readOwnerOf(nft.tokenId); if(owner) nft.owner = owner; }catch(e){ state.errors.push(nft.name+' ownerOf failed'); }
       try{ const uri = await readTokenURI(nft.tokenId); if(uri) nft.tokenURI = uri; }catch(e){ state.errors.push(nft.name+' tokenURI failed'); }
       await hydrateMetadata(nft);
@@ -706,7 +718,7 @@ function priceLine(n){
   const value = n.status === 'listed' ? esc(n.priceEth || '-') : esc('Not for sale');
   return `<div class="price-block"><span class="price-label">Price</span><span class="price-line"><span class="currency-mark">${esc(PNC_CURRENCY.icon)}</span><span class="price-value-wrap">${value}${unit}</span></span></div>`;
 }
-function mediaBox(item, cls){ const img = mediaUrlFrom(item); return img ? `<div class="${cls} has-image" style="background-image:url('${esc(img)}')"></div>` : `<div class="${cls}">${esc(item.icon||'🖼')}</div>`; }
+function mediaBox(item, cls){ const img = mediaUrlFrom(item); if(img) return `<div class="${cls} has-image" style="background-image:url('${esc(img)}')"></div>`; if(hasPendingMedia(item)) return `<div class="${cls} media-skeleton"></div>`; return `<div class="${cls}">${esc(item.icon||'🖼')}</div>`; }
 function infoRow(label, value){ return `<div class="nft-info-row"><span>${esc(label)}</span><span>${esc(value || '-')}</span></div>`; }
 function detailActionButtons(n){
   const canBuy = n.status === 'listed';
@@ -758,7 +770,7 @@ function renderCreatorCenter(state){
   $('creatorForm').innerHTML = `<div class="clean-note"><strong>Clean Core rule:</strong><br>Creator actions must call adapters only. No wallet-specific display patch, no duplicate render path, no fixed NFT HTML.</div><div class="market-rules"><div class="market-rules-title">Contracts</div><div class="code-mini">NFT: ${NFT_CONTRACT}<br>Marketplace: ${MARKETPLACE_CONTRACT}<br>Fee Wallet: ${FEE_WALLET}</div></div>`;
 }
 function renderFooter(state){
-  $('appFooter').innerHTML = `<div class="footer-grid"><div><div class="footer-title">PNC Clean Core</div><button onclick="showPage('homePage')">Home</button><button onclick="showPage('collectionsPage')">Collections</button><button onclick="showPage('vaultPage')">My Vault</button></div><div><div class="footer-title">State</div><span class="meta">Wallet: ${esc(short(state.wallet))}</span><br><span class="meta">NFTs: ${state.nfts.length}</span><br><span class="meta">Collections: ${state.collections.length}</span></div><div><div class="footer-title">Rules</div><span class="meta">Single MarketState</span><br><span class="meta">6 render functions</span><br><span class="meta">No legacy renderer</span></div><div><div class="footer-title">Network</div><span class="meta">Pi-ready / Sepolia adapter</span></div></div><div class="footer-bottom">Pi Network NFT Center — ${PNC_VERSION}<br>Built for the Pi Ecosystem / Clean Core${state.resolving ? '<div class="resolving-note">Resolving metadata...</div>' : ''}</div>`;
+  $('appFooter').innerHTML = `<div class="footer-grid"><div><div class="footer-title">PNC Clean Core</div><button onclick="showPage('homePage')">Home</button><button onclick="showPage('collectionsPage')">Collections</button><button onclick="showPage('vaultPage')">My Vault</button></div><div><div class="footer-title">State</div><span class="meta">Wallet: ${esc(short(state.wallet))}</span><br><span class="meta">NFTs: ${state.nfts.length}</span><br><span class="meta">Collections: ${state.collections.length}</span></div><div><div class="footer-title">Rules</div><span class="meta">Single MarketState</span><br><span class="meta">6 render functions</span><br><span class="meta">No legacy renderer</span></div><div><div class="footer-title">Network</div><span class="meta">Pi-ready / Sepolia adapter</span><br><span class="meta">Unified PC/mobile path</span></div></div><div class="footer-bottom">Pi Network NFT Center — ${PNC_VERSION}<br>Built for the Pi Ecosystem / Clean Core${state.resolving ? '<div class="resolving-note">Resolving metadata...</div>' : ''}</div>`;
 }
 
 function openCollection(collectionId){ renderCollectionPage(PNC_STATE, collectionId); showPage('collectionPage'); }
