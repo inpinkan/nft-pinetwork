@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Pi NFT Center v1.3.1 Creator Center</title>
+<title>Pi NFT Center v1.3.2 Creator Center</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%235b2d82'/%3E%3Ctext x='32' y='42' text-anchor='middle' font-size='34' fill='%23f5b041' font-family='Arial' font-weight='900'%3Eπ%3C/text%3E%3C/svg%3E">
 <style>
 
@@ -41,7 +41,7 @@
     @media (min-width:720px){.grid{grid-template-columns:repeat(4,1fr)}.nft-img{height:170px}.footer-grid{grid-template-columns:repeat(4,1fr)}}@media (max-width:420px){.search-row{grid-template-columns:1fr 82px}.logo-text{font-size:19px}}
   
 
-/* v1.3.1 Creator Center Price display */
+/* v1.3.2 Creator Center Price display */
 .price-block{margin:6px 0 6px!important;display:flex!important;align-items:flex-start!important;gap:6px!important;min-height:22px!important}
 .price-label{font-size:10px!important;font-weight:900!important;color:var(--muted)!important;text-transform:uppercase!important;letter-spacing:.08em!important;margin:0!important;line-height:1.2!important}
 .price-line{display:inline-flex!important;align-items:flex-start!important;gap:5px!important;font-size:17px!important;font-weight:950!important;line-height:1!important;color:var(--text)!important}
@@ -281,7 +281,7 @@
 
 
 
-/* v1.3.1 Creator Center foundation */
+/* v1.3.2 Creator Center foundation */
 .creator-dashboard{display:grid;grid-template-columns:1fr;gap:12px}
 .creator-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
 .creator-tab{border:1px solid var(--border);background:rgba(255,255,255,.055);color:var(--text);border-radius:999px;padding:10px 12px;font-weight:900;cursor:pointer}
@@ -304,7 +304,7 @@
 @media(min-width:720px){.creator-two-col{grid-template-columns:1fr 1fr}.creator-dashboard{grid-template-columns:1fr 1fr}.creator-status-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
 
 
-/* v1.3.1 Creator Center readability + locked-tab behavior */
+/* v1.3.2 Creator Center readability + locked-tab behavior */
 .creator-card h2{font-size:22px;margin:0 0 10px;color:var(--text)}
 .creator-card h3{font-size:18px;margin:0 0 10px;color:var(--text)}
 .creator-help,.creator-owner-note,.clean-note{font-size:14px!important;line-height:1.65!important}
@@ -347,7 +347,7 @@
 </header>
 <main>
   <div class="page show" id="homePage">
-    <div class="hero"><h1>Pi NFT Center <span class="beta">v1.3.1 Creator Center</span></h1><p>Creator Center foundation. Settings and messages are moving into CONFIG / TEXT. Locked creator actions guide users to Connect Wallet.</p></div>
+    <div class="hero"><h1>Pi NFT Center <span class="beta">v1.3.2 Creator Center</span></h1><p>Creator Center foundation. Settings and messages are moving into CONFIG / TEXT. Locked creator actions show a notice. Wallet connection is only from the top-right Connect button.</p></div>
     <section><div class="section-title">🏆 Top Collections</div><div class="collection-list" id="topCollections"></div></section>
     <section><div class="section-title">🔥 Hot NFTs</div><div class="grid" id="hotNfts"></div></section>
     <section><div class="section-title">🆕 New NFTs</div><div class="grid" id="newNfts"></div></section>
@@ -383,7 +383,7 @@
 'use strict';
 
 const PNC_CONFIG = {
-  app: { version: 'v1.3.1 Creator Center' },
+  app: { version: 'v1.3.2 Creator Center' },
   network: { chainId: '0xaa36a7', name: 'Sepolia Testnet' },
   contracts: {
     nft: '0x63C8AbE6a0e7867B7812A1237a2781D460702382',
@@ -404,21 +404,24 @@ const PNC_CONFIG = {
 };
 const PNC_TEXT = {
   wallet: {
-    connectRequired: 'WalletをConnectしてください。',
+    connectRequired: 'WalletをConnectしてください。右上のConnectボタンから接続できます。',
+    modalConnectedTitle: 'Wallet Connected',
+    modalConnectTitle: 'Connect Wallet',
+    modalChooseProvider: 'Choose a wallet provider.',
     metamaskNotFound: 'MetaMaskが見つかりません。',
     metamaskPending: 'MetaMaskの確認画面がすでに開いています。MetaMaskを確認してください。',
     connectFailed: 'MetaMask接続が失敗しました。',
     piComingSoon: 'Pi Wallet接続は将来用です。現在のテスト版は MetaMask / Sepolia を使います。'
   },
   creator: {
-    ruleTitle: 'Creator Center v1.3.1 rule:',
+    ruleTitle: 'Creator Center v1.3.2 rule:',
     ruleBody: 'Wallet別処理なし。connected walletのcreator/owner権限だけでCreate Shop / Create NFT / Listを制御します。',
     lockedTitle: 'Wallet required',
-    lockedBody: 'Create Shop / Create NFT / Mint / List はWallet接続後に使えます。',
-    dashboardHelp: '${esc(PNC_TEXT.creator.dashboardHelp)}',
+    lockedBody: 'Create Shop / Create NFT / Mint / List はWallet接続後に使えます。接続は右上のConnectボタンから行ってください。',
+    dashboardHelp: '接続WalletをCreatorとして扱います。表示は公開データ、操作権限はconnected walletで判定します。',
     shopOwnerNote: 'Creator is fixed to connected wallet:',
     nftOwnerNote: 'Creator / initial Owner is connected wallet:',
-    listHelp: '${esc(PNC_TEXT.creator.listHelp)}'
+    listHelp: 'Mint済みNFTだけをList対象にします。Buy後は必ずownerOf(tokenId)を再読込します。'
   },
   market: {
     buyPrepared: 'Buy接続は次の段階で実装します。まず表示とMarketStateを固定しています。',
@@ -536,12 +539,12 @@ function openWalletModal(){
   const actions = $('walletModalActions');
   const title = modal?.querySelector('h2');
   if(PNC_STATE.wallet){
-    if(title) title.textContent = 'Wallet Connected';
+    if(title) title.textContent = PNC_TEXT.wallet.modalConnectedTitle;
     if(status) status.textContent = short(PNC_STATE.wallet);
     if(actions) actions.innerHTML = walletModalHtmlConnected();
   }else{
-    if(title) title.textContent = 'Connect Wallet';
-    if(status) status.textContent = 'Choose a wallet provider.';
+    if(title) title.textContent = PNC_TEXT.wallet.modalConnectTitle;
+    if(status) status.textContent = PNC_TEXT.wallet.modalChooseProvider;
     if(actions) actions.innerHTML = walletModalHtmlDisconnected();
   }
   modal?.classList.add('show');
@@ -609,8 +612,6 @@ async function disconnectWallet(){
   closeWalletModal();
   await loadBlockchainState();
 }
-async function logoutWallet(){ return disconnectWallet(); }
-async function connectWallet(){ return openWalletModal(); }
 function installWalletListeners(){
   if(!window.ethereum || window.__PNC_WALLET_LISTENERS__) return;
   window.__PNC_WALLET_LISTENERS__ = true;
@@ -734,14 +735,15 @@ function setCreatorTab(tab){
   PNC_CREATOR_TAB = tab || 'dashboard';
   renderCreatorCenter(PNC_STATE);
 }
+function showWalletConnectNotice(){ alert(PNC_TEXT.wallet.connectRequired); }
 function lockedCreatorPanel(){
-  return `<div class="creator-card creator-locked"><h2>${esc(PNC_TEXT.creator.lockedTitle)}</h2><p class="creator-help">${esc(PNC_TEXT.creator.lockedBody)}</p><button class="primary-btn" onclick="openWalletModal()">Connect Wallet</button></div>`;
+  return `<div class="creator-card creator-locked"><h2>${esc(PNC_TEXT.creator.lockedTitle)}</h2><p class="creator-help">${esc(PNC_TEXT.creator.lockedBody)}</p></div>`;
 }
 function creatorTabButton(tab,label){
   const active = PNC_CREATOR_TAB === tab ? 'active' : '';
   const locked = !PNC_STATE.wallet && tab !== 'dashboard';
   const lockedClass = locked ? 'is-locked' : '';
-  const action = locked ? 'openWalletModal()' : `setCreatorTab('${tab}')`;
+  const action = locked ? 'showWalletConnectNotice()' : `setCreatorTab('${tab}')`;
   return `<button class="creator-tab ${active} ${lockedClass}" onclick="${action}" aria-disabled="${locked}">${label}</button>`;
 }
 function creatorDashboardHtml(state){
@@ -867,7 +869,7 @@ function detailActionButtons(n){
     <button class="small-btn delete-btn" onclick="event.stopPropagation(); closeNftDetail();">Close</button>
   </div><div class="clean-note mini-note">Buy/List adapters are prepared, but full Marketplace write wiring is a later step.</div>`;
 }
-function requireWallet(){ if(PNC_STATE.wallet) return true; alert(PNC_TEXT.wallet.connectRequired); openWalletModal(); return false; }
+function requireWallet(){ if(PNC_STATE.wallet) return true; showWalletConnectNotice(); return false; }
 function handleBuy(id){ if(!requireWallet()) return; alert(PNC_TEXT.market.buyPrepared); }
 function handleList(id){ if(!requireWallet()) return; alert(PNC_TEXT.market.listPrepared); }
 function nftCard(n){
