@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Pi NFT Center v1.3.2 Creator Center</title>
+<title>Pi NFT Center v1.3.3 Creator Center</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%235b2d82'/%3E%3Ctext x='32' y='42' text-anchor='middle' font-size='34' fill='%23f5b041' font-family='Arial' font-weight='900'%3Eπ%3C/text%3E%3C/svg%3E">
 <style>
 
@@ -41,7 +41,7 @@
     @media (min-width:720px){.grid{grid-template-columns:repeat(4,1fr)}.nft-img{height:170px}.footer-grid{grid-template-columns:repeat(4,1fr)}}@media (max-width:420px){.search-row{grid-template-columns:1fr 82px}.logo-text{font-size:19px}}
   
 
-/* v1.3.2 Creator Center Price display */
+/* v1.3.3 Creator Center Price display */
 .price-block{margin:6px 0 6px!important;display:flex!important;align-items:flex-start!important;gap:6px!important;min-height:22px!important}
 .price-label{font-size:10px!important;font-weight:900!important;color:var(--muted)!important;text-transform:uppercase!important;letter-spacing:.08em!important;margin:0!important;line-height:1.2!important}
 .price-line{display:inline-flex!important;align-items:flex-start!important;gap:5px!important;font-size:17px!important;font-weight:950!important;line-height:1!important;color:var(--text)!important}
@@ -281,7 +281,7 @@
 
 
 
-/* v1.3.2 Creator Center foundation */
+/* v1.3.3 Creator Center foundation */
 .creator-dashboard{display:grid;grid-template-columns:1fr;gap:12px}
 .creator-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
 .creator-tab{border:1px solid var(--border);background:rgba(255,255,255,.055);color:var(--text);border-radius:999px;padding:10px 12px;font-weight:900;cursor:pointer}
@@ -304,7 +304,7 @@
 @media(min-width:720px){.creator-two-col{grid-template-columns:1fr 1fr}.creator-dashboard{grid-template-columns:1fr 1fr}.creator-status-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
 
 
-/* v1.3.2 Creator Center readability + locked-tab behavior */
+/* v1.3.3 Creator Center readability + locked-tab behavior */
 .creator-card h2{font-size:22px;margin:0 0 10px;color:var(--text)}
 .creator-card h3{font-size:18px;margin:0 0 10px;color:var(--text)}
 .creator-help,.creator-owner-note,.clean-note{font-size:14px!important;line-height:1.65!important}
@@ -321,6 +321,19 @@
   .creator-help,.creator-owner-note,.clean-note{font-size:13px!important}
   .code-mini{font-size:12px!important}
 }
+
+
+/* v1.3.3 Creator Center cleanup */
+.sale-status-options{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.sale-status-option{border:1px solid var(--border);border-radius:14px;padding:10px;background:rgba(255,255,255,.045);font-weight:900;cursor:pointer}
+.sale-status-option input{width:auto;margin-right:7px;accent-color:var(--gold)}
+.sale-status-option span{font-size:12px!important;color:var(--muted)!important;display:block;margin-top:4px}
+.fee-rules-grid{display:grid;grid-template-columns:1fr;gap:12px;margin-top:10px}
+.fee-rule-card{border:1px solid var(--border);border-radius:16px;background:rgba(245,176,65,.06);padding:12px}
+.fee-rule-title{font-weight:950;color:var(--gold);margin-bottom:8px}
+.fee-row{display:flex;justify-content:space-between;gap:12px;border-bottom:1px solid rgba(255,255,255,.06);padding:6px 0;color:var(--muted)}
+.fee-row:last-child{border-bottom:none}.fee-row strong{color:var(--text)}
+@media(min-width:720px){.fee-rules-grid{grid-template-columns:1fr 1fr}}
 
 </style>
 </head>
@@ -347,7 +360,7 @@
 </header>
 <main>
   <div class="page show" id="homePage">
-    <div class="hero"><h1>Pi NFT Center <span class="beta">v1.3.2 Creator Center</span></h1><p>Creator Center foundation. Settings and messages are moving into CONFIG / TEXT. Locked creator actions show a notice. Wallet connection is only from the top-right Connect button.</p></div>
+    <div class="hero"><h1>Pi NFT Center <span class="beta">v1.3.3 Creator Center</span></h1><p>Creator Center foundation. Settings and messages are moving into CONFIG / TEXT. Locked creator actions show a notice. Wallet connection is only from the top-right Connect button.</p></div>
     <section><div class="section-title">🏆 Top Collections</div><div class="collection-list" id="topCollections"></div></section>
     <section><div class="section-title">🔥 Hot NFTs</div><div class="grid" id="hotNfts"></div></section>
     <section><div class="section-title">🆕 New NFTs</div><div class="grid" id="newNfts"></div></section>
@@ -383,7 +396,7 @@
 'use strict';
 
 const PNC_CONFIG = {
-  app: { version: 'v1.3.2 Creator Center' },
+  app: { version: 'v1.3.3 Creator Center' },
   network: { chainId: '0xaa36a7', name: 'Sepolia Testnet' },
   contracts: {
     nft: '0x63C8AbE6a0e7867B7812A1237a2781D460702382',
@@ -392,6 +405,11 @@ const PNC_CONFIG = {
   },
   pinata: { gateway: 'https://gateway.pinata.cloud/ipfs/' },
   currency: { icon: 'π', testnetSymbol: 'SepoliaETH', futureSymbol: 'Pi', activeSymbol: 'SepoliaETH' },
+  marketRules: {
+    initialSale: { seller: 95, pncFee: 5 },
+    resale: { seller: 85, originalCreator: 10, pncFee: 5 },
+    examplePrice: 1000
+  },
   links: {
     x: 'https://x.com/picoreteam?s=21&t=OEh4osxhpQf_YpLWZaL1kQ',
     telegram: 'https://t.me/PiAnnouncements'
@@ -414,7 +432,7 @@ const PNC_TEXT = {
     piComingSoon: 'Pi Wallet接続は将来用です。現在のテスト版は MetaMask / Sepolia を使います。'
   },
   creator: {
-    ruleTitle: 'Creator Center v1.3.2 rule:',
+    ruleTitle: 'Creator Center v1.3.3 rule:',
     ruleBody: 'Wallet別処理なし。connected walletのcreator/owner権限だけでCreate Shop / Create NFT / Listを制御します。',
     lockedTitle: 'Wallet required',
     lockedBody: 'Create Shop / Create NFT / Mint / List はWallet接続後に使えます。接続は右上のConnectボタンから行ってください。',
@@ -754,12 +772,12 @@ function creatorDashboardHtml(state){
 }
 function creatorShopFormHtml(state){
   if(!state.wallet) return lockedCreatorPanel();
-  return `<div class="creator-card"><h2>Create Shop</h2><div class="creator-owner-note">${esc(PNC_TEXT.creator.shopOwnerNote)} <strong>${esc(short(state.wallet))}</strong><br>Wallet別コードは使わず、登録データのcreatorで権限判定します。</div><form class="creator-form" onsubmit="event.preventDefault(); createShopDraftFromForm(this);"><label>Shop Name<input name="name" placeholder="Example: DDREAM Genesis shop" required></label><label>Description<textarea name="description" placeholder="Shop description"></textarea></label><div class="creator-two-col"><label>Banner Image<span>Pinata upload adapter will use this file.</span><input name="bannerFile" type="file" accept="image/*"></label><label>Icon Image<span>Optional square icon.</span><input name="iconFile" type="file" accept="image/*"></label></div><div class="creator-toolbar"><button class="primary-btn" type="submit">Save Shop Draft</button><button class="small-btn delete-btn" type="button" onclick="alert(PNC_TEXT.pinata.uploadNext)">Upload to Pinata</button></div></form></div>`;
+  return `<div class="creator-card"><h2>Create Shop</h2><div class="creator-owner-note">${esc(PNC_TEXT.creator.shopOwnerNote)} <strong>${esc(short(state.wallet))}</strong><br>Wallet別コードは使わず、登録データのcreatorで権限判定します。</div><form class="creator-form" onsubmit="event.preventDefault(); createShopDraftFromForm(this);"><label>Shop Name<input name="name" placeholder="Example: DDREAM Genesis shop" required></label><label>Description<textarea name="description" placeholder="Shop description"></textarea></label><label>Shop Image<span>この1枚をShopカード、Shopページ、一覧表示に共通で使います。</span><input name="shopImageFile" type="file" accept="image/*"></label><div class="creator-toolbar"><button class="primary-btn" type="submit">Save Shop Draft</button><button class="small-btn delete-btn" type="button" onclick="alert(PNC_TEXT.pinata.uploadNext)">Upload to Pinata</button></div></form></div>`;
 }
 function creatorNFTFormHtml(state){
   if(!state.wallet) return lockedCreatorPanel();
   const shops = creatorOwnedCollections(state);
-  return `<div class="creator-card"><h2>Create NFT</h2><div class="creator-owner-note">${esc(PNC_TEXT.creator.nftOwnerNote)} <strong>${esc(short(state.wallet))}</strong><br>Mint後はownerOf(tokenId)を基準にMy Vaultへ反映します。</div><form class="creator-form" onsubmit="event.preventDefault(); createNFTDraftFromForm(this);"><label>Shop<select name="collectionId" required>${shops.map(c=>`<option value="${esc(c.id)}">${esc(c.name)}</option>`).join('') || '<option value="" disabled selected>No editable shop for this wallet</option>'}</select></label><label>NFT Name<input name="name" placeholder="NFT name" required></label><label>Description<textarea name="description" placeholder="NFT description"></textarea></label><label>Utility<textarea name="utility" placeholder="Utility / benefits / memo"></textarea></label><div class="creator-two-col"><label>Price<span>SepoliaETH test price. Leave empty if Not for sale.</span><input name="price" type="number" step="0.000001" min="0" placeholder="0.01"></label><label>NFT Image<span>Pinata upload adapter will use this file.</span><input name="imageFile" type="file" accept="image/*"></label></div><label><span><input name="notForSale" type="checkbox" checked> Not for sale</span></label><div class="creator-toolbar"><button class="primary-btn" type="submit" ${shops.length ? '' : 'disabled'}>Save NFT Draft</button><button class="small-btn delete-btn" type="button" onclick="alert(PNC_TEXT.pinata.metadataNext)">Prepare Metadata</button></div></form></div>`;
+  return `<div class="creator-card"><h2>Create NFT</h2><div class="creator-owner-note">${esc(PNC_TEXT.creator.nftOwnerNote)} <strong>${esc(short(state.wallet))}</strong><br>Mint後はownerOf(tokenId)を基準にMy Vaultへ反映します。</div><form class="creator-form" onsubmit="event.preventDefault(); createNFTDraftFromForm(this);"><label>Shop<select name="collectionId" required>${shops.map(c=>`<option value="${esc(c.id)}">${esc(c.name)}</option>`).join('') || '<option value="" disabled selected>No editable shop for this wallet</option>'}</select></label><label>NFT Name<input name="name" placeholder="NFT name" required></label><label>Description<textarea name="description" placeholder="NFT description"></textarea></label><label>Utility<textarea name="utility" placeholder="Utility / benefits / memo"></textarea></label><div class="creator-two-col"><label>Price<span>SepoliaETH test price. For Saleの時だけ使います。</span><input name="price" type="number" step="0.000001" min="0" placeholder="0.01"></label><label>NFT Image<span>Pinata upload adapter will use this file.</span><input name="imageFile" type="file" accept="image/*"></label></div><label>Sale Status<div class="sale-status-options"><label class="sale-status-option"><input type="radio" name="saleStatus" value="not_for_sale" checked>Not For Sale<span>Mintだけ行い、販売はしません。</span></label><label class="sale-status-option"><input type="radio" name="saleStatus" value="for_sale">For Sale<span>Mint後にListへ進みます。</span></label></div></label><div class="creator-toolbar"><button class="primary-btn" type="submit" ${shops.length ? '' : 'disabled'}>Save NFT Draft</button><button class="small-btn delete-btn" type="button" onclick="alert(PNC_TEXT.pinata.metadataNext)">Prepare Metadata</button></div></form></div>`;
 }
 function creatorMarketplaceHtml(state){
   if(!state.wallet) return lockedCreatorPanel();
@@ -769,14 +787,21 @@ function creatorMarketplaceHtml(state){
 function createShopDraftFromForm(form){
   if(!requireWallet()) return;
   const fd = new FormData(form);
-  const draft = { type:'shop', creator:PNC_STATE.wallet, name:String(fd.get('name')||'').trim(), description:String(fd.get('description')||'').trim(), at:Date.now() };
+  const draft = { type:'shop', creator:PNC_STATE.wallet, name:String(fd.get('name')||'').trim(), description:String(fd.get('description')||'').trim(), imageRole:'shopImage', at:Date.now() };
   alert('Shop Draft prepared. Next step: Pinata upload + KV/catalog registration.\n\n' + draft.name);
 }
 function createNFTDraftFromForm(form){
   if(!requireWallet()) return;
   const fd = new FormData(form);
-  const draft = { type:'nft', creator:PNC_STATE.wallet, owner:PNC_STATE.wallet, collectionId:String(fd.get('collectionId')||''), name:String(fd.get('name')||'').trim(), description:String(fd.get('description')||'').trim(), utility:String(fd.get('utility')||'').trim(), price:String(fd.get('price')||''), notForSale:!!fd.get('notForSale'), at:Date.now() };
+  const saleStatus = String(fd.get('saleStatus')||'not_for_sale');
+  const draft = { type:'nft', creator:PNC_STATE.wallet, owner:PNC_STATE.wallet, collectionId:String(fd.get('collectionId')||''), name:String(fd.get('name')||'').trim(), description:String(fd.get('description')||'').trim(), utility:String(fd.get('utility')||'').trim(), price:String(fd.get('price')||''), saleStatus, at:Date.now() };
   alert('NFT Draft prepared. Next step: metadata.json → Pinata → Mint.\n\n' + draft.name);
+}
+
+function feeRoyaltyRulesHtml(){
+  const r = PNC_CONFIG.marketRules;
+  const price = r.examplePrice;
+  return `<div class="market-rules"><div class="market-rules-title">Fee / Royalty Rules</div><div class="fee-rules-grid"><div class="fee-rule-card"><div class="fee-rule-title">Initial Sale</div><div class="fee-row"><span>Creator / Seller</span><strong>${r.initialSale.seller}%</strong></div><div class="fee-row"><span>PNC Fee</span><strong>${r.initialSale.pncFee}%</strong></div><div class="fee-row"><span>Example</span><strong>${price} → ${Math.round(price*r.initialSale.seller/100)} / ${Math.round(price*r.initialSale.pncFee/100)}</strong></div><div class="creator-help">Total: Price + gas</div></div><div class="fee-rule-card"><div class="fee-rule-title">Resale</div><div class="fee-row"><span>Seller</span><strong>${r.resale.seller}%</strong></div><div class="fee-row"><span>Original Creator</span><strong>${r.resale.originalCreator}%</strong></div><div class="fee-row"><span>PNC Fee</span><strong>${r.resale.pncFee}%</strong></div><div class="fee-row"><span>Example</span><strong>${price} → ${Math.round(price*r.resale.seller/100)} / ${Math.round(price*r.resale.originalCreator/100)} / ${Math.round(price*r.resale.pncFee/100)}</strong></div><div class="creator-help">Total: Price + gas</div></div></div></div>`;
 }
 
 function renderApp(state){
@@ -921,7 +946,7 @@ function renderCreatorCenter(state){
   }else{
     body = creatorDashboardHtml(state);
   }
-  $('creatorForm').innerHTML = `<div class="clean-note"><strong>${esc(PNC_TEXT.creator.ruleTitle)}</strong><br>${esc(PNC_TEXT.creator.ruleBody)}</div><div class="creator-tabs">${creatorTabButton('dashboard','Dashboard')}${creatorTabButton('shop','Create Shop')}${creatorTabButton('nft','Create NFT')}${creatorTabButton('market','List / Unlist')}</div>${body}<div class="market-rules"><div class="market-rules-title">Contracts</div><div class="code-mini">NFT: ${PNC_CONFIG.contracts.nft}<br>Marketplace: ${PNC_CONFIG.contracts.marketplace}<br>Fee Wallet: ${PNC_CONFIG.contracts.feeWallet}</div></div>`;
+  $('creatorForm').innerHTML = `<div class="clean-note"><strong>${esc(PNC_TEXT.creator.ruleTitle)}</strong><br>${esc(PNC_TEXT.creator.ruleBody)}</div><div class="creator-tabs">${creatorTabButton('dashboard','Dashboard')}${creatorTabButton('shop','Create Shop')}${creatorTabButton('nft','Create NFT')}${creatorTabButton('market','List / Unlist')}</div>${body}${feeRoyaltyRulesHtml()}`;
 }
 function renderFooter(state){
   $('appFooter').innerHTML = `<div class="footer-grid"><div><div class="footer-title">PNC Clean Core</div><button onclick="showPage('homePage')">Home</button><button onclick="showPage('collectionsPage')">Collections</button><button onclick="showPage('vaultPage')">My Vault</button></div><div><div class="footer-title">State</div><span class="meta">Wallet: ${esc(short(state.wallet))}</span><br><span class="meta">NFTs: ${state.nfts.length}</span><br><span class="meta">Collections: ${state.collections.length}</span></div><div><div class="footer-title">Rules</div><span class="meta">Single MarketState</span><br><span class="meta">6 render functions</span><br><span class="meta">No legacy renderer</span></div><div><div class="footer-title">Official Links</div><div class="footer-social"><a href="${PNC_CONFIG.links.x}" target="_blank" rel="noopener noreferrer">${uiIcon('x')} X</a><a href="${PNC_CONFIG.links.telegram}" target="_blank" rel="noopener noreferrer">${uiIcon('telegram')} Telegram</a></div><div class="meta" style="margin-top:8px">Pi-ready / Sepolia adapter<br>Unified PC/mobile path</div></div></div><div class="footer-bottom">Pi Network NFT Center — ${PNC_CONFIG.app.version}<br>Built for the Pi Ecosystem / Clean Core${state.resolving ? '<div class="resolving-note">Resolving metadata...</div>' : ''}</div>`;
