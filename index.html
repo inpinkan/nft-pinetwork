@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Pi NFT Center v1.3.3 Creator Center</title>
+<title>Pi NFT Center v1.3.4 Creator Center</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%235b2d82'/%3E%3Ctext x='32' y='42' text-anchor='middle' font-size='34' fill='%23f5b041' font-family='Arial' font-weight='900'%3Eπ%3C/text%3E%3C/svg%3E">
 <style>
 
@@ -41,7 +41,7 @@
     @media (min-width:720px){.grid{grid-template-columns:repeat(4,1fr)}.nft-img{height:170px}.footer-grid{grid-template-columns:repeat(4,1fr)}}@media (max-width:420px){.search-row{grid-template-columns:1fr 82px}.logo-text{font-size:19px}}
   
 
-/* v1.3.3 Creator Center Price display */
+/* v1.3.4 Creator Center Price display */
 .price-block{margin:6px 0 6px!important;display:flex!important;align-items:flex-start!important;gap:6px!important;min-height:22px!important}
 .price-label{font-size:10px!important;font-weight:900!important;color:var(--muted)!important;text-transform:uppercase!important;letter-spacing:.08em!important;margin:0!important;line-height:1.2!important}
 .price-line{display:inline-flex!important;align-items:flex-start!important;gap:5px!important;font-size:17px!important;font-weight:950!important;line-height:1!important;color:var(--text)!important}
@@ -281,7 +281,7 @@
 
 
 
-/* v1.3.3 Creator Center foundation */
+/* v1.3.4 Creator Center foundation */
 .creator-dashboard{display:grid;grid-template-columns:1fr;gap:12px}
 .creator-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
 .creator-tab{border:1px solid var(--border);background:rgba(255,255,255,.055);color:var(--text);border-radius:999px;padding:10px 12px;font-weight:900;cursor:pointer}
@@ -304,7 +304,7 @@
 @media(min-width:720px){.creator-two-col{grid-template-columns:1fr 1fr}.creator-dashboard{grid-template-columns:1fr 1fr}.creator-status-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
 
 
-/* v1.3.3 Creator Center readability + locked-tab behavior */
+/* v1.3.4 Creator Center readability + locked-tab behavior */
 .creator-card h2{font-size:22px;margin:0 0 10px;color:var(--text)}
 .creator-card h3{font-size:18px;margin:0 0 10px;color:var(--text)}
 .creator-help,.creator-owner-note,.clean-note{font-size:14px!important;line-height:1.65!important}
@@ -323,7 +323,7 @@
 }
 
 
-/* v1.3.3 Creator Center cleanup */
+/* v1.3.4 Creator Center cleanup */
 .sale-status-options{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .sale-status-option{border:1px solid var(--border);border-radius:14px;padding:10px;background:rgba(255,255,255,.045);font-weight:900;cursor:pointer}
 .sale-status-option input{width:auto;margin-right:7px;accent-color:var(--gold)}
@@ -334,6 +334,19 @@
 .fee-row{display:flex;justify-content:space-between;gap:12px;border-bottom:1px solid rgba(255,255,255,.06);padding:6px 0;color:var(--muted)}
 .fee-row:last-child{border-bottom:none}.fee-row strong{color:var(--text)}
 @media(min-width:720px){.fee-rules-grid{grid-template-columns:1fr 1fr}}
+
+
+/* v1.3.4 Creator Draft Preview */
+.draft-preview-card{border:1px solid rgba(245,176,65,.55);border-radius:18px;background:rgba(245,176,65,.08);padding:14px;margin-top:14px}
+.draft-preview-title{font-weight:950;color:var(--gold);font-size:18px;margin-bottom:10px}
+.draft-preview-layout{display:grid;grid-template-columns:1fr;gap:12px;align-items:start}
+.draft-preview-image{height:160px;border:1px solid var(--border);border-radius:16px;background:radial-gradient(circle at top left,var(--gold),var(--purple));display:flex;align-items:center;justify-content:center;font-size:42px;background-size:cover;background-position:center;overflow:hidden}
+.draft-preview-image.has-image{color:transparent}
+.draft-preview-info{display:grid;gap:6px}
+.draft-preview-row{display:flex;justify-content:space-between;gap:12px;border-bottom:1px solid rgba(255,255,255,.06);padding:6px 0;color:var(--muted)}
+.draft-preview-row strong{color:var(--text);text-align:right;word-break:break-word}
+.draft-preview-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+@media(min-width:720px){.draft-preview-layout{grid-template-columns:180px 1fr}.draft-preview-image{height:180px}}
 
 </style>
 </head>
@@ -360,7 +373,7 @@
 </header>
 <main>
   <div class="page show" id="homePage">
-    <div class="hero"><h1>Pi NFT Center <span class="beta">v1.3.3 Creator Center</span></h1><p>Creator Center foundation. Settings and messages are moving into CONFIG / TEXT. Locked creator actions show a notice. Wallet connection is only from the top-right Connect button.</p></div>
+    <div class="hero"><h1>Pi NFT Center <span class="beta">v1.3.4 Creator Center</span></h1><p>Creator Center Draft Preview. Shop/NFT inputs create local Drafts first; Pinata and Mint are still separated into later steps.</p></div>
     <section><div class="section-title">🏆 Top Collections</div><div class="collection-list" id="topCollections"></div></section>
     <section><div class="section-title">🔥 Hot NFTs</div><div class="grid" id="hotNfts"></div></section>
     <section><div class="section-title">🆕 New NFTs</div><div class="grid" id="newNfts"></div></section>
@@ -377,7 +390,7 @@
     <section><div class="section-title">🖼 Owned NFTs</div><div class="grid" id="myShopNfts"></div></section>
   </div>
   <div class="page" id="creatorPage">
-    <div class="hero"><h1>Creator Center</h1><p>Create Shop / Create NFT foundation. Connected wallet becomes Creator. Pinata/Mint adapters are prepared for the next step.</p></div>
+    <div class="hero"><h1>Creator Center</h1><p>Create Shop / Create NFT Draft Preview. Confirm the draft before Upload / Mint steps.</p></div>
     <section><div class="panel" id="creatorForm"></div></section>
   </div>
 </main>
@@ -396,7 +409,7 @@
 'use strict';
 
 const PNC_CONFIG = {
-  app: { version: 'v1.3.3 Creator Center' },
+  app: { version: 'v1.3.4 Creator Center' },
   network: { chainId: '0xaa36a7', name: 'Sepolia Testnet' },
   contracts: {
     nft: '0x63C8AbE6a0e7867B7812A1237a2781D460702382',
@@ -432,23 +445,22 @@ const PNC_TEXT = {
     piComingSoon: 'Pi Wallet接続は将来用です。現在のテスト版は MetaMask / Sepolia を使います。'
   },
   creator: {
-    ruleTitle: 'Creator Center v1.3.3 rule:',
+    ruleTitle: 'Creator Center v1.3.4 rule:',
     ruleBody: 'Wallet別処理なし。connected walletのcreator/owner権限だけでCreate Shop / Create NFT / Listを制御します。',
     lockedTitle: 'Wallet required',
     lockedBody: 'Create Shop / Create NFT / Mint / List はWallet接続後に使えます。接続は右上のConnectボタンから行ってください。',
     dashboardHelp: '接続WalletをCreatorとして扱います。表示は公開データ、操作権限はconnected walletで判定します。',
     shopOwnerNote: 'Creator is fixed to connected wallet:',
     nftOwnerNote: 'Creator / initial Owner is connected wallet:',
-    listHelp: 'Mint済みNFTだけをList対象にします。Buy後は必ずownerOf(tokenId)を再読込します。'
+    listHelp: 'Mint済みNFTだけをList対象にします。Buy後は必ずownerOf(tokenId)を再読込します。',
+    draftSaved: 'Draftを作成しました。Previewを確認してください。',
+    draftCleared: 'Draftをクリアしました。',
+    uploadAfterPreview: 'Uploadは次の段階で接続します。まずDraft Previewを固定しています。'
   },
   market: {
     buyPrepared: 'Buy接続は次の段階で実装します。まず表示とMarketStateを固定しています。',
     listPrepared: 'List接続は次の段階で実装します。まず表示とMarketStateを固定しています。',
     unlistNext: 'Unlist adapter is next.'
-  },
-  pinata: {
-    uploadNext: 'Pinata upload is wired in the next step.',
-    metadataNext: 'metadata.json → Pinata → Mint is the next wiring step.'
   }
 };
 const PNC_UI_ICONS = {
@@ -491,7 +503,7 @@ const CATALOG_SEED = {
   ]
 };
 
-let PNC_STATE = { wallet:null, collections:[], nfts:[], market:{ listings:[] }, errors:[], resolving:false };
+let PNC_STATE = { wallet:null, collections:[], nfts:[], market:{ listings:[] }, creator:{ shopDraft:null, nftDraft:null }, errors:[], resolving:false };
 let PNC_CREATOR_TAB = 'dashboard';
 let PNC_WALLET_CONNECTING = false;
 const PNC_METADATA_CACHE_KEY = 'PNC_METADATA_CACHE_V1';
@@ -627,6 +639,7 @@ async function connectMetaMask(){
 }
 async function disconnectWallet(){
   PNC_STATE.wallet = null;
+  if(PNC_STATE.creator) PNC_STATE.creator = { shopDraft:null, nftDraft:null };
   closeWalletModal();
   await loadBlockchainState();
 }
@@ -636,6 +649,7 @@ function installWalletListeners(){
   ethereum.on?.('accountsChanged', async (accounts)=>{
     if(!PNC_STATE.wallet) return;
     PNC_STATE.wallet = accounts && accounts[0] ? accounts[0] : null;
+    PNC_STATE.creator = { shopDraft:null, nftDraft:null };
     await loadBlockchainState();
   });
   ethereum.on?.('chainChanged', async ()=>{ await loadBlockchainState(); });
@@ -772,30 +786,98 @@ function creatorDashboardHtml(state){
 }
 function creatorShopFormHtml(state){
   if(!state.wallet) return lockedCreatorPanel();
-  return `<div class="creator-card"><h2>Create Shop</h2><div class="creator-owner-note">${esc(PNC_TEXT.creator.shopOwnerNote)} <strong>${esc(short(state.wallet))}</strong><br>Wallet別コードは使わず、登録データのcreatorで権限判定します。</div><form class="creator-form" onsubmit="event.preventDefault(); createShopDraftFromForm(this);"><label>Shop Name<input name="name" placeholder="Example: DDREAM Genesis shop" required></label><label>Description<textarea name="description" placeholder="Shop description"></textarea></label><label>Shop Image<span>この1枚をShopカード、Shopページ、一覧表示に共通で使います。</span><input name="shopImageFile" type="file" accept="image/*"></label><div class="creator-toolbar"><button class="primary-btn" type="submit">Save Shop Draft</button><button class="small-btn delete-btn" type="button" onclick="alert(PNC_TEXT.pinata.uploadNext)">Upload to Pinata</button></div></form></div>`;
+  return `<div class="creator-card"><h2>Create Shop</h2><div class="creator-owner-note">${esc(PNC_TEXT.creator.shopOwnerNote)} <strong>${esc(short(state.wallet))}</strong><br>Wallet別コードは使わず、登録データのcreatorで権限判定します。</div><form class="creator-form" onsubmit="event.preventDefault(); createShopDraftFromForm(this);"><label>Shop Name<input name="name" placeholder="Example: DDREAM Genesis shop" required></label><label>Description<textarea name="description" placeholder="Shop description"></textarea></label><label>Shop Image<span>この1枚をShopカード、Shopページ、一覧表示に共通で使います。</span><input name="shopImageFile" type="file" accept="image/*"></label><div class="creator-toolbar"><button class="primary-btn" type="submit">Create Draft Preview</button></div></form>${shopDraftPreviewHtml(state)}</div>`;
 }
 function creatorNFTFormHtml(state){
   if(!state.wallet) return lockedCreatorPanel();
   const shops = creatorOwnedCollections(state);
-  return `<div class="creator-card"><h2>Create NFT</h2><div class="creator-owner-note">${esc(PNC_TEXT.creator.nftOwnerNote)} <strong>${esc(short(state.wallet))}</strong><br>Mint後はownerOf(tokenId)を基準にMy Vaultへ反映します。</div><form class="creator-form" onsubmit="event.preventDefault(); createNFTDraftFromForm(this);"><label>Shop<select name="collectionId" required>${shops.map(c=>`<option value="${esc(c.id)}">${esc(c.name)}</option>`).join('') || '<option value="" disabled selected>No editable shop for this wallet</option>'}</select></label><label>NFT Name<input name="name" placeholder="NFT name" required></label><label>Description<textarea name="description" placeholder="NFT description"></textarea></label><label>Utility<textarea name="utility" placeholder="Utility / benefits / memo"></textarea></label><div class="creator-two-col"><label>Price<span>SepoliaETH test price. For Saleの時だけ使います。</span><input name="price" type="number" step="0.000001" min="0" placeholder="0.01"></label><label>NFT Image<span>Pinata upload adapter will use this file.</span><input name="imageFile" type="file" accept="image/*"></label></div><label>Sale Status<div class="sale-status-options"><label class="sale-status-option"><input type="radio" name="saleStatus" value="not_for_sale" checked>Not For Sale<span>Mintだけ行い、販売はしません。</span></label><label class="sale-status-option"><input type="radio" name="saleStatus" value="for_sale">For Sale<span>Mint後にListへ進みます。</span></label></div></label><div class="creator-toolbar"><button class="primary-btn" type="submit" ${shops.length ? '' : 'disabled'}>Save NFT Draft</button><button class="small-btn delete-btn" type="button" onclick="alert(PNC_TEXT.pinata.metadataNext)">Prepare Metadata</button></div></form></div>`;
+  return `<div class="creator-card"><h2>Create NFT</h2><div class="creator-owner-note">${esc(PNC_TEXT.creator.nftOwnerNote)} <strong>${esc(short(state.wallet))}</strong><br>Mint後はownerOf(tokenId)を基準にMy Vaultへ反映します。</div><form class="creator-form" onsubmit="event.preventDefault(); createNFTDraftFromForm(this);"><label>Shop<select name="collectionId" required>${shops.map(c=>`<option value="${esc(c.id)}">${esc(c.name)}</option>`).join('') || '<option value="" disabled selected>No editable shop for this wallet</option>'}</select></label><label>NFT Name<input name="name" placeholder="NFT name" required></label><label>Description<textarea name="description" placeholder="NFT description"></textarea></label><label>Utility<textarea name="utility" placeholder="Utility / benefits / memo"></textarea></label><div class="creator-two-col"><label>Price<span>SepoliaETH test price. For Saleの時だけ使います。</span><input name="price" type="number" step="0.000001" min="0" placeholder="0.01"></label><label>NFT Image<span>Pinata upload adapter will use this file.</span><input name="imageFile" type="file" accept="image/*"></label></div><label>Sale Status<div class="sale-status-options"><label class="sale-status-option"><input type="radio" name="saleStatus" value="not_for_sale" checked>Not For Sale<span>Mintだけ行い、販売はしません。</span></label><label class="sale-status-option"><input type="radio" name="saleStatus" value="for_sale">For Sale<span>Mint後にListへ進みます。</span></label></div></label><div class="creator-toolbar"><button class="primary-btn" type="submit" ${shops.length ? '' : 'disabled'}>Create Draft Preview</button></div></form>${nftDraftPreviewHtml(state)}</div>`;
 }
 function creatorMarketplaceHtml(state){
   if(!state.wallet) return lockedCreatorPanel();
   const mine = creatorOwnedNFTs(state);
   return `<div class="creator-card"><h2>Marketplace Actions</h2><p class="creator-help">${esc(PNC_TEXT.creator.listHelp)}</p><div class="creator-list">${mine.map(n=>`<div class="creator-list-item"><div class="creator-list-title">${esc(n.name)}</div><div class="creator-help">Owner: ${esc(short(n.owner))}<br>Chain: ${esc(chainLabel(n))}<br>Status: ${esc(statusLabel(n))}</div><div class="creator-toolbar"><button class="small-btn sell-btn" ${chainLabel(n)==='ERC721 On-chain' && n.status!=='listed' ? '' : 'disabled'} onclick="handleList('${esc(n.id)}')">List</button><button class="small-btn delete-btn" ${n.status==='listed' ? '' : 'disabled'} onclick="alert(PNC_TEXT.market.unlistNext)">Unlist</button></div></div>`).join('') || '<div class="creator-help">No editable NFT for this wallet.</div>'}</div></div>`;
 }
+function filePreviewFromInput(input){
+  const file = input && input.files && input.files[0] ? input.files[0] : null;
+  if(!file) return { name:'', preview:'' };
+  return { name:file.name, preview:URL.createObjectURL(file) };
+}
+function ensureCreatorState(){
+  if(!PNC_STATE.creator) PNC_STATE.creator = { shopDraft:null, nftDraft:null };
+  if(!('shopDraft' in PNC_STATE.creator)) PNC_STATE.creator.shopDraft = null;
+  if(!('nftDraft' in PNC_STATE.creator)) PNC_STATE.creator.nftDraft = null;
+  return PNC_STATE.creator;
+}
 function createShopDraftFromForm(form){
   if(!requireWallet()) return;
   const fd = new FormData(form);
-  const draft = { type:'shop', creator:PNC_STATE.wallet, name:String(fd.get('name')||'').trim(), description:String(fd.get('description')||'').trim(), imageRole:'shopImage', at:Date.now() };
-  alert('Shop Draft prepared. Next step: Pinata upload + KV/catalog registration.\n\n' + draft.name);
+  const media = filePreviewFromInput(form.elements.shopImageFile);
+  const draft = {
+    type:'shop',
+    status:'draft',
+    creator:PNC_STATE.wallet,
+    id:'draft-shop-' + Date.now(),
+    name:String(fd.get('name')||'').trim(),
+    description:String(fd.get('description')||'').trim(),
+    imageName:media.name,
+    imagePreview:media.preview,
+    imageRole:'shopImage',
+    createdAt:Date.now()
+  };
+  ensureCreatorState().shopDraft = draft;
+  renderCreatorCenter(PNC_STATE);
+  alert(PNC_TEXT.creator.draftSaved);
 }
 function createNFTDraftFromForm(form){
   if(!requireWallet()) return;
   const fd = new FormData(form);
   const saleStatus = String(fd.get('saleStatus')||'not_for_sale');
-  const draft = { type:'nft', creator:PNC_STATE.wallet, owner:PNC_STATE.wallet, collectionId:String(fd.get('collectionId')||''), name:String(fd.get('name')||'').trim(), description:String(fd.get('description')||'').trim(), utility:String(fd.get('utility')||'').trim(), price:String(fd.get('price')||''), saleStatus, at:Date.now() };
-  alert('NFT Draft prepared. Next step: metadata.json → Pinata → Mint.\n\n' + draft.name);
+  const media = filePreviewFromInput(form.elements.imageFile);
+  const draft = {
+    type:'nft',
+    status:'draft',
+    creator:PNC_STATE.wallet,
+    owner:PNC_STATE.wallet,
+    collectionId:String(fd.get('collectionId')||''),
+    collectionName:collectionNameById(String(fd.get('collectionId')||'')),
+    name:String(fd.get('name')||'').trim(),
+    description:String(fd.get('description')||'').trim(),
+    utility:String(fd.get('utility')||'').trim(),
+    price:String(fd.get('price')||''),
+    saleStatus,
+    imageName:media.name,
+    imagePreview:media.preview,
+    createdAt:Date.now()
+  };
+  ensureCreatorState().nftDraft = draft;
+  renderCreatorCenter(PNC_STATE);
+  alert(PNC_TEXT.creator.draftSaved);
+}
+function clearCreatorDraft(type){
+  const creator = ensureCreatorState();
+  if(type === 'shop') creator.shopDraft = null;
+  if(type === 'nft') creator.nftDraft = null;
+  renderCreatorCenter(PNC_STATE);
+  alert(PNC_TEXT.creator.draftCleared);
+}
+function uploadDraftNotice(){ alert(PNC_TEXT.creator.uploadAfterPreview); }
+function draftImageBox(draft, fallbackIcon){
+  const img = draft && draft.imagePreview ? draft.imagePreview : '';
+  if(img) return `<div class="draft-preview-image has-image" style="background-image:url('${esc(img)}')"></div>`;
+  return `<div class="draft-preview-image">${esc(fallbackIcon || '🖼')}</div>`;
+}
+function draftRow(label, value){ return `<div class="draft-preview-row"><span>${esc(label)}</span><strong>${esc(value || '-')}</strong></div>`; }
+function shopDraftPreviewHtml(state){
+  const draft = state.creator && state.creator.shopDraft;
+  if(!draft) return '';
+  return `<div class="draft-preview-card"><div class="draft-preview-title">Shop Draft Preview</div><div class="draft-preview-layout">${draftImageBox(draft,'🏪')}<div class="draft-preview-info">${draftRow('Shop Name', draft.name)}${draftRow('Description', draft.description)}${draftRow('Creator', short(draft.creator))}${draftRow('Image File', draft.imageName || 'No file selected')}${draftRow('Status', 'Draft / Not uploaded')}</div></div><div class="draft-preview-actions"><button class="primary-btn" type="button" onclick="uploadDraftNotice()">Upload to Pinata</button><button class="small-btn delete-btn" type="button" onclick="clearCreatorDraft('shop')">Clear Draft</button></div></div>`;
+}
+function nftDraftPreviewHtml(state){
+  const draft = state.creator && state.creator.nftDraft;
+  if(!draft) return '';
+  const sale = draft.saleStatus === 'for_sale' ? 'For Sale' : 'Not For Sale';
+  return `<div class="draft-preview-card"><div class="draft-preview-title">NFT Draft Preview</div><div class="draft-preview-layout">${draftImageBox(draft,'🖼')}<div class="draft-preview-info">${draftRow('NFT Name', draft.name)}${draftRow('Shop', draft.collectionName)}${draftRow('Creator', short(draft.creator))}${draftRow('Owner', short(draft.owner))}${draftRow('Utility', draft.utility)}${draftRow('Sale Status', sale)}${draftRow('Price', draft.saleStatus === 'for_sale' ? (draft.price || '-') + ' ' + currencyUnit() : 'Not for sale')}${draftRow('Image File', draft.imageName || 'No file selected')}${draftRow('Status', 'Draft / Not uploaded')}</div></div><div class="draft-preview-actions"><button class="primary-btn" type="button" onclick="uploadDraftNotice()">Prepare Metadata</button><button class="small-btn delete-btn" type="button" onclick="clearCreatorDraft('nft')">Clear Draft</button></div></div>`;
 }
 
 function feeRoyaltyRulesHtml(){
@@ -813,7 +895,7 @@ function renderApp(state){
   if(state.activeCollectionId) renderCollectionPage(state, state.activeCollectionId);
 }
 function createSeedState(){
-  const state = { wallet:PNC_STATE.wallet, collections:structuredClone(CATALOG_SEED.collections), nfts:structuredClone(CATALOG_SEED.nfts), market:{ listings:[] }, errors:[], resolving:true };
+  const state = { wallet:PNC_STATE.wallet, collections:structuredClone(CATALOG_SEED.collections), nfts:structuredClone(CATALOG_SEED.nfts), market:{ listings:[] }, creator: structuredClone(PNC_STATE.creator || { shopDraft:null, nftDraft:null }), errors:[], resolving:true };
   for(const nft of state.nfts){
     nft.owner = nft.knownOwner || '';
     nft.status = 'not_for_sale';
@@ -835,7 +917,7 @@ async function loadBlockchainState(){
 }
 
 async function createMarketState(){
-  const state = { wallet:PNC_STATE.wallet, collections:structuredClone(CATALOG_SEED.collections), nfts:structuredClone(CATALOG_SEED.nfts), market:{ listings:[] }, errors:[], resolving:false };
+  const state = { wallet:PNC_STATE.wallet, collections:structuredClone(CATALOG_SEED.collections), nfts:structuredClone(CATALOG_SEED.nfts), market:{ listings:[] }, creator: structuredClone(PNC_STATE.creator || { shopDraft:null, nftDraft:null }), errors:[], resolving:false };
   const kv = await loadKVState(state.wallet);
   if(kv && typeof kv === 'object') state.market.kv = kv;
 
