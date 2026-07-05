@@ -16,16 +16,37 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: "PINATA_JWT is not configured" });
     }
 
-    const { fileName, mimeType, base64, name, description, collection, utilityType, utility } = req.body || {};
+    const {
+      fileName,
+      filename,
+      mimeType,
+      image,
+      base64,
+      name,
+      description,
+      collection,
+      utilityType,
+      utility
+    } = req.body || {};
 
-    if (!base64) {
-      return res.status(400).json({ error: "base64 image is required" });
+    const rawImage = image || base64;
+
+    if (!rawImage) {
+      return res.status(400).json({ error: "image is required" });
     }
 
-    const safeFileName = fileName || "pnc-nft-image.png";
+    const cleanBase64 = String(rawImage).includes(",")
+      ? String(rawImage).split(",")[1]
+      : String(rawImage);
+
+    if (!cleanBase64) {
+      return res.status(400).json({ error: "base64 image is empty" });
+    }
+
+    const safeFileName = fileName || filename || "pnc-image.png";
     const safeMimeType = mimeType || "image/png";
 
-    const imageBuffer = Buffer.from(base64, "base64");
+    const imageBuffer = Buffer.from(cleanBase64, "base64");
     const imageBlob = new Blob([imageBuffer], { type: safeMimeType });
 
     const imageForm = new FormData();
@@ -33,16 +54,16 @@ export default async function handler(req, res) {
     imageForm.append(
       "pinataMetadata",
       JSON.stringify({
-        name: safeFileName,
+        name: safeFileName
       })
     );
 
     const imageRes = await fetch("https://api.pinata.cloud/pinning/pinFileToIPFS", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${jwt}`,
+        Authorization: `Bearer ${jwt}`
       },
-      body: imageForm,
+      body: imageForm
     });
 
     const imageData = await imageRes.json();
@@ -50,7 +71,7 @@ export default async function handler(req, res) {
     if (!imageRes.ok) {
       return res.status(imageRes.status).json({
         error: "Image upload failed",
-        detail: imageData,
+        detail: imageData
       });
     }
 
@@ -64,12 +85,12 @@ export default async function handler(req, res) {
         { trait_type: "Collection", value: collection || "" },
         { trait_type: "Utility Type", value: utilityType || "General" },
         { trait_type: "Utility", value: utility || "" },
-        { trait_type: "Platform", value: "Pi NFT Center" },
-      ],
+        { trait_type: "Platform", value: "Pi NFT Center" }
+      ]
     };
 
     const metadataBlob = new Blob([JSON.stringify(metadata, null, 2)], {
-      type: "application/json",
+      type: "application/json"
     });
 
     const metadataForm = new FormData();
@@ -77,16 +98,16 @@ export default async function handler(req, res) {
     metadataForm.append(
       "pinataMetadata",
       JSON.stringify({
-        name: `${metadata.name || "PNC NFT"} metadata.json`,
+        name: `${metadata.name || "PNC NFT"} metadata.json`
       })
     );
 
     const metadataRes = await fetch("https://api.pinata.cloud/pinning/pinFileToIPFS", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${jwt}`,
+        Authorization: `Bearer ${jwt}`
       },
-      body: metadataForm,
+      body: metadataForm
     });
 
     const metadataData = await metadataRes.json();
@@ -94,7 +115,7 @@ export default async function handler(req, res) {
     if (!metadataRes.ok) {
       return res.status(metadataRes.status).json({
         error: "Metadata upload failed",
-        detail: metadataData,
+        detail: metadataData
       });
     }
 
@@ -104,12 +125,12 @@ export default async function handler(req, res) {
       imageUri,
       metadataIpfsHash: metadataData.IpfsHash,
       metadataUri: `ipfs://${metadataData.IpfsHash}`,
-      metadata,
+      metadata
     });
   } catch (err) {
     return res.status(500).json({
       error: "Server error",
-      detail: String(err),
+      detail: String(err)
     });
   }
 }
