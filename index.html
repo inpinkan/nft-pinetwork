@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Pi NFT Center v1.3.11 Creator Center</title>
+<title>Pi NFT Center v1.3.12 Creator Center</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%235b2d82'/%3E%3Ctext x='32' y='42' text-anchor='middle' font-size='34' fill='%23f5b041' font-family='Arial' font-weight='900'%3Eπ%3C/text%3E%3C/svg%3E">
 <style>
 
@@ -41,7 +41,7 @@
     @media (min-width:720px){.grid{grid-template-columns:repeat(4,1fr)}.nft-img{height:170px}.footer-grid{grid-template-columns:repeat(4,1fr)}}@media (max-width:420px){.search-row{grid-template-columns:1fr 82px}.logo-text{font-size:19px}}
   
 
-/* v1.3.11 Creator Center Price display */
+/* v1.3.12 Creator Center Price display */
 .price-block{margin:6px 0 6px!important;display:flex!important;align-items:flex-start!important;gap:6px!important;min-height:22px!important}
 .price-label{font-size:10px!important;font-weight:900!important;color:var(--muted)!important;text-transform:uppercase!important;letter-spacing:.08em!important;margin:0!important;line-height:1.2!important}
 .price-line{display:inline-flex!important;align-items:flex-start!important;gap:5px!important;font-size:17px!important;font-weight:950!important;line-height:1!important;color:var(--text)!important}
@@ -228,7 +228,6 @@
 .nft-card{position:relative}
 .nft-card .nft-body{display:grid;gap:6px}
 .nft-title-row{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
-.nft-token-chip{border:1px solid var(--border);border-radius:999px;padding:2px 7px;color:var(--muted);font-size:10px;font-weight:900;white-space:nowrap;background:rgba(255,255,255,.045)}
 .nft-info-list{display:grid;gap:3px;margin-top:2px}
 .nft-info-row{display:flex;justify-content:space-between;gap:8px;border-top:1px solid rgba(255,255,255,.06);padding-top:4px;font-size:11px}
 .nft-info-row span:first-child{color:var(--muted);font-weight:800}
@@ -281,7 +280,7 @@
 
 
 
-/* v1.3.11 Creator Center foundation */
+/* v1.3.12 Creator Center foundation */
 .creator-dashboard{display:grid;grid-template-columns:1fr;gap:12px}
 .creator-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
 .creator-tab{border:1px solid var(--border);background:rgba(255,255,255,.055);color:var(--text);border-radius:999px;padding:10px 12px;font-weight:900;cursor:pointer}
@@ -304,7 +303,7 @@
 @media(min-width:720px){.creator-two-col{grid-template-columns:1fr 1fr}.creator-dashboard{grid-template-columns:1fr 1fr}.creator-status-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
 
 
-/* v1.3.11 Creator Center readability + locked-tab behavior */
+/* v1.3.12 Creator Center readability + locked-tab behavior */
 .creator-card h2{font-size:22px;margin:0 0 10px;color:var(--text)}
 .creator-card h3{font-size:18px;margin:0 0 10px;color:var(--text)}
 .creator-help,.creator-owner-note,.clean-note{font-size:14px!important;line-height:1.65!important}
@@ -323,7 +322,7 @@
 }
 
 
-/* v1.3.11 Creator Center cleanup */
+/* v1.3.12 Creator Center cleanup */
 .sale-status-options{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .sale-status-option{border:1px solid var(--border);border-radius:14px;padding:10px;background:rgba(255,255,255,.045);font-weight:900;cursor:pointer}
 .sale-status-option input{width:auto;margin-right:7px;accent-color:var(--gold)}
@@ -383,7 +382,7 @@
 </header>
 <main>
   <div class="page show" id="homePage">
-    <div class="hero"><h1>Pi NFT Center <span class="beta">v1.3.11 Creator Center</span></h1><p>Mint Step. Use metadata URI from Pinata to mint an ERC721 NFT on Sepolia.</p></div>
+    <div class="hero"><h1>Pi NFT Center <span class="beta">v1.3.12 Creator Center</span></h1><p>Mint Step. Use metadata URI from Pinata to mint an ERC721 NFT on Sepolia.</p></div>
     <section><div class="section-title">🏆 Top Collections</div><div class="collection-list" id="topCollections"></div></section>
     <section><div class="section-title">🔥 Hot NFTs</div><div class="grid" id="hotNfts"></div></section>
     <section><div class="section-title">🆕 New NFTs</div><div class="grid" id="newNfts"></div></section>
@@ -419,7 +418,7 @@
 'use strict';
 
 const PNC_CONFIG = {
-  app: { version: 'v1.3.11 Creator Center' },
+  app: { version: 'v1.3.12 Creator Center' },
   network: { chainId: '0xaa36a7', name: 'Sepolia Testnet' },
   contracts: {
     nft: '0x63C8AbE6a0e7867B7812A1237a2781D460702382',
@@ -479,9 +478,12 @@ const PNC_TEXT = {
     uploadAfterPreview: 'Pinata接続は次の段階です。v1.3.6ではShop DraftをMarketStateへ登録し、Create NFTで選べる状態まで固定しています。'
   },
   market: {
-    buyPrepared: 'Buy接続は次の段階で実装します。まず表示とMarketStateを固定しています。',
-    listPrepared: 'List接続は次の段階で実装します。まず表示とMarketStateを固定しています。',
-    unlistNext: 'Unlist adapter is next.'
+    buyPrepared: 'Buyを実行します。MetaMaskでトランザクション確認が出ます。',
+    listPrepared: 'Listを実行します。MetaMaskでApprove/Listの確認が出ます。',
+    unlistNext: 'Unlist adapter is next.',
+    listComplete: 'Listが完了しました。MarketStateへ反映します。',
+    buyComplete: 'Buyが完了しました。ownerOfを再読込してMy Vaultへ反映します。',
+    txFailed: 'トランザクションに失敗しました。'
   }
 };
 const PNC_UI_ICONS = {
@@ -552,9 +554,9 @@ function saveMetadataToCache(key, meta){ if(!key || !meta) return; const cache =
 const $ = id => document.getElementById(id);
 const lc = v => String(v||'').toLowerCase();
 const esc = v => String(v ?? '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
-const short = a => /^0x[a-fA-F0-9]{40}$/.test(String(a||'')) ? a.slice(0,6)+'...'+a.slice(-4) : (a||'-');
+const short = a => /^0x[a-fA-F0-9]{40}$/.test(String(a||'')) ? a.slice(0,4)+'...'+a.slice(-4) : (a||'-');
 function isZeroPaddedPlaceholderAddress(a){ return /^0x[0-9a-fA-F]{4}0{28,}[0-9a-fA-F]{4}$/.test(String(a||'')); }
-function displayAddress(a){ return isZeroPaddedPlaceholderAddress(a) ? short(a) : (a || '-'); }
+function displayAddress(a){ return /^0x[a-fA-F0-9]{40}$/.test(String(a||'')) ? short(a) : (a || '-'); }
 function isUsableMediaUrl(u){
   const s = String(u || '').trim();
   if(!s || s === 'test' || s === 'ipfs://test') return false;
@@ -682,8 +684,8 @@ async function ethCall(to, data){
 }
 function sig4(signature){
   const map = {
-    'ownerOf(uint256)':'0x6352211e', 'tokenURI(uint256)':'0xc87b56dd', 'mint(address,string)':'0xd0def521', 'getApproved(uint256)':'0x081812fc',
-    'isApprovedForAll(address,address)':'0xe985e9c5', 'listingIdByNFT(address,uint256)':'0x35185efc', 'listings(uint256)':'0xed8a8d75'
+    'ownerOf(uint256)':'0x6352211e', 'tokenURI(uint256)':'0xc87b56dd', 'mint(address,string)':'0xd0def521', 'approve(address,uint256)':'0x095ea7b3', 'getApproved(uint256)':'0x081812fc',
+    'isApprovedForAll(address,address)':'0xe985e9c5', 'createListing(address,uint256,uint256)':'0x24780c56', 'buy(uint256)':'0xd96a094a', 'cancelListing(uint256)':'0x305a67a8', 'listingIdByNFT(address,uint256)':'0x35185efc', 'listings(uint256)':'0xed8a8d75'
   };
   return map[signature];
 }
@@ -704,6 +706,24 @@ function encodeMintCall(to, uri){
   // PNCNFT_ERC721_v2.16.0: mint(address to, string memory uri) returns (uint256)
   return sig4('mint(address,string)') + addressWordForCall(to) + pad64('40') + encodeAbiStringWord(uri);
 }
+function encodeApproveCall(to, tokenId){
+  return sig4('approve(address,uint256)') + addressWordForCall(to) + toHex(tokenId).slice(2);
+}
+function encodeCreateListingCall(nftContract, tokenId, priceWei){
+  return sig4('createListing(address,uint256,uint256)') + addressWordForCall(nftContract) + toHex(tokenId).slice(2) + toHex(priceWei).slice(2);
+}
+function encodeBuyCall(listingId){
+  return sig4('buy(uint256)') + toHex(listingId).slice(2);
+}
+function ethToWei(value){
+  const clean = String(value || '').trim();
+  if(!clean || Number(clean) <= 0) throw new Error('Price must be greater than 0.');
+  const parts = clean.split('.');
+  const whole = parts[0] || '0';
+  const frac = (parts[1] || '').padEnd(18,'0').slice(0,18);
+  return (BigInt(whole) * 1000000000000000000n + BigInt(frac || '0')).toString();
+}
+function weiToTxValue(wei){ return '0x' + BigInt(String(wei || '0')).toString(16); }
 async function sendTx(tx){ return await ethereum.request({ method:'eth_sendTransaction', params:[tx] }); }
 async function getReceipt(txHash){ return await ethereum.request({ method:'eth_getTransactionReceipt', params:[txHash] }); }
 async function waitForReceipt(txHash, attempts=45, delayMs=4000){
@@ -928,7 +948,7 @@ function creatorNFTFormHtml(state){
 function creatorMarketplaceHtml(state){
   if(!state.wallet) return lockedCreatorPanel();
   const mine = creatorOwnedNFTs(state);
-  return `<div class="creator-card"><h2>Marketplace Actions</h2><p class="creator-help">${esc(PNC_TEXT.creator.listHelp)}</p><div class="creator-list">${mine.map(n=>`<div class="creator-list-item"><div class="creator-list-title">${esc(n.name)}</div><div class="creator-help">Owner: ${esc(short(n.owner))}<br>Chain: ${esc(chainLabel(n))}<br>Status: ${esc(statusLabel(n))}</div><div class="creator-toolbar"><button class="small-btn sell-btn" ${chainLabel(n)==='ERC721 On-chain' && n.status!=='listed' ? '' : 'disabled'} onclick="handleList('${esc(n.id)}')">List</button><button class="small-btn delete-btn" ${n.status==='listed' ? '' : 'disabled'} onclick="alert(PNC_TEXT.market.unlistNext)">Unlist</button></div></div>`).join('') || '<div class="creator-help">No editable NFT for this wallet.</div>'}</div></div>`;
+  return `<div class="creator-card"><h2>Marketplace Actions</h2><p class="creator-help">${esc(PNC_TEXT.creator.listHelp)}</p><div class="creator-list">${mine.map(n=>`<div class="creator-list-item"><div class="creator-list-title">${esc(n.name)}</div><div class="creator-help">Owner: ${esc(short(n.owner))}<br>Chain: ${esc(chainLabel(n))}<br>Status: ${esc(statusLabel(n))}</div><div class="creator-toolbar"><button class="small-btn sell-btn" ${chainLabel(n)==='ERC721 On-chain' && n.status!=='listed' && lc(n.owner)===lc(state.wallet) ? '' : 'disabled'} onclick="handleList('${esc(n.id)}')">List</button><button class="small-btn delete-btn" ${n.status==='listed' ? '' : 'disabled'} onclick="alert(PNC_TEXT.market.unlistNext)">Unlist</button></div></div>`).join('') || '<div class="creator-help">No editable NFT for this wallet.</div>'}</div></div>`;
 }
 function filePreviewFromInput(input){
   const file = input && input.files && input.files[0] ? input.files[0] : null;
@@ -1392,19 +1412,77 @@ function priceLine(n){
 function mediaBox(item, cls){ const img = mediaUrlFrom(item); if(img) return `<div class="${cls} has-image" style="background-image:url('${esc(img)}')"></div>`; if(hasPendingMedia(item)) return `<div class="${cls} media-skeleton"></div>`; return `<div class="${cls}">${esc(item.icon||'🖼')}</div>`; }
 function infoRow(label, value){ return `<div class="nft-info-row"><span>${esc(label)}</span><span>${esc(value || '-')}</span></div>`; }
 function detailActionButtons(n){
-  const canBuy = n.status === 'listed';
-  const canList = chainLabel(n) === 'ERC721 On-chain' && n.status !== 'listed';
+  const wallet = lc(PNC_STATE.wallet);
+  const isOwner = wallet && lc(n.owner) === wallet;
+  const canBuy = n.status === 'listed' && !isOwner;
+  const canList = chainLabel(n) === 'ERC721 On-chain' && n.status !== 'listed' && isOwner;
   return `<div class="detail-actions">
     <button class="small-btn buy-btn" ${canBuy ? '' : 'disabled'} onclick="event.stopPropagation(); handleBuy('${esc(n.id)}')">Buy</button>
     <button class="small-btn sell-btn" ${canList ? '' : 'disabled'} onclick="event.stopPropagation(); handleList('${esc(n.id)}')">List</button>
     <button class="small-btn delete-btn" onclick="event.stopPropagation(); closeNftDetail();">Close</button>
-  </div><div class="clean-note mini-note">Buy/List adapters are prepared, but full Marketplace write wiring is a later step.</div>`;
+  </div><div class="clean-note mini-note">ListはOwner Walletのみ実行できます。Buy後はownerOf(tokenId)を再読込してMy Vaultへ反映します。</div>`;
 }
 function requireWallet(){ if(PNC_STATE.wallet) return true; showWalletConnectNotice(); return false; }
-function handleBuy(id){ if(!requireWallet()) return; alert(PNC_TEXT.market.buyPrepared); }
-function handleList(id){ if(!requireWallet()) return; alert(PNC_TEXT.market.listPrepared); }
+async function ensureMarketplaceApproval(n){
+  const approved = await ethCall(PNC_CONFIG.contracts.nft, sig4('getApproved(uint256)') + toHex(n.tokenId).slice(2));
+  const approvedAddress = decodeAddress(approved);
+  if(lc(approvedAddress) === lc(PNC_CONFIG.contracts.marketplace)) return;
+  const approveHash = await sendTx({ from:PNC_STATE.wallet, to:PNC_CONFIG.contracts.nft, data:encodeApproveCall(PNC_CONFIG.contracts.marketplace, n.tokenId) });
+  const approveReceipt = await waitForReceipt(approveHash);
+  if(approveReceipt.status && approveReceipt.status !== '0x1') throw new Error('Approve transaction reverted');
+}
+async function handleList(id){
+  if(!requireWallet()) return;
+  const n = PNC_STATE.nfts.find(x=>x.id===id); if(!n) return;
+  if(chainLabel(n) !== 'ERC721 On-chain' || !n.tokenId){ alert('ERC721 On-chain NFTだけListできます。'); return; }
+  if(lc(n.owner) !== lc(PNC_STATE.wallet)){ alert('Owner WalletだけListできます。'); return; }
+  const price = prompt('List priceをSepoliaETHで入力してください', n.priceEth && n.priceEth !== '-' ? n.priceEth : '0.002');
+  if(price === null) return;
+  let priceWei;
+  try{ priceWei = ethToWei(price); }catch(e){ alert(e.message || e); return; }
+  if(!confirm('Listを実行します。Approve後にListトランザクションを送信します。続行しますか？')) return;
+  try{
+    await ensureMarketplaceApproval(n);
+    const txHash = await sendTx({ from:PNC_STATE.wallet, to:PNC_CONFIG.contracts.marketplace, data:encodeCreateListingCall(PNC_CONFIG.contracts.nft, n.tokenId, priceWei) });
+    const receipt = await waitForReceipt(txHash);
+    if(receipt.status && receipt.status !== '0x1') throw new Error('List transaction reverted');
+    let listingId = '0';
+    try{ listingId = await readListingId(PNC_CONFIG.contracts.nft, n.tokenId); }catch(_){ listingId = n.listingId || '-'; }
+    n.status = 'listed';
+    n.priceWei = priceWei;
+    n.priceEth = weiToEth(priceWei);
+    n.seller = PNC_STATE.wallet;
+    n.listingId = listingId;
+    PNC_STATE.market.listings = PNC_STATE.market.listings.filter(x=>x.nftId!==n.id).concat({ listingId, nftId:n.id, priceWei, seller:PNC_STATE.wallet });
+    renderApp(PNC_STATE);
+    alert(PNC_TEXT.market.listComplete + '\nListing ID: ' + listingId);
+  }catch(e){ console.warn(e); alert(PNC_TEXT.market.txFailed + '\n' + (e.message || e)); }
+}
+async function handleBuy(id){
+  if(!requireWallet()) return;
+  const n = PNC_STATE.nfts.find(x=>x.id===id); if(!n) return;
+  if(n.status !== 'listed' || !n.listingId || n.listingId === '0'){ alert('このNFTはListedではありません。'); return; }
+  if(lc(n.owner) === lc(PNC_STATE.wallet)){ alert('自分がOwnerのNFTはBuyできません。'); return; }
+  if(!confirm('Buyを実行します。Price + gas が必要です。続行しますか？')) return;
+  try{
+    const txHash = await sendTx({ from:PNC_STATE.wallet, to:PNC_CONFIG.contracts.marketplace, data:encodeBuyCall(n.listingId), value:weiToTxValue(n.priceWei) });
+    const receipt = await waitForReceipt(txHash);
+    if(receipt.status && receipt.status !== '0x1') throw new Error('Buy transaction reverted');
+    const owner = await readOwnerOf(n.tokenId);
+    n.owner = owner || PNC_STATE.wallet;
+    n.knownOwner = n.owner;
+    n.status = 'not_for_sale';
+    n.seller = '';
+    n.listingId = '0';
+    delete n.priceWei;
+    delete n.priceEth;
+    PNC_STATE.market.listings = PNC_STATE.market.listings.filter(x=>x.nftId!==n.id);
+    renderApp(PNC_STATE);
+    alert(PNC_TEXT.market.buyComplete);
+  }catch(e){ console.warn(e); alert(PNC_TEXT.market.txFailed + '\n' + (e.message || e)); }
+}
 function nftCard(n){
-  return `<div class="nft-card" onclick="showDetailById('${esc(n.id)}')">${mediaBox(n,'nft-img')}<div class="nft-body"><div class="nft-title-row"><div class="nft-name">${esc(n.name)}</div><div class="nft-token-chip">${esc(n.tokenId ? '#'+n.tokenId : 'Legacy')}</div></div>${priceLine(n)}<div class="nft-info-list">${infoRow('Collection', collectionNameById(n.collectionId))}${infoRow('Owner', short(n.owner))}${infoRow('Creator', short(n.creator))}${n.seller ? infoRow('Seller', short(n.seller)) : ''}</div><div class="nft-badge-row"><span class="status-badge ${statusClass(n)}">${esc(statusLabel(n))}</span><span class="chain-badge">${esc(chainLabel(n))}</span></div></div></div>`;
+  return `<div class="nft-card" onclick="showDetailById('${esc(n.id)}')">${mediaBox(n,'nft-img')}<div class="nft-body"><div class="nft-title-row"><div class="nft-name">${esc(n.name)}</div></div>${priceLine(n)}<div class="nft-info-list">${infoRow('Collection', collectionNameById(n.collectionId))}${infoRow('Owner', short(n.owner))}${infoRow('Creator', short(n.creator))}${n.seller ? infoRow('Seller', short(n.seller)) : ''}</div><div class="nft-badge-row"><span class="status-badge ${statusClass(n)}">${esc(statusLabel(n))}</span><span class="chain-badge">${esc(chainLabel(n))}</span></div></div></div>`;
 }
 function collectionCard(c, state, featured=false){
   const items = collectionItems(state, c.id);
@@ -1462,7 +1540,7 @@ function openCollection(collectionId){ renderCollectionPage(PNC_STATE, collectio
 function showDetailById(id){
   const n = PNC_STATE.nfts.find(x=>x.id===id); if(!n) return;
   const c = PNC_STATE.collections.find(x=>x.id===n.collectionId) || {};
-  $('nftDetailBox').innerHTML = `<div class="detail-toolbar"><button class="detail-close" onclick="closeNftDetail()">×</button></div><div class="detail-head">${mediaBox(n,'detail-image')}<div><div class="detail-title">${esc(n.name)}</div><div class="meta">${esc(c.name||'-')} ${c.verified?'<span class="verified">✔</span>':''}</div>${priceLine(n)}<div class="nft-badge-row"><span class="status-badge ${statusClass(n)}">${esc(statusLabel(n))}</span><span class="chain-badge">${esc(chainLabel(n))}</span></div></div></div><div class="detail-section"><div class="detail-section-title">NFT Information</div><div class="info-grid"><div>${infoRow('NFT ID', n.id)}${infoRow('Token ID', n.tokenId || '-')}${infoRow('Collection', c.name || '-')} ${infoRow('Contract', n.contractAddress || '-')}</div><div>${infoRow('Owner', displayAddress(n.owner))}${infoRow('Creator', displayAddress(n.creator))}${infoRow('Seller', displayAddress(n.seller))}${infoRow('Listing ID', n.listingId || '-')}</div></div></div>${detailActionButtons(n)}`;
+  $('nftDetailBox').innerHTML = `<div class="detail-toolbar"><button class="detail-close" onclick="closeNftDetail()">×</button></div><div class="detail-head">${mediaBox(n,'detail-image')}<div><div class="detail-title">${esc(n.name)}</div><div class="meta">${esc(c.name||'-')} ${c.verified?'<span class="verified">✔</span>':''}</div>${priceLine(n)}<div class="nft-badge-row"><span class="status-badge ${statusClass(n)}">${esc(statusLabel(n))}</span><span class="chain-badge">${esc(chainLabel(n))}</span></div></div></div><div class="detail-section"><div class="detail-section-title">NFT Information</div><div class="info-grid"><div>${infoRow('NFT ID', n.id)}${infoRow('Token ID', n.tokenId || '-')}${infoRow('Collection', c.name || '-')} ${infoRow('Contract', displayAddress(n.contractAddress))}</div><div>${infoRow('Owner', displayAddress(n.owner))}${infoRow('Creator', displayAddress(n.creator))}${infoRow('Seller', displayAddress(n.seller))}${infoRow('Listing ID', n.listingId || '-')}</div></div></div>${detailActionButtons(n)}`;
   $('nftDetailOverlay').classList.add('show');
 }
 function closeNftDetail(ev){ if(ev && ev.target && ev.target.id !== 'nftDetailOverlay') return; $('nftDetailOverlay')?.classList.remove('show'); }
