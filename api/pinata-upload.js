@@ -120,17 +120,22 @@ export default async function handler(req, res) {
     }
 
     return res.status(200).json({
-      ok: true,
-      imageIpfsHash: imageData.IpfsHash,
-      imageUri,
-      metadataIpfsHash: metadataData.IpfsHash,
-      metadataUri: `ipfs://${metadataData.IpfsHash}`,
-      metadata
-    });
-  } catch (err) {
-    return res.status(500).json({
-      error: "Server error",
-      detail: String(err)
-    });
-  }
-}
+  ok: true,
+
+  // v1.3.8 HTML互換
+  cid: imageData.IpfsHash,
+  IpfsHash: imageData.IpfsHash,
+  ipfsHash: imageData.IpfsHash,
+  uri: imageUri,
+  image: imageUri,
+
+  // 明示名
+  imageIpfsHash: imageData.IpfsHash,
+  imageUri,
+
+  metadataCid: metadataData.IpfsHash,
+  metadataIpfsHash: metadataData.IpfsHash,
+  metadataUri: `ipfs://${metadataData.IpfsHash}`,
+
+  metadata
+});
