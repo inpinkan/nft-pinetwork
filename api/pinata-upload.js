@@ -3,139 +3,91 @@ export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
-  if (req.method === "OPTIONS") return res.status(200).end();
+  if (req.method === "OPTIONS") return res.status(200).json({ ok: true });
 
   if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method not allowed" });
+    return res.status(405).json({ ok: false, error: "Method not allowed" });
   }
 
   try {
     const jwt = process.env.PINATA_JWT;
-
     if (!jwt) {
-      return res.status(500).json({ error: "PINATA_JWT is not configured" });
+      return res.status(500).json({ ok: false, error: "PINATA_JWT is not configured" });
     }
 
-    const {
-      fileName,
-      filename,
-      mimeType,
-      image,
-      base64,
-      name,
-      description,
-      collection,
-      utilityType,
-      utility
-    } = req.body || {};
-
-    const rawImage = image || base64;
+    const body = req.body || {};
+    const rawImage = body.image || body.base64;
 
     if (!rawImage) {
-      return res.status(400).json({ error: "image is required" });
+      return res.status(400).json({ ok: false, error: "image is required" });
     }
 
     const cleanBase64 = String(rawImage).includes(",")
       ? String(rawImage).split(",")[1]
       : String(rawImage);
 
-    if (!cleanBase64) {
-      return res.status(400).json({ error: "base64 image is empty" });
-    }
+    const fileName = body.fileName || body.filename || "pnc-image.png";
+    const mimeType = body.mimeType || "image/png";
 
-    const safeFileName = fileName || filename || "pnc-image.png";
-    const safeMimeType = mimeType || "image/png";
+    const buffer = Buffer.from(cleanBase64, "base64");
 
-    const imageBuffer = Buffer.from(cleanBase64, "base64");
-    const imageBlob = new Blob([imageBuffer], { type: safeMimeType });
+    const form = new FormData();
+    form.append("file", new Blob([buffer], { type: mimeType }), fileName);
+    form.append("pinataMetadata", JSON.stringify({ name: fileName }));
 
-    const imageForm = new FormData();
-    imageForm.append("file", imageBlob, safeFileName);
-    imageForm.append(
-      "pinataMetadata",
-      JSON.stringify({
-        name: safeFileName
-      })
-    );
-
-    const imageRes = await fetch("https://api.pinata.cloud/pinning/pinFileToIPFS", {
+    const pinataRes = await fetch("https://api.pinata.cloud/pinning/pinFileToIPFS", {
       method: "POST",
-      headers: {
-        Authorization: `Bearer ${jwt}`
-      },
-      body: imageForm
+      headers: { Authorization: `Bearer ${jwt}` },
+      body: form
     });
 
-    const imageData = await imageRes.json();
-
-    if (!imageRes.ok) {
-      return res.status(imageRes.status).json({
-        error: "Image upload failed",
-        detail: imageData
+    const text = await pinataRes.text();
+    let pinataJson;
+    try {
+      pinataJson = JSON.parse(text);
+    } catch {
+      return res.status(500).json({
+        ok: false,
+        error: "Invalid JSON from Pinata",
+        raw: text
       });
     }
 
-    const imageUri = `ipfs://${imageData.IpfsHash}`;
+    if (!pinataRes.ok) {
+      return res.status(pinataRes.status).json({
+        ok: false,
+        error: "Pinata upload failed",
+        detail: pinataJson
+      });
+    }
 
-    const metadata = {
-      name: name || safeFileName,
-      description: description || "",
-      image: imageUri,
-      attributes: [
-        { trait_type: "Collection", value: collection || "" },
-        { trait_type: "Utility Type", value: utilityType || "General" },
-        { trait_type: "Utility", value: utility || "" },
-        { trait_type: "Platform", value: "Pi NFT Center" }
-      ]
-    };
+    const hash = pinataJson.IpfsHash || pinataJson.cid || pinataJson.ipfsHash;
 
-    const metadataBlob = new Blob([JSON.stringify(metadata, null, 2)], {
-      type: "application/json"
-    });
-
-    const metadataForm = new FormData();
-    metadataForm.append("file", metadataBlob, "metadata.json");
-    metadataForm.append(
-      "pinataMetadata",
-      JSON.stringify({
-        name: `${metadata.name || "PNC NFT"} metadata.json`
-      })
-    );
-
-    const metadataRes = await fetch("https://api.pinata.cloud/pinning/pinFileToIPFS", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${jwt}`
-      },
-      body: metadataForm
-    });
-
-    const metadataData = await metadataRes.json();
-
-    if (!metadataRes.ok) {
-      return res.status(metadataRes.status).json({
-        error: "Metadata upload failed",
-        detail: metadataData
+    if (!hash) {
+      return res.status(500).json({
+        ok: false,
+        error: "Pinata response did not include hash",
+        detail: pinataJson
       });
     }
 
     return res.status(200).json({
-  ok: true,
-
-  // v1.3.8 HTML互換
-  cid: imageData.IpfsHash,
-  IpfsHash: imageData.IpfsHash,
-  ipfsHash: imageData.IpfsHash,
-  uri: imageUri,
-  image: imageUri,
-
-  // 明示名
-  imageIpfsHash: imageData.IpfsHash,
-  imageUri,
-
-  metadataCid: metadataData.IpfsHash,
-  metadataIpfsHash: metadataData.IpfsHash,
-  metadataUri: `ipfs://${metadataData.IpfsHash}`,
-
-  metadata
-});
+      ok: true,
+      cid: hash,
+      IpfsHash: hash,
+      ipfsHash: hash,
+      uri: `ipfs://${hash}`,
+      image: `ipfs://${hash}`,
+      imageUri: `ipfs://${hash}`,
+      imageIpfsHash: hash,
+      raw: pinataJson
+    });
+  } catch (err) {
+    return res.status(500).json({
+      ok: false,
+      error: "Server error",
+      detail: err?.message || String(err),
+      stack: err?.stack || null
+    });
+  }
+}
