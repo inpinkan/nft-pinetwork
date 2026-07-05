@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Pi NFT Center v1.3.9 Creator Center</title>
+<title>Pi NFT Center v1.3.10 Creator Center</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%235b2d82'/%3E%3Ctext x='32' y='42' text-anchor='middle' font-size='34' fill='%23f5b041' font-family='Arial' font-weight='900'%3Eπ%3C/text%3E%3C/svg%3E">
 <style>
 
@@ -41,7 +41,7 @@
     @media (min-width:720px){.grid{grid-template-columns:repeat(4,1fr)}.nft-img{height:170px}.footer-grid{grid-template-columns:repeat(4,1fr)}}@media (max-width:420px){.search-row{grid-template-columns:1fr 82px}.logo-text{font-size:19px}}
   
 
-/* v1.3.9 Creator Center Price display */
+/* v1.3.10 Creator Center Price display */
 .price-block{margin:6px 0 6px!important;display:flex!important;align-items:flex-start!important;gap:6px!important;min-height:22px!important}
 .price-label{font-size:10px!important;font-weight:900!important;color:var(--muted)!important;text-transform:uppercase!important;letter-spacing:.08em!important;margin:0!important;line-height:1.2!important}
 .price-line{display:inline-flex!important;align-items:flex-start!important;gap:5px!important;font-size:17px!important;font-weight:950!important;line-height:1!important;color:var(--text)!important}
@@ -281,7 +281,7 @@
 
 
 
-/* v1.3.9 Creator Center foundation */
+/* v1.3.10 Creator Center foundation */
 .creator-dashboard{display:grid;grid-template-columns:1fr;gap:12px}
 .creator-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
 .creator-tab{border:1px solid var(--border);background:rgba(255,255,255,.055);color:var(--text);border-radius:999px;padding:10px 12px;font-weight:900;cursor:pointer}
@@ -304,7 +304,7 @@
 @media(min-width:720px){.creator-two-col{grid-template-columns:1fr 1fr}.creator-dashboard{grid-template-columns:1fr 1fr}.creator-status-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
 
 
-/* v1.3.9 Creator Center readability + locked-tab behavior */
+/* v1.3.10 Creator Center readability + locked-tab behavior */
 .creator-card h2{font-size:22px;margin:0 0 10px;color:var(--text)}
 .creator-card h3{font-size:18px;margin:0 0 10px;color:var(--text)}
 .creator-help,.creator-owner-note,.clean-note{font-size:14px!important;line-height:1.65!important}
@@ -323,7 +323,7 @@
 }
 
 
-/* v1.3.9 Creator Center cleanup */
+/* v1.3.10 Creator Center cleanup */
 .sale-status-options{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .sale-status-option{border:1px solid var(--border);border-radius:14px;padding:10px;background:rgba(255,255,255,.045);font-weight:900;cursor:pointer}
 .sale-status-option input{width:auto;margin-right:7px;accent-color:var(--gold)}
@@ -383,7 +383,7 @@
 </header>
 <main>
   <div class="page show" id="homePage">
-    <div class="hero"><h1>Pi NFT Center <span class="beta">v1.3.9 Creator Center</span></h1><p>Shop Registration Step. Upload Shop image to Pinata, then register the Shop for NFT drafts.</p></div>
+    <div class="hero"><h1>Pi NFT Center <span class="beta">v1.3.10 Creator Center</span></h1><p>NFT Pinata Step. Upload NFT image and metadata.json to Pinata, then make the draft Mint Ready.</p></div>
     <section><div class="section-title">🏆 Top Collections</div><div class="collection-list" id="topCollections"></div></section>
     <section><div class="section-title">🔥 Hot NFTs</div><div class="grid" id="hotNfts"></div></section>
     <section><div class="section-title">🆕 New NFTs</div><div class="grid" id="newNfts"></div></section>
@@ -419,7 +419,7 @@
 'use strict';
 
 const PNC_CONFIG = {
-  app: { version: 'v1.3.9 Creator Center' },
+  app: { version: 'v1.3.10 Creator Center' },
   network: { chainId: '0xaa36a7', name: 'Sepolia Testnet' },
   contracts: {
     nft: '0x63C8AbE6a0e7867B7812A1237a2781D460702382',
@@ -455,7 +455,7 @@ const PNC_TEXT = {
     piComingSoon: 'Pi Wallet接続は将来用です。現在のテスト版は MetaMask / Sepolia を使います。'
   },
   creator: {
-    ruleTitle: 'Creator Center v1.3.9 rule:',
+    ruleTitle: 'Creator Center v1.3.10 rule:',
     ruleBody: 'Wallet別処理なし。connected walletのcreator/owner権限だけでCreate Shop / Create NFT / Listを制御します。',
     lockedTitle: 'Wallet required',
     lockedBody: 'Create Shop / Create NFT / Mint / List はWallet接続後に使えます。接続は右上のConnectボタンから行ってください。',
@@ -1157,7 +1157,7 @@ async function registerShopDraftFromPreview(){
   await saveKVState();
   alert(PNC_TEXT.creator.shopRegistered);
 }
-function uploadDraftNotice(){ alert('Pinata Uploadは完了しています。Mint実装は次の段階です。'); }
+function uploadDraftNotice(){ alert('Mint Readyです。Mint実行は次の段階で実装します。'); }
 function draftJsonHtml(title, data){
   if(!data) return '';
   return `<div class="draft-json-box"><div class="draft-json-title">${esc(title)}</div><pre class="draft-json-pre">${esc(JSON.stringify(data,null,2))}</pre></div>`;
@@ -1191,7 +1191,10 @@ function nftDraftPreviewHtml(state){
   const draft = state.creator && state.creator.nftDraft;
   if(!draft) return '';
   const sale = draft.saleStatus === 'for_sale' ? 'For Sale' : 'Not For Sale';
-  return `<div class="draft-preview-card"><div class="draft-preview-title">NFT Draft Preview</div><div class="draft-preview-layout">${draftImageBox(draft,'🖼')}<div class="draft-preview-info">${draftRow('NFT Name', draft.name)}${draftRow('Shop', draft.collectionName)}${draftRow('Creator', short(draft.creator))}${draftRow('Owner', short(draft.owner))}${draftRow('Utility', draft.utility)}${draftRow('Sale Status', sale)}${draftRow('Price', draft.saleStatus === 'for_sale' ? (draft.price || '-') + ' ' + currencyUnit() : 'Not for sale')}${draftRow('Image File', draft.imageName || 'No file selected')}${draftRow('Status', draft.status === 'pinata-ready' ? 'Pinata ready / Mint next' : (draft.status === 'pinata-uploading' ? 'Pinata uploading' : 'Draft / metadata JSON ready'))}</div></div>${draftValidationHtml(draft.validation, draft.status)}${draftJsonHtml('metadata.json Preview', draft.metadata)}${draftJsonHtml('NFT Draft Payload', draft.payload)}<div class="draft-preview-actions">${draft.status === 'pinata-ready' ? '<button class="primary-btn" type="button" onclick="uploadDraftNotice()">Mint Next Step</button>' : '<button class="primary-btn" type="button" onclick="uploadNFTDraftToPinata()">Upload NFT + Metadata to Pinata</button>'}<button class="small-btn delete-btn" type="button" onclick="clearCreatorDraft('nft')">Clear Draft</button></div></div>`;
+  const imageUri = draft.pinata && draft.pinata.image ? draft.pinata.image.ipfsUri : 'PENDING_PINATA_UPLOAD';
+  const metadataUri = draft.pinata && draft.pinata.metadata ? draft.pinata.metadata.ipfsUri : 'PENDING_METADATA_UPLOAD';
+  const statusText = draft.status === 'pinata-ready' ? 'Mint Ready' : (draft.status === 'pinata-uploading' ? 'Pinata uploading' : 'Draft / metadata JSON ready');
+  return `<div class="draft-preview-card"><div class="draft-preview-title">NFT Draft Preview</div><div class="draft-preview-layout">${draftImageBox(draft,'🖼')}<div class="draft-preview-info">${draftRow('NFT Name', draft.name)}${draftRow('Shop', draft.collectionName)}${draftRow('Creator', short(draft.creator))}${draftRow('Owner', short(draft.owner))}${draftRow('Utility', draft.utility)}${draftRow('Sale Status', sale)}${draftRow('Price', draft.saleStatus === 'for_sale' ? (draft.price || '-') + ' ' + currencyUnit() : 'Not for sale')}${draftRow('Image File', draft.imageName || 'No file selected')}${draftRow('Image URI', imageUri)}${draftRow('Metadata URI', metadataUri)}${draftRow('Status', statusText)}</div></div>${draftValidationHtml(draft.validation, draft.status)}${draftJsonHtml('metadata.json Preview', draft.metadata)}${draftJsonHtml('NFT Draft Payload', draft.payload)}<div class="draft-preview-actions">${draft.status === 'pinata-ready' ? '<button class="primary-btn" type="button" onclick="uploadDraftNotice()">Mint Ready</button>' : '<button class="primary-btn" type="button" onclick="uploadNFTDraftToPinata()">Upload NFT + Metadata to Pinata</button>'}<button class="small-btn delete-btn" type="button" onclick="clearCreatorDraft('nft')">Clear Draft</button></div></div>`;
 }
 
 function feeRoyaltyRulesHtml(){
