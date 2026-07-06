@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Pi NFT Center v1.3.11-clean-fixed Creator Center</title>
+<title>Pi NFT Center v1.3.11.1 Creator Center</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%235b2d82'/%3E%3Ctext x='32' y='42' text-anchor='middle' font-size='34' fill='%23f5b041' font-family='Arial' font-weight='900'%3Eπ%3C/text%3E%3C/svg%3E">
 <style>
 
@@ -41,7 +41,7 @@
     @media (min-width:720px){.grid{grid-template-columns:repeat(4,1fr)}.nft-img{height:170px}.footer-grid{grid-template-columns:repeat(4,1fr)}}@media (max-width:420px){.search-row{grid-template-columns:1fr 82px}.logo-text{font-size:19px}}
   
 
-/* v1.3.11 Creator Center Price display */
+/* v1.3.11.1 Creator Center Price display */
 .price-block{margin:6px 0 6px!important;display:flex!important;align-items:flex-start!important;gap:6px!important;min-height:22px!important}
 .price-label{font-size:10px!important;font-weight:900!important;color:var(--muted)!important;text-transform:uppercase!important;letter-spacing:.08em!important;margin:0!important;line-height:1.2!important}
 .price-line{display:inline-flex!important;align-items:flex-start!important;gap:5px!important;font-size:17px!important;font-weight:950!important;line-height:1!important;color:var(--text)!important}
@@ -281,7 +281,7 @@
 
 
 
-/* v1.3.11 Creator Center foundation */
+/* v1.3.11.1 Creator Center foundation */
 .creator-dashboard{display:grid;grid-template-columns:1fr;gap:12px}
 .creator-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
 .creator-tab{border:1px solid var(--border);background:rgba(255,255,255,.055);color:var(--text);border-radius:999px;padding:10px 12px;font-weight:900;cursor:pointer}
@@ -304,7 +304,7 @@
 @media(min-width:720px){.creator-two-col{grid-template-columns:1fr 1fr}.creator-dashboard{grid-template-columns:1fr 1fr}.creator-status-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
 
 
-/* v1.3.11 Creator Center readability + locked-tab behavior */
+/* v1.3.11.1 Creator Center readability + locked-tab behavior */
 .creator-card h2{font-size:22px;margin:0 0 10px;color:var(--text)}
 .creator-card h3{font-size:18px;margin:0 0 10px;color:var(--text)}
 .creator-help,.creator-owner-note,.clean-note{font-size:14px!important;line-height:1.65!important}
@@ -323,7 +323,7 @@
 }
 
 
-/* v1.3.11 Creator Center cleanup */
+/* v1.3.11.1 Creator Center cleanup */
 .sale-status-options{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .sale-status-option{border:1px solid var(--border);border-radius:14px;padding:10px;background:rgba(255,255,255,.045);font-weight:900;cursor:pointer}
 .sale-status-option input{width:auto;margin-right:7px;accent-color:var(--gold)}
@@ -383,7 +383,7 @@
 </header>
 <main>
   <div class="page show" id="homePage">
-    <div class="hero"><h1>Pi NFT Center <span class="beta">v1.3.11 Creator Center</span></h1><p>Mint Step. Use metadata URI from Pinata to mint an ERC721 NFT on Sepolia.</p></div>
+    <div class="hero"><h1>Pi NFT Center <span class="beta">v1.3.11.1 Creator Center</span></h1><p>Mint Step. Use metadata URI from Pinata to mint an ERC721 NFT on Sepolia.</p></div>
     <section><div class="section-title">🏆 Top Collections</div><div class="collection-list" id="topCollections"></div></section>
     <section><div class="section-title">🔥 Hot NFTs</div><div class="grid" id="hotNfts"></div></section>
     <section><div class="section-title">🆕 New NFTs</div><div class="grid" id="newNfts"></div></section>
@@ -419,7 +419,7 @@
 'use strict';
 
 const PNC_CONFIG = {
-  app: { version: 'v1.3.11 Creator Center' },
+  app: { version: 'v1.3.11.1 Creator Center' },
   network: { chainId: '0xaa36a7', name: 'Sepolia Testnet' },
   contracts: {
     nft: '0x63C8AbE6a0e7867B7812A1237a2781D460702382',
@@ -552,7 +552,7 @@ function saveMetadataToCache(key, meta){ if(!key || !meta) return; const cache =
 const $ = id => document.getElementById(id);
 const lc = v => String(v||'').toLowerCase();
 const esc = v => String(v ?? '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
-const short = a => /^0x[a-fA-F0-9]{40}$/.test(String(a||'')) ? a.slice(0,4)+'...'+a.slice(-4) : (a||'-');
+const short = a => /^0x[a-fA-F0-9]{40}$/.test(String(a||'')) ? a.slice(0,6)+'...'+a.slice(-4) : (a||'-');
 function isZeroPaddedPlaceholderAddress(a){ return /^0x[0-9a-fA-F]{4}0{28,}[0-9a-fA-F]{4}$/.test(String(a||'')); }
 function displayAddress(a){ return isZeroPaddedPlaceholderAddress(a) ? short(a) : (a || '-'); }
 function isUsableMediaUrl(u){
@@ -802,7 +802,8 @@ async function loadKVState(wallet){
 function publicCreatorStateForSave(){
   const creator = ensureCreatorState();
   return {
-    registeredShops: Array.isArray(creator.registeredShops) ? creator.registeredShops : []
+    registeredShops: Array.isArray(creator.registeredShops) ? creator.registeredShops : [],
+    mintedNfts: Array.isArray(creator.mintedNfts) ? creator.mintedNfts : []
   };
 }
 async function saveKVState(){
@@ -822,139 +823,49 @@ async function saveKVState(){
     });
   }catch(e){ console.warn(e); }
 }
-
-function upsertByKey(items, incoming, keyFn){
-  const map = new Map((Array.isArray(items) ? items : []).map(item => [keyFn(item), item]));
-  for(const item of (Array.isArray(incoming) ? incoming : [])){
-    const key = keyFn(item);
-    if(key) map.set(key, { ...(map.get(key) || {}), ...item });
-  }
-  return Array.from(map.values());
-}
-function nftStorageKey(nft){
+function nftStateKey(nft){
   if(!nft) return '';
-  if(nft.contractAddress && nft.tokenId) return lc(nft.contractAddress) + ':' + String(nft.tokenId);
+  const contract = lc(nft.contractAddress || PNC_CONFIG.contracts.nft || '');
+  const tokenId = nft.tokenId != null ? String(nft.tokenId) : '';
+  if(contract && tokenId) return contract + ':' + tokenId;
   return nft.id || '';
-}
-function collectionKeyFromName(name){
-  return String(name || 'creator-shop').trim().toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'') || 'creator-shop';
-}
-function metadataShopName(meta){
-  const attrs = Array.isArray(meta && meta.attributes) ? meta.attributes : [];
-  const shopAttr = attrs.find(a => lc(a && a.trait_type) === 'shop');
-  return (shopAttr && shopAttr.value) || (meta && meta.pnc && meta.pnc.collectionName) || '';
-}
-function ensureCollectionForNFT(state, nft, meta){
-  const pnc = meta && meta.pnc ? meta.pnc : {};
-  let collectionId = nft.collectionId || pnc.collectionId || '';
-  const shopName = metadataShopName(meta) || nft.collectionName || '';
-  let collection = collectionId ? state.collections.find(c => c.id === collectionId) : null;
-  if(!collection && shopName) collection = state.collections.find(c => lc(c.name) === lc(shopName));
-  if(!collection && shopName){
-    collectionId = collectionId || collectionKeyFromName(shopName);
-    collection = {
-      id: collectionId,
-      name: shopName,
-      creator: pnc.creator || nft.creator || '',
-      verified: false,
-      description: 'Creator registered shop',
-      icon: '🏪',
-      image: nft.image || '',
-      banner: nft.image || '',
-      source: 'metadata-shop',
-      status: 'registered',
-      createdAt: Date.now()
-    };
-    state.collections = upsertByKey(state.collections, [collection], c => c.id);
-  }
-  if(collection){
-    nft.collectionId = collection.id;
-    nft.collectionName = collection.name;
-  }
 }
 function applyCreatorMintedNfts(state){
   if(!state || !state.creator || !Array.isArray(state.creator.mintedNfts)) return state;
-  state.nfts = upsertByKey(state.nfts, state.creator.mintedNfts, nftStorageKey);
-  return state;
-}
-async function fetchMetadataFromUri(uri){
-  if(!isUsableMetadataUrl(uri)) return null;
-  try{
-    const res = await fetchWithTimeout(ipfs(uri), { cache:'no-store' }, 8000);
-    if(!res.ok) return null;
-    return await res.json();
-  }catch(e){ return null; }
-}
-function transferLogTokenId(log){
-  const topics = log && log.topics ? log.topics : [];
-  return topics[3] ? BigInt(topics[3]).toString() : '';
-}
-async function getTransferLogsForWallet(wallet){
-  if(!window.ethereum || !wallet) return [];
-  const transferTopic = '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef';
-  const walletTopic = '0x' + addressWordForCall(wallet);
-  const base = { address: PNC_CONFIG.contracts.nft, fromBlock: '0x0', toBlock: 'latest' };
-  const incomingReq = { ...base, topics:[transferTopic, null, walletTopic] };
-  const outgoingReq = { ...base, topics:[transferTopic, walletTopic, null] };
-  const incoming = await ethereum.request({ method:'eth_getLogs', params:[incomingReq] });
-  const outgoing = await ethereum.request({ method:'eth_getLogs', params:[outgoingReq] });
-  return [...(incoming||[]), ...(outgoing||[])];
-}
-async function syncWalletOwnedOnchainNfts(state){
-  if(!state.wallet || !window.ethereum) return state;
-  let logs = [];
-  try{ logs = await getTransferLogsForWallet(state.wallet); }catch(e){ state.errors.push('Transfer log sync failed'); return state; }
-  const tokenIds = Array.from(new Set(logs.map(transferLogTokenId).filter(Boolean)));
-  const additions = [];
-  for(const tokenId of tokenIds){
-    try{
-      const owner = await readOwnerOf(tokenId);
-      if(lc(owner) !== lc(state.wallet)) continue;
-      const tokenURI = await readTokenURI(tokenId);
-      const meta = await fetchMetadataFromUri(tokenURI);
-      const pnc = meta && meta.pnc ? meta.pnc : {};
-      const nft = {
-        id:'pnc-onchain-' + String(tokenId).padStart(6,'0'),
-        name:(meta && meta.name) || ('PNCNFT #' + tokenId),
-        collectionId:pnc.collectionId || '',
-        collectionName:pnc.collectionName || metadataShopName(meta) || '',
-        tokenId:String(tokenId),
-        contractAddress:PNC_CONFIG.contracts.nft,
-        creator:pnc.creator || (Array.isArray(meta && meta.attributes) ? ((meta.attributes.find(a => lc(a && a.trait_type)==='creator')||{}).value || owner) : owner),
-        knownOwner:owner,
-        owner:owner,
-        image:(meta && meta.image) || '',
-        metadataUrl:tokenURI,
-        tokenURI:tokenURI,
-        status:'not_for_sale',
-        metadata:meta || null,
-        source:'wallet-transfer-log'
-      };
-      ensureCollectionForNFT(state, nft, meta);
-      additions.push(nft);
-      if(meta) saveMetadataToCache(tokenURI, meta);
-    }catch(e){ state.errors.push('Wallet NFT sync failed token '+tokenId); }
+  const map = new Map((state.nfts || []).map(n => [nftStateKey(n), n]));
+  for(const nft of state.creator.mintedNfts){
+    if(!nft) continue;
+    const key = nftStateKey(nft);
+    if(!key) continue;
+    map.set(key, Object.assign({}, map.get(key) || {}, nft));
   }
-  if(additions.length){
-    state.nfts = upsertByKey(state.nfts, additions, nftStorageKey);
-    state.creator = state.creator || { shopDraft:null, nftDraft:null, registeredShops:[], mintedNfts:[] };
-    state.creator.mintedNfts = upsertByKey(state.creator.mintedNfts || [], additions, nftStorageKey);
-  }
+  state.nfts = Array.from(map.values());
   return state;
 }
 function applyKVCreatorState(state, kv){
   if(!state || !kv || !kv.creator) return state;
   const creator = state.creator || { shopDraft:null, nftDraft:null, registeredShops:[], mintedNfts:[] };
   const savedShops = Array.isArray(kv.creator.registeredShops) ? kv.creator.registeredShops : [];
+  const shopMap = new Map((creator.registeredShops || []).map(s => [s.id, s]));
+  for(const shop of savedShops){
+    if(shop && shop.id && lc(shop.creator) === lc(state.wallet)) shopMap.set(shop.id, shop);
+  }
+  creator.registeredShops = Array.from(shopMap.values());
+
   const savedNfts = Array.isArray(kv.creator.mintedNfts) ? kv.creator.mintedNfts : [];
-  creator.registeredShops = upsertByKey(creator.registeredShops || [], savedShops, shop => shop && shop.id);
-  creator.mintedNfts = upsertByKey(creator.mintedNfts || [], savedNfts, nftStorageKey);
+  const nftMap = new Map((creator.mintedNfts || []).map(n => [nftStateKey(n), n]));
+  for(const nft of savedNfts){
+    if(!nft) continue;
+    if(lc(nft.owner) === lc(state.wallet) || lc(nft.knownOwner) === lc(state.wallet) || lc(nft.creator) === lc(state.wallet)){
+      nftMap.set(nftStateKey(nft), nft);
+    }
+  }
+  creator.mintedNfts = Array.from(nftMap.values());
   state.creator = creator;
   applyCreatorRegisteredShops(state);
   applyCreatorMintedNfts(state);
   return state;
 }
-
 
 
 function applyCollectionMedia(state){
@@ -995,7 +906,13 @@ function shopDraftToCollection(draft){
 }
 function applyCreatorRegisteredShops(state){
   if(!state || !state.creator || !Array.isArray(state.creator.registeredShops)) return state;
-  state.collections = upsertByKey(state.collections, state.creator.registeredShops, shop => shop && shop.id);
+  const existing = new Set(state.collections.map(c => c.id));
+  for(const shop of state.creator.registeredShops){
+    if(shop && shop.id && !existing.has(shop.id)){
+      state.collections.push(shop);
+      existing.add(shop.id);
+    }
+  }
   return state;
 }
 function creatorOwnedCollections(state){
@@ -1362,11 +1279,13 @@ async function mintNFTDraftToBlockchain(){
       status:'not_for_sale',
       metadata:draft.metadata
     };
-    const liveCreator = ensureCreatorState();
-    liveCreator.mintedNfts = upsertByKey(liveCreator.mintedNfts || [], [mintedNft], nftStorageKey);
-    PNC_STATE.nfts = upsertByKey(PNC_STATE.nfts, [mintedNft], nftStorageKey);
-    await saveKVState();
+    creator.mintedNfts = (Array.isArray(creator.mintedNfts) ? creator.mintedNfts : [])
+      .filter(n => !(lc(n.contractAddress) === lc(PNC_CONFIG.contracts.nft) && String(n.tokenId) === String(tokenId)))
+      .concat(mintedNft);
+    PNC_STATE.creator = creator;
+    PNC_STATE.nfts = PNC_STATE.nfts.filter(n => !(lc(n.contractAddress) === lc(PNC_CONFIG.contracts.nft) && String(n.tokenId) === String(tokenId))).concat(mintedNft);
     renderApp(PNC_STATE);
+    await saveKVState();
     alert(PNC_TEXT.creator.mintComplete + '\nToken ID: ' + tokenId);
   }catch(e){
     draft.status = 'pinata-ready';
@@ -1463,7 +1382,6 @@ async function createMarketState(){
     state.market.kv = kv;
     applyKVCreatorState(state, kv);
   }
-  await syncWalletOwnedOnchainNfts(state);
 
   await Promise.all(state.nfts.map(async (nft)=>{
     nft.owner = nft.knownOwner || '';
