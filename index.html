@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Pi NFT Center v1.3.14 Creator Center</title>
+<title>Pi NFT Center v1.3.15 Creator Center</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%235b2d82'/%3E%3Ctext x='32' y='42' text-anchor='middle' font-size='34' fill='%23f5b041' font-family='Arial' font-weight='900'%3Eπ%3C/text%3E%3C/svg%3E">
 <style>
 
@@ -382,7 +382,7 @@
 </header>
 <main>
   <div class="page show" id="homePage">
-    <div class="hero"><h1>Pi NFT Center <span class="beta">v1.3.14 Creator Center</span></h1><p>Clean MarketState. Only Creator Center shops and minted NFTs are rendered.</p></div>
+    <div class="hero"><h1>Pi NFT Center <span class="beta">v1.3.15 Creator Center</span></h1><p>Wallet → Storage → MarketState → Render. Shop Core is the next foundation.</p></div>
     <section><div class="section-title">🏆 Top Collections</div><div class="collection-list" id="topCollections"></div></section>
     <section><div class="section-title">🔥 Hot NFTs</div><div class="grid" id="hotNfts"></div></section>
     <section><div class="section-title">🆕 New NFTs</div><div class="grid" id="newNfts"></div></section>
@@ -418,7 +418,7 @@
 'use strict';
 
 const PNC_CONFIG = {
-  app: { version: 'v1.3.14 Creator Center' },
+  app: { version: 'v1.3.15 Creator Center' },
   network: { chainId: '0xaa36a7', name: 'Sepolia Testnet' },
   contracts: {
     nft: '0x63C8AbE6a0e7867B7812A1237a2781D460702382',
@@ -454,8 +454,8 @@ const PNC_TEXT = {
     piComingSoon: 'Pi Wallet接続は将来用です。現在のテスト版は MetaMask / Sepolia を使います。'
   },
   creator: {
-    ruleTitle: 'Creator Center v1.3.14 rule:',
-    ruleBody: 'Wallet別処理なし。connected walletのcreator/owner権限だけでCreate Shop / Create NFT / Listを制御します。',
+    ruleTitle: 'Creator Center v1.3.15 rule:',
+    ruleBody: 'Storage(KV)とMarketStateを一本化します。RenderはMarketStateだけを読みます。',
     lockedTitle: 'Wallet required',
     lockedBody: 'Create Shop / Create NFT / Mint / List はWallet接続後に使えます。接続は右上のConnectボタンから行ってください。',
     dashboardHelp: '接続WalletをCreatorとして扱います。表示は公開データ、操作権限はconnected walletで判定します。',
@@ -519,6 +519,8 @@ let PNC_CREATOR_TAB = 'dashboard';
 let PNC_WALLET_CONNECTING = false;
 const PNC_METADATA_CACHE_KEY = 'PNC_METADATA_CACHE_V1';
 const PNC_GLOBAL_MARKET_KEY = 'PNC_GLOBAL_MARKET';
+const PNC_LOCAL_GLOBAL_KEY = 'PNC_LOCAL_GLOBAL_MARKET_V1';
+const PNC_LOCAL_WALLET_PREFIX = 'PNC_LOCAL_WALLET_STATE_V1:';
 function readMetadataCache(){ try{return JSON.parse(localStorage.getItem(PNC_METADATA_CACHE_KEY)||'{}')||{};}catch(e){return {};} }
 function writeMetadataCache(cache){ try{localStorage.setItem(PNC_METADATA_CACHE_KEY, JSON.stringify(cache));}catch(e){} }
 function applyCachedMetadata(nft){
@@ -797,54 +799,57 @@ async function readListing(listingId){
   };
 }
 
+function emptyCreatorState(){ return { shopDraft:null, nftDraft:null, registeredShops:[], mintedNfts:[] }; }
+function localWalletKey(walletKey){ return PNC_LOCAL_WALLET_PREFIX + String(walletKey || '').toLowerCase(); }
+function readLocalState(walletKey){
+  try{
+    const key = walletKey === PNC_GLOBAL_MARKET_KEY ? PNC_LOCAL_GLOBAL_KEY : localWalletKey(walletKey);
+    const raw = localStorage.getItem(key);
+    return raw ? JSON.parse(raw) : null;
+  }catch(e){ return null; }
+}
+function writeLocalState(walletKey, state){
+  try{
+    const key = walletKey === PNC_GLOBAL_MARKET_KEY ? PNC_LOCAL_GLOBAL_KEY : localWalletKey(walletKey);
+    localStorage.setItem(key, JSON.stringify(state));
+  }catch(e){ console.warn(e); }
+}
 async function loadKVState(wallet){
   if(!wallet) return null;
+  let remote = null;
   try{
     const r = await fetch('/api/load-state?walletAddress='+encodeURIComponent(wallet), { cache:'no-store' });
     const j = await r.json();
-    return j.ok ? j.state : null;
+    remote = j.ok ? j.state : null;
   }catch(e){
-    PNC_STATE.errors.push('KV load failed: '+e.message);
-    return null;
+    console.warn('KV load failed:', e.message || e);
   }
+  return remote || readLocalState(wallet) || null;
 }
-async function loadGlobalMarketState(){
-  return await loadKVState(PNC_GLOBAL_MARKET_KEY);
-}
-function publicCreatorStateForSave(){
-  const creator = ensureCreatorState();
+async function loadGlobalMarketState(){ return await loadKVState(PNC_GLOBAL_MARKET_KEY); }
+function creatorStateFromMarketState(state){
+  const creator = (state && state.creator) || emptyCreatorState();
   return {
     registeredShops: Array.isArray(creator.registeredShops) ? creator.registeredShops : [],
     mintedNfts: Array.isArray(creator.mintedNfts) ? creator.mintedNfts : []
   };
 }
-function marketStateForGlobalSave(){
-  const creator = publicCreatorStateForSave();
-  return {
-    registeredShops: creator.registeredShops,
-    mintedNfts: creator.mintedNfts
-  };
-}
+function publicCreatorStateForSave(){ return creatorStateFromMarketState(PNC_STATE); }
+function marketStateForGlobalSave(){ return publicCreatorStateForSave(); }
 async function saveStateForWalletKey(walletKey, creatorState){
   if(!walletKey) return;
+  const stateToSave = { at:Date.now(), version:PNC_CONFIG.app.version, creator: creatorState || emptyCreatorState() };
+  writeLocalState(walletKey, stateToSave);
   await fetch('/api/save-state', {
     method:'POST',
     headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({
-      walletAddress:walletKey,
-      state:{
-        at:Date.now(),
-        version:PNC_CONFIG.app.version,
-        creator: creatorState
-      }
-    })
+    body:JSON.stringify({ walletAddress:walletKey, state:stateToSave })
   });
 }
 async function saveKVState(){
-  if(!PNC_STATE.wallet) return;
   try{
     const creatorState = publicCreatorStateForSave();
-    await saveStateForWalletKey(PNC_STATE.wallet, creatorState);
+    if(PNC_STATE.wallet) await saveStateForWalletKey(PNC_STATE.wallet, creatorState);
     await saveStateForWalletKey(PNC_GLOBAL_MARKET_KEY, marketStateForGlobalSave());
   }catch(e){ console.warn(e); }
 }
@@ -1424,7 +1429,7 @@ function createSeedState(){
     collections: [],
     nfts: [],
     market: { listings: [] },
-    creator: structuredClone(PNC_STATE.creator || { shopDraft:null, nftDraft:null, registeredShops:[], mintedNfts:[] }),
+    creator: structuredClone(PNC_STATE.creator || emptyCreatorState()),
     errors: [],
     resolving: true
   };
@@ -1437,7 +1442,6 @@ async function loadBlockchainState(){
   const freshState = await createMarketState();
   PNC_STATE = freshState;
   renderApp(PNC_STATE);
-  await saveKVState();
 }
 
 async function createMarketState(){
@@ -1446,7 +1450,7 @@ async function createMarketState(){
     collections: [],
     nfts: [],
     market: { listings: [] },
-    creator: structuredClone(PNC_STATE.creator || { shopDraft:null, nftDraft:null, registeredShops:[], mintedNfts:[] }),
+    creator: structuredClone(PNC_STATE.creator || emptyCreatorState()),
     errors: [],
     resolving: false
   };
