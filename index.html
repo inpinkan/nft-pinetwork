@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Pi NFT Center v1.3.12 Creator Center</title>
+<title>Pi NFT Center v1.3.13 Creator Center</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%235b2d82'/%3E%3Ctext x='32' y='42' text-anchor='middle' font-size='34' fill='%23f5b041' font-family='Arial' font-weight='900'%3Eπ%3C/text%3E%3C/svg%3E">
 <style>
 
@@ -41,7 +41,7 @@
     @media (min-width:720px){.grid{grid-template-columns:repeat(4,1fr)}.nft-img{height:170px}.footer-grid{grid-template-columns:repeat(4,1fr)}}@media (max-width:420px){.search-row{grid-template-columns:1fr 82px}.logo-text{font-size:19px}}
   
 
-/* v1.3.11 Creator Center Price display */
+/* v1.3.12 Creator Center Price display */
 .price-block{margin:6px 0 6px!important;display:flex!important;align-items:flex-start!important;gap:6px!important;min-height:22px!important}
 .price-label{font-size:10px!important;font-weight:900!important;color:var(--muted)!important;text-transform:uppercase!important;letter-spacing:.08em!important;margin:0!important;line-height:1.2!important}
 .price-line{display:inline-flex!important;align-items:flex-start!important;gap:5px!important;font-size:17px!important;font-weight:950!important;line-height:1!important;color:var(--text)!important}
@@ -228,7 +228,6 @@
 .nft-card{position:relative}
 .nft-card .nft-body{display:grid;gap:6px}
 .nft-title-row{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
-.nft-token-chip{border:1px solid var(--border);border-radius:999px;padding:2px 7px;color:var(--muted);font-size:10px;font-weight:900;white-space:nowrap;background:rgba(255,255,255,.045)}
 .nft-info-list{display:grid;gap:3px;margin-top:2px}
 .nft-info-row{display:flex;justify-content:space-between;gap:8px;border-top:1px solid rgba(255,255,255,.06);padding-top:4px;font-size:11px}
 .nft-info-row span:first-child{color:var(--muted);font-weight:800}
@@ -281,7 +280,7 @@
 
 
 
-/* v1.3.11 Creator Center foundation */
+/* v1.3.12 Creator Center foundation */
 .creator-dashboard{display:grid;grid-template-columns:1fr;gap:12px}
 .creator-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
 .creator-tab{border:1px solid var(--border);background:rgba(255,255,255,.055);color:var(--text);border-radius:999px;padding:10px 12px;font-weight:900;cursor:pointer}
@@ -304,7 +303,7 @@
 @media(min-width:720px){.creator-two-col{grid-template-columns:1fr 1fr}.creator-dashboard{grid-template-columns:1fr 1fr}.creator-status-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
 
 
-/* v1.3.11 Creator Center readability + locked-tab behavior */
+/* v1.3.12 Creator Center readability + locked-tab behavior */
 .creator-card h2{font-size:22px;margin:0 0 10px;color:var(--text)}
 .creator-card h3{font-size:18px;margin:0 0 10px;color:var(--text)}
 .creator-help,.creator-owner-note,.clean-note{font-size:14px!important;line-height:1.65!important}
@@ -323,7 +322,7 @@
 }
 
 
-/* v1.3.11 Creator Center cleanup */
+/* v1.3.12 Creator Center cleanup */
 .sale-status-options{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .sale-status-option{border:1px solid var(--border);border-radius:14px;padding:10px;background:rgba(255,255,255,.045);font-weight:900;cursor:pointer}
 .sale-status-option input{width:auto;margin-right:7px;accent-color:var(--gold)}
@@ -383,7 +382,7 @@
 </header>
 <main>
   <div class="page show" id="homePage">
-    <div class="hero"><h1>Pi NFT Center <span class="beta">v1.3.12 Creator Center</span></h1><p>Mint Step. Use metadata URI from Pinata to mint an ERC721 NFT on Sepolia.</p></div>
+    <div class="hero"><h1>Pi NFT Center <span class="beta">v1.3.13 Creator Center</span></h1><p>Mint Step. Use metadata URI from Pinata to mint an ERC721 NFT on Sepolia.</p></div>
     <section><div class="section-title">🏆 Top Collections</div><div class="collection-list" id="topCollections"></div></section>
     <section><div class="section-title">🔥 Hot NFTs</div><div class="grid" id="hotNfts"></div></section>
     <section><div class="section-title">🆕 New NFTs</div><div class="grid" id="newNfts"></div></section>
@@ -419,7 +418,7 @@
 'use strict';
 
 const PNC_CONFIG = {
-  app: { version: 'v1.3.12 Creator Center' },
+  app: { version: 'v1.3.13 Creator Center' },
   network: { chainId: '0xaa36a7', name: 'Sepolia Testnet' },
   contracts: {
     nft: '0x63C8AbE6a0e7867B7812A1237a2781D460702382',
@@ -441,6 +440,11 @@ const PNC_CONFIG = {
     // Single rule for PC and mobile: do not run RPC before wallet connect.
     // Initial public display uses seed + metadata URLs only; wallet connection enables owner/listing RPC.
     readChainBeforeWalletConnect: false
+  },
+  chainRead: {
+    // Generic recovery adapter. No wallet / token specific code.
+    // Used only to recover ERC721 tokens that exist on-chain but are not yet in KV.
+    tokenScanMax: 50
   }
 };
 const PNC_TEXT = {
@@ -455,7 +459,7 @@ const PNC_TEXT = {
     piComingSoon: 'Pi Wallet接続は将来用です。現在のテスト版は MetaMask / Sepolia を使います。'
   },
   creator: {
-    ruleTitle: 'Creator Center v1.3.12 rule:',
+    ruleTitle: 'Creator Center v1.3.13 rule:',
     ruleBody: 'Wallet別処理なし。connected walletのcreator/owner権限だけでCreate Shop / Create NFT / Listを制御します。',
     lockedTitle: 'Wallet required',
     lockedBody: 'Create Shop / Create NFT / Mint / List はWallet接続後に使えます。接続は右上のConnectボタンから行ってください。',
@@ -479,9 +483,12 @@ const PNC_TEXT = {
     uploadAfterPreview: 'Pinata接続は次の段階です。v1.3.6ではShop DraftをMarketStateへ登録し、Create NFTで選べる状態まで固定しています。'
   },
   market: {
-    buyPrepared: 'Buy接続は次の段階で実装します。まず表示とMarketStateを固定しています。',
-    listPrepared: 'List接続は次の段階で実装します。まず表示とMarketStateを固定しています。',
-    unlistNext: 'Unlist adapter is next.'
+    buyPrepared: 'Buyを実行します。MetaMaskでトランザクション確認が出ます。',
+    listPrepared: 'Listを実行します。MetaMaskでApprove/Listの確認が出ます。',
+    unlistNext: 'Unlist adapter is next.',
+    listComplete: 'Listが完了しました。MarketStateへ反映します。',
+    buyComplete: 'Buyが完了しました。ownerOfを再読込してMy Vaultへ反映します。',
+    txFailed: 'トランザクションに失敗しました。'
   }
 };
 const PNC_UI_ICONS = {
@@ -510,15 +517,25 @@ const MARKETPLACE_ABI = [
 
 // Temporary catalog seed. Replace image/banner/metadataUrl fields with actual IPFS/HTTPS URLs as they are supplied.
 // No Base64 media is embedded in this HTML. Render functions never own image data.
-// v1.3.12: Legacy sample NFTs/shops are removed from the display source.
-// Home / Collections / Vault are built only from Creator Center state:
-// registeredShops + mintedNfts (+ wallet-owned on-chain discoveries after connect).
-const CATALOG_SEED = { collections: [], nfts: [] };
+const CATALOG_SEED = {
+  collections: [
+    { id:'corner-cat-shop', name:'The Corner Cat Shop', creator:'0x5c2A000000000000000000000000000000003862', verified:true, description:'Corner Cat collection.', icon:'🐱', image:'', banner:'' },
+    { id:'ddream-genesis', name:'DDREAM Genesis', creator:'0x4a45Cd6Aa78C7AB51b0d9ba0e36E035A47a0BC1b', verified:true, description:'DDREAM Genesis collection.', icon:'🏆', image:'', banner:'' },
+    { id:'ddream-genesis-shop', name:'DDREAM Genesis shop', creator:'0x4a45Cd6Aa78C7AB51b0d9ba0e36E035A47a0BC1b', verified:true, description:'DDREAM Genesis shop.', icon:'🏪', image:'', banner:'' }
+  ],
+  nfts: [
+    { id:'pnc-onchain-000003', name:'Cyber Tabby', collectionId:'corner-cat-shop', tokenId:'3', contractAddress:PNC_CONFIG.contracts.nft, creator:'0x5c2A000000000000000000000000000000003862', knownOwner:'0xf69000000000000000000000000000000000e20b', image:'', metadataUrl:'' },
+    { id:'pnc-onchain-000001', name:'PNCNFT #1', collectionId:'ddream-genesis', tokenId:'1', contractAddress:PNC_CONFIG.contracts.nft, creator:PNC_CONFIG.contracts.feeWallet, knownOwner:'0x8699000000000000000000000000000000004047', image:'', metadataUrl:'', icon:'👑', noMedia:true },
+    { id:'pnc-onchain-000002', name:'DDREAM Genesis #1', collectionId:'ddream-genesis', tokenId:'2', contractAddress:'legacy', creator:PNC_CONFIG.contracts.feeWallet, knownOwner:PNC_CONFIG.contracts.feeWallet, image:'ipfs://bafybeiclpv7r7kyw5nzxo2r5f5olsr6juc7hrmdwsegnnezctnv6ymodfu', metadataUrl:'', icon:'🏆' },
+    { id:'ddream-genesis-no-1', name:'DDREAM genesis no.1', collectionId:'ddream-genesis-shop', tokenId:'', contractAddress:'legacy', creator:PNC_CONFIG.contracts.feeWallet, knownOwner:PNC_CONFIG.contracts.feeWallet, image:'', metadataUrl:'ipfs://QmfA71puFSCNCARMGdZqSbavm1FzPiKau52RwqSsXCDndf', icon:'🖼' }
+  ]
+};
 
 let PNC_STATE = { wallet:null, collections:[], nfts:[], market:{ listings:[] }, creator:{ shopDraft:null, nftDraft:null, registeredShops:[], mintedNfts:[] }, errors:[], resolving:false };
 let PNC_CREATOR_TAB = 'dashboard';
 let PNC_WALLET_CONNECTING = false;
 const PNC_METADATA_CACHE_KEY = 'PNC_METADATA_CACHE_V1';
+const PNC_GLOBAL_MARKET_KEY = 'PNC_GLOBAL_MARKET';
 function readMetadataCache(){ try{return JSON.parse(localStorage.getItem(PNC_METADATA_CACHE_KEY)||'{}')||{};}catch(e){return {};} }
 function writeMetadataCache(cache){ try{localStorage.setItem(PNC_METADATA_CACHE_KEY, JSON.stringify(cache));}catch(e){} }
 function applyCachedMetadata(nft){
@@ -543,9 +560,9 @@ function saveMetadataToCache(key, meta){ if(!key || !meta) return; const cache =
 const $ = id => document.getElementById(id);
 const lc = v => String(v||'').toLowerCase();
 const esc = v => String(v ?? '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
-const short = a => /^0x[a-fA-F0-9]{40}$/.test(String(a||'')) ? a.slice(0,6)+'...'+a.slice(-4) : (a||'-');
+const short = a => /^0x[a-fA-F0-9]{40}$/.test(String(a||'')) ? a.slice(0,4)+'...'+a.slice(-4) : (a||'-');
 function isZeroPaddedPlaceholderAddress(a){ return /^0x[0-9a-fA-F]{4}0{28,}[0-9a-fA-F]{4}$/.test(String(a||'')); }
-function displayAddress(a){ return isZeroPaddedPlaceholderAddress(a) ? short(a) : (a || '-'); }
+function displayAddress(a){ return /^0x[a-fA-F0-9]{40}$/.test(String(a||'')) ? short(a) : (a || '-'); }
 function isUsableMediaUrl(u){
   const s = String(u || '').trim();
   if(!s || s === 'test' || s === 'ipfs://test') return false;
@@ -651,7 +668,7 @@ async function connectMetaMask(){
 }
 async function disconnectWallet(){
   PNC_STATE.wallet = null;
-  if(PNC_STATE.creator) PNC_STATE.creator = { shopDraft:null, nftDraft:null, registeredShops:[] };
+  if(PNC_STATE.creator) PNC_STATE.creator = { shopDraft:null, nftDraft:null, registeredShops:[], mintedNfts:[] };
   closeWalletModal();
   await loadBlockchainState();
 }
@@ -661,7 +678,7 @@ function installWalletListeners(){
   ethereum.on?.('accountsChanged', async (accounts)=>{
     if(!PNC_STATE.wallet) return;
     PNC_STATE.wallet = accounts && accounts[0] ? accounts[0] : null;
-    PNC_STATE.creator = { shopDraft:null, nftDraft:null, registeredShops:[] };
+    PNC_STATE.creator = { shopDraft:null, nftDraft:null, registeredShops:[], mintedNfts:[] };
     await loadBlockchainState();
   });
   ethereum.on?.('chainChanged', async ()=>{ await loadBlockchainState(); });
@@ -673,8 +690,8 @@ async function ethCall(to, data){
 }
 function sig4(signature){
   const map = {
-    'ownerOf(uint256)':'0x6352211e', 'tokenURI(uint256)':'0xc87b56dd', 'mint(address,string)':'0xd0def521', 'getApproved(uint256)':'0x081812fc',
-    'isApprovedForAll(address,address)':'0xe985e9c5', 'listingIdByNFT(address,uint256)':'0x35185efc', 'listings(uint256)':'0xed8a8d75'
+    'ownerOf(uint256)':'0x6352211e', 'tokenURI(uint256)':'0xc87b56dd', 'mint(address,string)':'0xd0def521', 'approve(address,uint256)':'0x095ea7b3', 'getApproved(uint256)':'0x081812fc',
+    'isApprovedForAll(address,address)':'0xe985e9c5', 'createListing(address,uint256,uint256)':'0x24780c56', 'buy(uint256)':'0xd96a094a', 'cancelListing(uint256)':'0x305a67a8', 'listingIdByNFT(address,uint256)':'0x35185efc', 'listings(uint256)':'0xed8a8d75'
   };
   return map[signature];
 }
@@ -695,6 +712,24 @@ function encodeMintCall(to, uri){
   // PNCNFT_ERC721_v2.16.0: mint(address to, string memory uri) returns (uint256)
   return sig4('mint(address,string)') + addressWordForCall(to) + pad64('40') + encodeAbiStringWord(uri);
 }
+function encodeApproveCall(to, tokenId){
+  return sig4('approve(address,uint256)') + addressWordForCall(to) + toHex(tokenId).slice(2);
+}
+function encodeCreateListingCall(nftContract, tokenId, priceWei){
+  return sig4('createListing(address,uint256,uint256)') + addressWordForCall(nftContract) + toHex(tokenId).slice(2) + toHex(priceWei).slice(2);
+}
+function encodeBuyCall(listingId){
+  return sig4('buy(uint256)') + toHex(listingId).slice(2);
+}
+function ethToWei(value){
+  const clean = String(value || '').trim();
+  if(!clean || Number(clean) <= 0) throw new Error('Price must be greater than 0.');
+  const parts = clean.split('.');
+  const whole = parts[0] || '0';
+  const frac = (parts[1] || '').padEnd(18,'0').slice(0,18);
+  return (BigInt(whole) * 1000000000000000000n + BigInt(frac || '0')).toString();
+}
+function weiToTxValue(wei){ return '0x' + BigInt(String(wei || '0')).toString(16); }
 async function sendTx(tx){ return await ethereum.request({ method:'eth_sendTransaction', params:[tx] }); }
 async function getReceipt(txHash){ return await ethereum.request({ method:'eth_getTransactionReceipt', params:[txHash] }); }
 async function waitForReceipt(txHash, attempts=45, delayMs=4000){
@@ -790,6 +825,9 @@ async function loadKVState(wallet){
     return null;
   }
 }
+async function loadGlobalMarketState(){
+  return await loadKVState(PNC_GLOBAL_MARKET_KEY);
+}
 function publicCreatorStateForSave(){
   const creator = ensureCreatorState();
   return {
@@ -797,59 +835,104 @@ function publicCreatorStateForSave(){
     mintedNfts: Array.isArray(creator.mintedNfts) ? creator.mintedNfts : []
   };
 }
+function marketStateForGlobalSave(){
+  const creator = publicCreatorStateForSave();
+  return {
+    registeredShops: creator.registeredShops,
+    mintedNfts: creator.mintedNfts
+  };
+}
+async function saveStateForWalletKey(walletKey, creatorState){
+  if(!walletKey) return;
+  await fetch('/api/save-state', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({
+      walletAddress:walletKey,
+      state:{
+        at:Date.now(),
+        version:PNC_CONFIG.app.version,
+        creator: creatorState
+      }
+    })
+  });
+}
 async function saveKVState(){
   if(!PNC_STATE.wallet) return;
   try{
-    await fetch('/api/save-state', {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        walletAddress:PNC_STATE.wallet,
-        state:{
-          at:Date.now(),
-          version:PNC_CONFIG.app.version,
-          creator: publicCreatorStateForSave()
-        }
-      })
-    });
+    const creatorState = publicCreatorStateForSave();
+    await saveStateForWalletKey(PNC_STATE.wallet, creatorState);
+    await saveStateForWalletKey(PNC_GLOBAL_MARKET_KEY, marketStateForGlobalSave());
   }catch(e){ console.warn(e); }
 }
-function applyKVCreatorState(state, kv){
-  if(!state || !kv || !kv.creator) return state;
+function mergeCreatorStateIntoMarket(state, sourceCreator, options={}){
+  if(!state || !sourceCreator) return state;
   const creator = state.creator || { shopDraft:null, nftDraft:null, registeredShops:[], mintedNfts:[] };
-  const savedShops = Array.isArray(kv.creator.registeredShops) ? kv.creator.registeredShops : [];
-  const shopMap = new Map((creator.registeredShops || []).map(shop => [shop.id, shop]));
+  const requireWalletMatch = !!options.requireWalletMatch;
+  const wallet = lc(state.wallet);
+  const savedShops = Array.isArray(sourceCreator.registeredShops) ? sourceCreator.registeredShops : [];
+  const shopMap = new Map((creator.registeredShops || []).map(s => [s.id, s]));
   for(const shop of savedShops){
-    if(shop && shop.id) shopMap.set(shop.id, shop);
+    if(!shop || !shop.id) continue;
+    if(requireWalletMatch && lc(shop.creator) !== wallet) continue;
+    shopMap.set(shop.id, normalizeShopForMarket(shop));
   }
   creator.registeredShops = Array.from(shopMap.values());
 
-  const savedNfts = Array.isArray(kv.creator.mintedNfts) ? kv.creator.mintedNfts : [];
-  const nftMap = new Map((creator.mintedNfts || []).map(nft => [marketNftKey(nft), nft]));
-  for(const nft of savedNfts){
-    if(nft && (nft.id || nft.tokenId || nft.metadataUrl || nft.tokenURI)) nftMap.set(marketNftKey(nft), nft);
+  const savedMinted = Array.isArray(sourceCreator.mintedNfts) ? sourceCreator.mintedNfts : [];
+  const mintedMap = new Map((creator.mintedNfts || []).map(n => [nftKey(n), n]));
+  for(const nft of savedMinted){
+    const normalized = normalizeMintedNFT(nft);
+    if(!normalized) continue;
+    if(requireWalletMatch && lc(normalized.owner) !== wallet && lc(normalized.creator) !== wallet) continue;
+    mintedMap.set(nftKey(normalized), normalized);
   }
-  creator.mintedNfts = Array.from(nftMap.values());
-
+  creator.mintedNfts = Array.from(mintedMap.values());
   state.creator = creator;
   applyCreatorRegisteredShops(state);
-  applyCreatorMintedNfts(state);
+  applyCreatorMintedNFTs(state);
   return state;
 }
-
+function applyKVCreatorState(state, kv, options={}){
+  if(!state || !kv || !kv.creator) return state;
+  return mergeCreatorStateIntoMarket(state, kv.creator, options);
+}
 
 function applyCollectionMedia(state){
   for(const c of state.collections){
+    // Creator Center shops keep their own Shop image/banner.
+    // NFT minting must never overwrite Shop media.
+    const pinataImage = c.pinata && c.pinata.image ? c.pinata.image.ipfsUri : '';
+    if(c.source === 'creator-pinata' || c.status === 'registered'){
+      const shopImage = c.shopImage || c.image || pinataImage || '';
+      const shopBanner = c.shopBanner || c.banner || shopImage || '';
+      c.image = shopImage;
+      c.banner = shopBanner;
+      c.shopImage = shopImage;
+      c.shopBanner = shopBanner;
+      continue;
+    }
+    // Non-creator legacy/sample collections may use a representative NFT only when they have no media.
     if(isUsableMediaUrl(c.image || c.banner)) continue;
-    const found = state.nfts.find(n => n.collectionId === c.id && resolveMediaUrl(n));
+    const found = state.nfts.filter(n => n.collectionId === c.id).find(n => resolveMediaUrl(n));
     if(found){ c.image = (found.metadata && found.metadata.image) || found.image || found.banner || ''; c.banner = c.image; }
   }
 }
 
 
-
-
-
+function normalizeShopForMarket(shop){
+  if(!shop) return shop;
+  const pinataImage = shop.pinata && shop.pinata.image ? shop.pinata.image.ipfsUri : '';
+  const image = shop.shopImage || shop.image || pinataImage || '';
+  const banner = shop.shopBanner || shop.banner || image || '';
+  return {
+    ...shop,
+    image,
+    banner,
+    shopImage: image,
+    shopBanner: banner
+  };
+}
 function shopDraftToCollection(draft){
   const ipfsImage = draft && draft.pinata && draft.pinata.image ? draft.pinata.image.ipfsUri : '';
   return {
@@ -861,6 +944,8 @@ function shopDraftToCollection(draft){
     icon: '🏪',
     image: ipfsImage,
     banner: ipfsImage,
+    shopImage: ipfsImage,
+    shopBanner: ipfsImage,
     source: 'creator-pinata',
     status: 'registered',
     pinata: draft.pinata || null,
@@ -880,111 +965,73 @@ function applyCreatorRegisteredShops(state){
   return state;
 }
 
-function marketNftKey(nft){
-  if(!nft) return 'empty';
-  if(nft.contractAddress && nft.tokenId) return lc(nft.contractAddress) + ':' + String(nft.tokenId);
-  return nft.id || nft.metadataUrl || nft.tokenURI || ('draft-' + Date.now());
-}
-function metadataAttribute(meta, trait){
-  const attrs = meta && Array.isArray(meta.attributes) ? meta.attributes : [];
-  const found = attrs.find(a => lc(a.trait_type) === lc(trait));
-  return found ? found.value : '';
-}
-function collectionSnapshotFromDraft(draft){
-  const col = (PNC_STATE.collections || []).find(c => c.id === draft.collectionId) || {};
+function nftKey(n){ return lc(n && n.contractAddress) + ':' + String(n && n.tokenId || ''); }
+function normalizeMintedNFT(n){
+  if(!n || !n.tokenId) return null;
   return {
-    id: draft.collectionId,
-    name: draft.collectionName || col.name || draft.collectionId,
-    creator: col.creator || draft.creator,
-    description: col.description || '',
-    image: col.image || col.banner || '',
-    banner: col.banner || col.image || '',
-    verified: !!col.verified
+    id: n.id || ('pnc-onchain-' + String(n.tokenId).padStart(6,'0')),
+    name: n.name || ('PNCNFT #' + n.tokenId),
+    collectionId: n.collectionId || '',
+    tokenId: String(n.tokenId),
+    contractAddress: n.contractAddress || PNC_CONFIG.contracts.nft,
+    creator: n.creator || n.owner || '',
+    knownOwner: n.knownOwner || n.owner || '',
+    owner: n.owner || n.knownOwner || '',
+    image: n.image || '',
+    metadataUrl: n.metadataUrl || n.tokenURI || '',
+    tokenURI: n.tokenURI || n.metadataUrl || '',
+    status: n.status || 'not_for_sale',
+    metadata: n.metadata || null,
+    source: n.source || 'creator-mint'
   };
 }
-function ensureCollectionForNft(state, nft){
-  if(!state || !nft || !nft.collectionId) return;
-  if(state.collections.some(c => c.id === nft.collectionId)) return;
-  const meta = nft.metadata || {};
-  const nameFromMeta = metadataAttribute(meta, 'Shop');
-  const snap = nft.collectionSnapshot || {};
-  const name = nft.collectionName || snap.name || nameFromMeta || nft.collectionId;
-  state.collections.push({
-    id: nft.collectionId,
-    name,
-    creator: snap.creator || nft.creator || state.wallet || '',
-    verified: !!snap.verified,
-    description: snap.description || 'Creator Center collection.',
-    icon: '🏪',
-    image: snap.image || snap.banner || '',
-    banner: snap.banner || snap.image || ''
-  });
-}
-function applyCreatorMintedNfts(state){
-  if(!state || !state.creator || !Array.isArray(state.creator.mintedNfts)) return state;
-  const map = new Map(state.nfts.map(nft => [marketNftKey(nft), nft]));
-  for(const nft of state.creator.mintedNfts){
-    if(!nft) continue;
-    const normalized = { ...nft, status: nft.status || 'not_for_sale' };
-    if(normalized.knownOwner && !normalized.owner) normalized.owner = normalized.knownOwner;
-    if(normalized.tokenURI && !normalized.metadataUrl) normalized.metadataUrl = normalized.tokenURI;
-    if(normalized.metadataUrl && !normalized.tokenURI) normalized.tokenURI = normalized.metadataUrl;
-    map.set(marketNftKey(normalized), normalized);
-  }
-  state.nfts = Array.from(map.values());
-  for(const nft of state.nfts) ensureCollectionForNft(state, nft);
+function upsertNFT(state, nft){
+  const normalized = normalizeMintedNFT(nft);
+  if(!normalized) return state;
+  const key = nftKey(normalized);
+  state.nfts = state.nfts.filter(existing => nftKey(existing) !== key).concat(normalized);
   return state;
 }
-async function hydrateMarketNft(nft, state){
-  if(!nft) return nft;
-  nft.owner = nft.owner || nft.knownOwner || '';
-  nft.status = nft.status || 'not_for_sale';
-  applyCachedMetadata(nft);
-  if(lc(nft.contractAddress) === lc(PNC_CONFIG.contracts.nft) && nft.tokenId && window.ethereum && (state.wallet || PNC_CONFIG.performance.readChainBeforeWalletConnect)){
-    try{ const owner = await readOwnerOf(nft.tokenId); if(owner){ nft.owner = owner; nft.knownOwner = owner; } }catch(e){ state.errors.push((nft.name||nft.id)+' ownerOf failed'); }
-    try{ const uri = await readTokenURI(nft.tokenId); if(uri){ nft.tokenURI = uri; nft.metadataUrl = uri; } }catch(e){ state.errors.push((nft.name||nft.id)+' tokenURI failed'); }
-  }
-  await hydrateMetadata(nft);
-  if(nft.metadata && nft.metadata.name) nft.name = nft.metadata.name;
-  if(!nft.noMedia && !resolveMediaUrl(nft) && (nft.metadataUrl || nft.tokenURI)) nft.mediaPending = true;
-  return nft;
+function applyCreatorMintedNFTs(state){
+  if(!state || !state.creator || !Array.isArray(state.creator.mintedNfts)) return state;
+  for(const nft of state.creator.mintedNfts) upsertNFT(state, nft);
+  return state;
 }
-function transferTopicToTokenId(topic){
-  if(!topic) return '';
-  try{return BigInt(topic).toString();}catch(e){return '';}
-}
-async function discoverWalletOnchainNfts(state){
-  if(!window.ethereum || !state.wallet) return [];
-  try{
-    const transferTopic = '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef';
-    const walletTopic = '0x' + addressWordForCall(state.wallet);
-    const logs = await ethereum.request({
-      method:'eth_getLogs',
-      params:[{ address:PNC_CONFIG.contracts.nft, fromBlock:'0x0', toBlock:'latest', topics:[transferTopic, null, walletTopic] }]
-    });
-    const discovered = [];
-    const seen = new Set();
-    for(const log of (logs || [])){
-      const topics = log.topics || [];
-      const tokenId = transferTopicToTokenId(topics[3]);
-      if(!tokenId || seen.has(tokenId)) continue;
-      seen.add(tokenId);
-      const nft = { id:'pnc-onchain-' + String(tokenId).padStart(6,'0'), tokenId:String(tokenId), contractAddress:PNC_CONFIG.contracts.nft, creator:state.wallet, knownOwner:state.wallet, owner:state.wallet, collectionId:'', name:'', image:'', metadataUrl:'', tokenURI:'', status:'not_for_sale', source:'wallet-transfer-log' };
-      await hydrateMarketNft(nft, state);
-      if(lc(nft.owner) !== lc(state.wallet)) continue;
-      const meta = nft.metadata || {};
-      const pnc = meta.pnc || {};
-      nft.collectionId = pnc.collectionId || nft.collectionId || ('wallet-' + lc(state.wallet).slice(2,10));
-      nft.collectionName = metadataAttribute(meta, 'Shop') || nft.collectionName || nft.collectionId;
-      ensureCollectionForNft(state, nft);
-      discovered.push(nft);
+async function discoverWalletOwnedOnchainNFTs(state){
+  if(!state || !state.wallet || !window.ethereum) return state;
+  const wallet = lc(state.wallet);
+  const max = Number(PNC_CONFIG.chainRead && PNC_CONFIG.chainRead.tokenScanMax || 0);
+  if(!max) return state;
+  const existingKeys = new Set(state.nfts.map(nftKey));
+  for(let tokenId=1; tokenId<=max; tokenId++){
+    const key = lc(PNC_CONFIG.contracts.nft) + ':' + String(tokenId);
+    try{
+      const owner = await readOwnerOf(tokenId);
+      if(lc(owner) !== wallet) continue;
+      const uri = await readTokenURI(tokenId).catch(()=> '');
+      const nft = normalizeMintedNFT({
+        tokenId:String(tokenId),
+        contractAddress:PNC_CONFIG.contracts.nft,
+        owner,
+        knownOwner:owner,
+        creator:owner,
+        metadataUrl:uri,
+        tokenURI:uri,
+        source: existingKeys.has(key) ? 'seed-ownerOf' : 'chain-recovery'
+      });
+      if(uri) await hydrateMetadata(nft);
+      if(nft.metadata && nft.metadata.name) nft.name = nft.metadata.name;
+      if(nft.metadata && nft.metadata.image) nft.image = nft.metadata.image;
+      upsertNFT(state, nft);
+      const creator = state.creator || ensureCreatorState();
+      if(!Array.isArray(creator.mintedNfts)) creator.mintedNfts = [];
+      if(!creator.mintedNfts.some(x => nftKey(x) === nftKey(nft))) creator.mintedNfts.push(nft);
+      state.creator = creator;
+    }catch(e){
+      // ownerOf reverts for non-existing tokenIds. This is expected during generic recovery scan.
     }
-    return discovered;
-  }catch(e){
-    state.errors.push('wallet transfer log discovery failed');
-    console.warn('discoverWalletOnchainNfts skipped:', e);
-    return [];
   }
+  return state;
 }
 function creatorOwnedCollections(state){
   const wallet = lc(state.wallet);
@@ -1030,7 +1077,7 @@ function creatorNFTFormHtml(state){
 function creatorMarketplaceHtml(state){
   if(!state.wallet) return lockedCreatorPanel();
   const mine = creatorOwnedNFTs(state);
-  return `<div class="creator-card"><h2>Marketplace Actions</h2><p class="creator-help">${esc(PNC_TEXT.creator.listHelp)}</p><div class="creator-list">${mine.map(n=>`<div class="creator-list-item"><div class="creator-list-title">${esc(n.name)}</div><div class="creator-help">Owner: ${esc(short(n.owner))}<br>Chain: ${esc(chainLabel(n))}<br>Status: ${esc(statusLabel(n))}</div><div class="creator-toolbar"><button class="small-btn sell-btn" ${chainLabel(n)==='ERC721 On-chain' && n.status!=='listed' ? '' : 'disabled'} onclick="handleList('${esc(n.id)}')">List</button><button class="small-btn delete-btn" ${n.status==='listed' ? '' : 'disabled'} onclick="alert(PNC_TEXT.market.unlistNext)">Unlist</button></div></div>`).join('') || '<div class="creator-help">No editable NFT for this wallet.</div>'}</div></div>`;
+  return `<div class="creator-card"><h2>Marketplace Actions</h2><p class="creator-help">${esc(PNC_TEXT.creator.listHelp)}</p><div class="creator-list">${mine.map(n=>`<div class="creator-list-item"><div class="creator-list-title">${esc(n.name)}</div><div class="creator-help">Owner: ${esc(short(n.owner))}<br>Chain: ${esc(chainLabel(n))}<br>Status: ${esc(statusLabel(n))}</div><div class="creator-toolbar"><button class="small-btn sell-btn" ${chainLabel(n)==='ERC721 On-chain' && n.status!=='listed' && lc(n.owner)===lc(state.wallet) ? '' : 'disabled'} onclick="handleList('${esc(n.id)}')">List</button><button class="small-btn delete-btn" ${n.status==='listed' ? '' : 'disabled'} onclick="alert(PNC_TEXT.market.unlistNext)">Unlist</button></div></div>`).join('') || '<div class="creator-help">No editable NFT for this wallet.</div>'}</div></div>`;
 }
 function filePreviewFromInput(input){
   const file = input && input.files && input.files[0] ? input.files[0] : null;
@@ -1340,8 +1387,6 @@ async function mintNFTDraftToBlockchain(){
       id:'pnc-onchain-' + String(tokenId).padStart(6,'0'),
       name:draft.name,
       collectionId:draft.collectionId,
-      collectionName:draft.collectionName,
-      collectionSnapshot:collectionSnapshotFromDraft(draft),
       tokenId:String(tokenId),
       contractAddress:PNC_CONFIG.contracts.nft,
       creator:draft.creator,
@@ -1351,15 +1396,12 @@ async function mintNFTDraftToBlockchain(){
       metadataUrl:metadataUri,
       tokenURI:metadataUri,
       status:'not_for_sale',
-      metadata:draft.metadata,
-      mintedAt:draft.mintedAt,
-      source:'creator-center-mint'
+      metadata:draft.metadata
     };
-    creator.mintedNfts = (Array.isArray(creator.mintedNfts) ? creator.mintedNfts : [])
-      .filter(n => marketNftKey(n) !== marketNftKey(mintedNft))
-      .concat(mintedNft);
+    upsertNFT(PNC_STATE, mintedNft);
+    const currentCreator = ensureCreatorState();
+    currentCreator.mintedNfts = currentCreator.mintedNfts.filter(n => nftKey(n) !== nftKey(mintedNft)).concat(mintedNft);
     await saveKVState();
-    PNC_STATE = await createMarketState();
     renderApp(PNC_STATE);
     alert(PNC_TEXT.creator.mintComplete + '\nToken ID: ' + tokenId);
   }catch(e){
@@ -1424,12 +1466,16 @@ function renderApp(state){
   renderFooter(state);
   if(state.activeCollectionId) renderCollectionPage(state, state.activeCollectionId);
 }
-function emptyCreatorState(){ return { shopDraft:null, nftDraft:null, registeredShops:[], mintedNfts:[] }; }
-function creatorStateClone(){ return structuredClone(PNC_STATE.creator || emptyCreatorState()); }
 function createSeedState(){
-  const state = { wallet:PNC_STATE.wallet, collections:[], nfts:[], market:{ listings:[] }, creator:creatorStateClone(), errors:[], resolving:true };
+  const state = { wallet:PNC_STATE.wallet, collections:structuredClone(CATALOG_SEED.collections), nfts:structuredClone(CATALOG_SEED.nfts), market:{ listings:[] }, creator: structuredClone(PNC_STATE.creator || { shopDraft:null, nftDraft:null, registeredShops:[], mintedNfts:[] }), errors:[], resolving:true };
   applyCreatorRegisteredShops(state);
-  applyCreatorMintedNfts(state);
+  applyCreatorMintedNFTs(state);
+  for(const nft of state.nfts){
+    nft.owner = nft.knownOwner || '';
+    nft.status = 'not_for_sale';
+    applyCachedMetadata(nft);
+    if(!nft.noMedia && !resolveMediaUrl(nft) && (nft.metadataUrl || nft.tokenURI || (lc(nft.contractAddress) === lc(PNC_CONFIG.contracts.nft) && nft.tokenId))) nft.mediaPending = true;
+  }
   applyCollectionMedia(state);
   return state;
 }
@@ -1445,29 +1491,49 @@ async function loadBlockchainState(){
 }
 
 async function createMarketState(){
-  const state = { wallet:PNC_STATE.wallet, collections:[], nfts:[], market:{ listings:[] }, creator:creatorStateClone(), errors:[], resolving:false };
+  const state = { wallet:PNC_STATE.wallet, collections:structuredClone(CATALOG_SEED.collections), nfts:structuredClone(CATALOG_SEED.nfts), market:{ listings:[] }, creator: structuredClone(PNC_STATE.creator || { shopDraft:null, nftDraft:null, registeredShops:[], mintedNfts:[] }), errors:[], resolving:false };
+  applyCreatorRegisteredShops(state);
+  applyCreatorMintedNFTs(state);
+  const globalKv = await loadGlobalMarketState();
+  if(globalKv && typeof globalKv === 'object'){
+    state.market.globalKv = globalKv;
+    applyKVCreatorState(state, globalKv, { requireWalletMatch:false });
+  }
   const kv = await loadKVState(state.wallet);
   if(kv && typeof kv === 'object'){
     state.market.kv = kv;
-    applyKVCreatorState(state, kv);
-  }else{
-    applyCreatorRegisteredShops(state);
-    applyCreatorMintedNfts(state);
+    applyKVCreatorState(state, kv, { requireWalletMatch:true });
   }
+  await discoverWalletOwnedOnchainNFTs(state);
 
-  // Recover current-wallet ERC721 NFTs from Transfer logs. This is not a legacy seed and does not hardcode token IDs.
-  const discovered = await discoverWalletOnchainNfts(state);
-  if(discovered.length){
-    const creator = state.creator || emptyCreatorState();
-    const map = new Map((creator.mintedNfts || []).map(n => [marketNftKey(n), n]));
-    for(const nft of discovered) map.set(marketNftKey(nft), nft);
-    creator.mintedNfts = Array.from(map.values());
-    state.creator = creator;
-    applyCreatorMintedNfts(state);
-  }
+  await Promise.all(state.nfts.map(async (nft)=>{
+    nft.owner = nft.knownOwner || '';
+    nft.status = 'not_for_sale';
+    applyCachedMetadata(nft);
+    if(!nft.noMedia && !resolveMediaUrl(nft) && (nft.metadataUrl || nft.tokenURI || (lc(nft.contractAddress) === lc(PNC_CONFIG.contracts.nft) && nft.tokenId))) nft.mediaPending = true;
 
-  await Promise.all(state.nfts.map(nft => hydrateMarketNft(nft, state)));
-  for(const nft of state.nfts) ensureCollectionForNft(state, nft);
+    if(lc(nft.contractAddress) === lc(PNC_CONFIG.contracts.nft) && nft.tokenId && window.ethereum && (state.wallet || PNC_CONFIG.performance.readChainBeforeWalletConnect)){
+      try{ const owner = await readOwnerOf(nft.tokenId); if(owner) nft.owner = owner; }catch(e){ state.errors.push(nft.name+' ownerOf failed'); }
+      try{ const uri = await readTokenURI(nft.tokenId); if(uri) nft.tokenURI = uri; }catch(e){ state.errors.push(nft.name+' tokenURI failed'); }
+      await hydrateMetadata(nft);
+      try{
+        const listingId = await readListingId(PNC_CONFIG.contracts.nft, nft.tokenId);
+        nft.listingId = listingId;
+        if(listingId !== '0'){
+          const listing = await readListing(listingId);
+          if(listing && listing.active){
+            nft.status = 'listed';
+            nft.priceWei = listing.priceWei;
+            nft.priceEth = weiToEth(listing.priceWei);
+            nft.seller = listing.seller;
+            state.market.listings.push({ listingId, nftId:nft.id, priceWei:listing.priceWei, seller:listing.seller });
+          }
+        }
+      }catch(e){ state.errors.push(nft.name+' listing read failed'); }
+    }else{
+      await hydrateMetadata(nft);
+    }
+  }));
   applyCollectionMedia(state);
   return state;
 }
@@ -1487,19 +1553,77 @@ function priceLine(n){
 function mediaBox(item, cls){ const img = mediaUrlFrom(item); if(img) return `<div class="${cls} has-image" style="background-image:url('${esc(img)}')"></div>`; if(hasPendingMedia(item)) return `<div class="${cls} media-skeleton"></div>`; return `<div class="${cls}">${esc(item.icon||'🖼')}</div>`; }
 function infoRow(label, value){ return `<div class="nft-info-row"><span>${esc(label)}</span><span>${esc(value || '-')}</span></div>`; }
 function detailActionButtons(n){
-  const canBuy = n.status === 'listed';
-  const canList = chainLabel(n) === 'ERC721 On-chain' && n.status !== 'listed';
+  const wallet = lc(PNC_STATE.wallet);
+  const isOwner = wallet && lc(n.owner) === wallet;
+  const canBuy = n.status === 'listed' && !isOwner;
+  const canList = chainLabel(n) === 'ERC721 On-chain' && n.status !== 'listed' && isOwner;
   return `<div class="detail-actions">
     <button class="small-btn buy-btn" ${canBuy ? '' : 'disabled'} onclick="event.stopPropagation(); handleBuy('${esc(n.id)}')">Buy</button>
     <button class="small-btn sell-btn" ${canList ? '' : 'disabled'} onclick="event.stopPropagation(); handleList('${esc(n.id)}')">List</button>
     <button class="small-btn delete-btn" onclick="event.stopPropagation(); closeNftDetail();">Close</button>
-  </div><div class="clean-note mini-note">Buy/List adapters are prepared, but full Marketplace write wiring is a later step.</div>`;
+  </div><div class="clean-note mini-note">ListはOwner Walletのみ実行できます。Buy後はownerOf(tokenId)を再読込してMy Vaultへ反映します。</div>`;
 }
 function requireWallet(){ if(PNC_STATE.wallet) return true; showWalletConnectNotice(); return false; }
-function handleBuy(id){ if(!requireWallet()) return; alert(PNC_TEXT.market.buyPrepared); }
-function handleList(id){ if(!requireWallet()) return; alert(PNC_TEXT.market.listPrepared); }
+async function ensureMarketplaceApproval(n){
+  const approved = await ethCall(PNC_CONFIG.contracts.nft, sig4('getApproved(uint256)') + toHex(n.tokenId).slice(2));
+  const approvedAddress = decodeAddress(approved);
+  if(lc(approvedAddress) === lc(PNC_CONFIG.contracts.marketplace)) return;
+  const approveHash = await sendTx({ from:PNC_STATE.wallet, to:PNC_CONFIG.contracts.nft, data:encodeApproveCall(PNC_CONFIG.contracts.marketplace, n.tokenId) });
+  const approveReceipt = await waitForReceipt(approveHash);
+  if(approveReceipt.status && approveReceipt.status !== '0x1') throw new Error('Approve transaction reverted');
+}
+async function handleList(id){
+  if(!requireWallet()) return;
+  const n = PNC_STATE.nfts.find(x=>x.id===id); if(!n) return;
+  if(chainLabel(n) !== 'ERC721 On-chain' || !n.tokenId){ alert('ERC721 On-chain NFTだけListできます。'); return; }
+  if(lc(n.owner) !== lc(PNC_STATE.wallet)){ alert('Owner WalletだけListできます。'); return; }
+  const price = prompt('List priceをSepoliaETHで入力してください', n.priceEth && n.priceEth !== '-' ? n.priceEth : '0.002');
+  if(price === null) return;
+  let priceWei;
+  try{ priceWei = ethToWei(price); }catch(e){ alert(e.message || e); return; }
+  if(!confirm('Listを実行します。Approve後にListトランザクションを送信します。続行しますか？')) return;
+  try{
+    await ensureMarketplaceApproval(n);
+    const txHash = await sendTx({ from:PNC_STATE.wallet, to:PNC_CONFIG.contracts.marketplace, data:encodeCreateListingCall(PNC_CONFIG.contracts.nft, n.tokenId, priceWei) });
+    const receipt = await waitForReceipt(txHash);
+    if(receipt.status && receipt.status !== '0x1') throw new Error('List transaction reverted');
+    let listingId = '0';
+    try{ listingId = await readListingId(PNC_CONFIG.contracts.nft, n.tokenId); }catch(_){ listingId = n.listingId || '-'; }
+    n.status = 'listed';
+    n.priceWei = priceWei;
+    n.priceEth = weiToEth(priceWei);
+    n.seller = PNC_STATE.wallet;
+    n.listingId = listingId;
+    PNC_STATE.market.listings = PNC_STATE.market.listings.filter(x=>x.nftId!==n.id).concat({ listingId, nftId:n.id, priceWei, seller:PNC_STATE.wallet });
+    renderApp(PNC_STATE);
+    alert(PNC_TEXT.market.listComplete + '\nListing ID: ' + listingId);
+  }catch(e){ console.warn(e); alert(PNC_TEXT.market.txFailed + '\n' + (e.message || e)); }
+}
+async function handleBuy(id){
+  if(!requireWallet()) return;
+  const n = PNC_STATE.nfts.find(x=>x.id===id); if(!n) return;
+  if(n.status !== 'listed' || !n.listingId || n.listingId === '0'){ alert('このNFTはListedではありません。'); return; }
+  if(lc(n.owner) === lc(PNC_STATE.wallet)){ alert('自分がOwnerのNFTはBuyできません。'); return; }
+  if(!confirm('Buyを実行します。Price + gas が必要です。続行しますか？')) return;
+  try{
+    const txHash = await sendTx({ from:PNC_STATE.wallet, to:PNC_CONFIG.contracts.marketplace, data:encodeBuyCall(n.listingId), value:weiToTxValue(n.priceWei) });
+    const receipt = await waitForReceipt(txHash);
+    if(receipt.status && receipt.status !== '0x1') throw new Error('Buy transaction reverted');
+    const owner = await readOwnerOf(n.tokenId);
+    n.owner = owner || PNC_STATE.wallet;
+    n.knownOwner = n.owner;
+    n.status = 'not_for_sale';
+    n.seller = '';
+    n.listingId = '0';
+    delete n.priceWei;
+    delete n.priceEth;
+    PNC_STATE.market.listings = PNC_STATE.market.listings.filter(x=>x.nftId!==n.id);
+    renderApp(PNC_STATE);
+    alert(PNC_TEXT.market.buyComplete);
+  }catch(e){ console.warn(e); alert(PNC_TEXT.market.txFailed + '\n' + (e.message || e)); }
+}
 function nftCard(n){
-  return `<div class="nft-card" onclick="showDetailById('${esc(n.id)}')">${mediaBox(n,'nft-img')}<div class="nft-body"><div class="nft-title-row"><div class="nft-name">${esc(n.name)}</div><div class="nft-token-chip">${esc(n.tokenId ? '#'+n.tokenId : 'Legacy')}</div></div>${priceLine(n)}<div class="nft-info-list">${infoRow('Collection', collectionNameById(n.collectionId))}${infoRow('Owner', short(n.owner))}${infoRow('Creator', short(n.creator))}${n.seller ? infoRow('Seller', short(n.seller)) : ''}</div><div class="nft-badge-row"><span class="status-badge ${statusClass(n)}">${esc(statusLabel(n))}</span><span class="chain-badge">${esc(chainLabel(n))}</span></div></div></div>`;
+  return `<div class="nft-card" onclick="showDetailById('${esc(n.id)}')">${mediaBox(n,'nft-img')}<div class="nft-body"><div class="nft-title-row"><div class="nft-name">${esc(n.name)}</div></div>${priceLine(n)}<div class="nft-info-list">${infoRow('Collection', collectionNameById(n.collectionId))}${infoRow('Owner', short(n.owner))}${infoRow('Creator', short(n.creator))}${n.seller ? infoRow('Seller', short(n.seller)) : ''}</div><div class="nft-badge-row"><span class="status-badge ${statusClass(n)}">${esc(statusLabel(n))}</span><span class="chain-badge">${esc(chainLabel(n))}</span></div></div></div>`;
 }
 function collectionCard(c, state, featured=false){
   const items = collectionItems(state, c.id);
@@ -1557,7 +1681,7 @@ function openCollection(collectionId){ renderCollectionPage(PNC_STATE, collectio
 function showDetailById(id){
   const n = PNC_STATE.nfts.find(x=>x.id===id); if(!n) return;
   const c = PNC_STATE.collections.find(x=>x.id===n.collectionId) || {};
-  $('nftDetailBox').innerHTML = `<div class="detail-toolbar"><button class="detail-close" onclick="closeNftDetail()">×</button></div><div class="detail-head">${mediaBox(n,'detail-image')}<div><div class="detail-title">${esc(n.name)}</div><div class="meta">${esc(c.name||'-')} ${c.verified?'<span class="verified">✔</span>':''}</div>${priceLine(n)}<div class="nft-badge-row"><span class="status-badge ${statusClass(n)}">${esc(statusLabel(n))}</span><span class="chain-badge">${esc(chainLabel(n))}</span></div></div></div><div class="detail-section"><div class="detail-section-title">NFT Information</div><div class="info-grid"><div>${infoRow('NFT ID', n.id)}${infoRow('Token ID', n.tokenId || '-')}${infoRow('Collection', c.name || '-')} ${infoRow('Contract', n.contractAddress || '-')}</div><div>${infoRow('Owner', displayAddress(n.owner))}${infoRow('Creator', displayAddress(n.creator))}${infoRow('Seller', displayAddress(n.seller))}${infoRow('Listing ID', n.listingId || '-')}</div></div></div>${detailActionButtons(n)}`;
+  $('nftDetailBox').innerHTML = `<div class="detail-toolbar"><button class="detail-close" onclick="closeNftDetail()">×</button></div><div class="detail-head">${mediaBox(n,'detail-image')}<div><div class="detail-title">${esc(n.name)}</div><div class="meta">${esc(c.name||'-')} ${c.verified?'<span class="verified">✔</span>':''}</div>${priceLine(n)}<div class="nft-badge-row"><span class="status-badge ${statusClass(n)}">${esc(statusLabel(n))}</span><span class="chain-badge">${esc(chainLabel(n))}</span></div></div></div><div class="detail-section"><div class="detail-section-title">NFT Information</div><div class="info-grid"><div>${infoRow('NFT ID', n.id)}${infoRow('Token ID', n.tokenId || '-')}${infoRow('Collection', c.name || '-')} ${infoRow('Contract', displayAddress(n.contractAddress))}</div><div>${infoRow('Owner', displayAddress(n.owner))}${infoRow('Creator', displayAddress(n.creator))}${infoRow('Seller', displayAddress(n.seller))}${infoRow('Listing ID', n.listingId || '-')}</div></div></div>${detailActionButtons(n)}`;
   $('nftDetailOverlay').classList.add('show');
 }
 function closeNftDetail(ev){ if(ev && ev.target && ev.target.id !== 'nftDetailOverlay') return; $('nftDetailOverlay')?.classList.remove('show'); }
