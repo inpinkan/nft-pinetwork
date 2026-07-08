@@ -311,18 +311,6 @@
 .draft-validation.is-registered{border-color:rgba(46,204,113,.65);background:rgba(46,204,113,.12);color:var(--text)}
 
 
-
-
-/* v1.3.17 Diagnostic panel */
-.diagnostic-grid{display:grid;grid-template-columns:1fr;gap:12px}
-.diag-card{border:1px solid var(--border);border-radius:18px;background:var(--card);padding:14px}
-.diag-title{font-weight:950;color:var(--gold);margin-bottom:10px;font-size:18px}
-.diag-row{display:flex;justify-content:space-between;gap:12px;border-bottom:1px solid rgba(255,255,255,.06);padding:7px 0;color:var(--muted)}
-.diag-row:last-child{border-bottom:none}.diag-row strong{color:var(--text);text-align:right;word-break:break-word}
-.diag-pre{white-space:pre-wrap;word-break:break-word;font-family:Consolas,monospace;font-size:12px;line-height:1.45;max-height:260px;overflow:auto;border:1px solid var(--border);border-radius:14px;background:rgba(0,0,0,.18);padding:10px;color:var(--muted)}
-.diag-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
-@media(min-width:720px){.diagnostic-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.diag-card.diag-wide{grid-column:1/-1}}
-
 </style>
 </head>
 <body class="dark">
@@ -341,7 +329,6 @@
     <button onclick="showPage('collectionsPage')">🏪 Collections</button>
     <button onclick="showPage('vaultPage')">🏦 My Vault</button>
     <button onclick="showPage('creatorPage')">🎨 Creator Center</button>
-    <button onclick="showPage('diagnosticPage')">🧪 Diagnostic</button>
     <div class="menu-title">Appearance</div>
     <button onclick="setTheme('light')">☀️ Light</button>
     <button onclick="setTheme('dark')">🌙 Dark</button>
@@ -349,7 +336,8 @@
 </header>
 <main>
   <div class="page show" id="homePage">
-    <div class="hero"><h1>Pi NFT Center <span class="beta">v1.3.17 Diagnostic</span></h1><p>Wallet → Storage → createMarketState() → renderAll(). Diagnostic checks Storage / KV / MarketState.</p></div>
+    <div class="hero"><h1>Pi NFT Center <span class="beta">v1.3.17 Diagnostic</span></h1><p>Wallet → Storage → createMarketState() → renderAll(). Minimal visible diagnostic.</p></div>
+    <section><div class="section-title">🧪 Diagnostic</div><div class="panel" id="diagnosticSummary"></div></section>
     <section><div class="section-title">🏆 Top Collections</div><div class="collection-list" id="topCollections"></div></section>
     <section><div class="section-title">🔥 Hot NFTs</div><div class="grid" id="hotNfts"></div></section>
     <section><div class="section-title">🆕 New NFTs</div><div class="grid" id="newNfts"></div></section>
@@ -368,10 +356,6 @@
   <div class="page" id="creatorPage">
     <div class="hero"><h1>Creator Center</h1><p>Create Shop Draft, upload image to Pinata, register Shop, then create NFT drafts.</p></div>
     <section><div class="panel" id="creatorForm"></div></section>
-  </div>
-  <div class="page" id="diagnosticPage">
-    <div class="hero"><h1>Diagnostic</h1><p>Storage / KV / MarketState / ownerOf route check. No legacy rescue code.</p></div>
-    <section><div id="diagnosticPanel"></div></section>
   </div>
 </main>
 <footer id="appFooter"></footer>
@@ -425,8 +409,8 @@ const PNC_TEXT = {
     piComingSoon: 'Pi Wallet接続は将来用です。現在のテスト版は MetaMask / Sepolia を使います。'
   },
   creator: {
-    ruleTitle: 'Creator Center v1.3.17 rule:',
-    ruleBody: 'Diagnostic版です。旧互換コードは戻さず、Storage/KV/MarketStateのどこで空になるかを確認します。',
+    ruleTitle: 'Creator Center v1.3.16 rule:',
+    ruleBody: '最小診断版です。旧互換コードは戻さず、Storage/KV/MarketStateの空状態だけを表示します。',
     lockedTitle: 'Wallet required',
     lockedBody: 'Create Shop / Create NFT / Mint / List はWallet接続後に使えます。接続は右上のConnectボタンから行ってください。',
     dashboardHelp: '接続WalletをCreatorとして扱います。表示は公開データ、操作権限はconnected walletで判定します。',
@@ -1387,8 +1371,8 @@ function renderAll(state){
   renderCollections(state);
   renderVault(state);
   renderCreatorCenter(state);
-  renderDiagnostic(state);
   renderFooter(state);
+  renderDiagnosticSummary(state);
   if(state.activeCollectionId) renderCollectionPage(state, state.activeCollectionId);
 }
 function createSeedState(){
@@ -1603,109 +1587,26 @@ function renderCreatorCenter(state){
   $('creatorForm').innerHTML = `<div class="clean-note"><strong>${esc(PNC_TEXT.creator.ruleTitle)}</strong><br>${esc(PNC_TEXT.creator.ruleBody)}</div><div class="creator-tabs">${creatorTabButton('dashboard','Dashboard')}${creatorTabButton('shop','Create Shop')}${creatorTabButton('nft','Create NFT')}${creatorTabButton('market','List / Unlist')}</div>${body}${feeRoyaltyRulesHtml()}`;
 }
 
-function creatorCountsFrom(obj){
-  const creator = obj && obj.creator ? obj.creator : {};
-  return {
-    shops: Array.isArray(creator.registeredShops) ? creator.registeredShops.length : 0,
-    minted: Array.isArray(creator.mintedNfts) ? creator.mintedNfts.length : 0,
-    hasShopDraft: !!creator.shopDraft,
-    hasNftDraft: !!creator.nftDraft
-  };
-}
-function localStateSummary(walletKey){
-  const data = readLocalState(walletKey);
-  const counts = creatorCountsFrom(data);
-  return { exists: !!data, version: data && data.version || '-', at: data && data.at ? new Date(data.at).toLocaleString() : '-', ...counts };
-}
-function metadataCacheCount(){
-  try{ return Object.keys(readMetadataCache()).length; }catch(e){ return 0; }
-}
-function pncDiagnosticData(){
-  const wallet = PNC_STATE.wallet || '';
-  const stateCounts = creatorCountsFrom(PNC_STATE);
-  const globalCounts = creatorCountsFrom(PNC_STATE.market && PNC_STATE.market.globalKv);
-  const walletCounts = creatorCountsFrom(PNC_STATE.market && PNC_STATE.market.kv);
-  return {
-    version: PNC_CONFIG.app.version,
-    wallet: wallet || null,
-    marketState: {
-      collections: PNC_STATE.collections.length,
-      nfts: PNC_STATE.nfts.length,
-      creatorRegisteredShops: stateCounts.shops,
-      creatorMintedNfts: stateCounts.minted,
-      listings: PNC_STATE.market && Array.isArray(PNC_STATE.market.listings) ? PNC_STATE.market.listings.length : 0,
-      errors: PNC_STATE.errors || []
-    },
-    remoteKV: {
-      global: globalCounts,
-      wallet: wallet ? walletCounts : null,
-      globalLoaded: !!(PNC_STATE.market && PNC_STATE.market.globalKv),
-      walletLoaded: !!(PNC_STATE.market && PNC_STATE.market.kv)
-    },
-    localStorage: {
-      global: localStateSummary(PNC_GLOBAL_MARKET_KEY),
-      wallet: wallet ? localStateSummary(wallet) : null,
-      metadataCacheItems: metadataCacheCount()
-    },
-    loadedCollections: PNC_STATE.collections.map(c => ({ id:c.id, name:c.name, creator:c.creator, status:c.status, image:!!resolveMediaUrl(c) })),
-    loadedNfts: PNC_STATE.nfts.map(n => ({ id:n.id, name:n.name, tokenId:n.tokenId || null, owner:n.owner || null, creator:n.creator || null, collectionId:n.collectionId || null, metadataUrl:n.metadataUrl || n.tokenURI || null, image:!!resolveMediaUrl(n), status:n.status || null, chain:chainLabel(n) }))
-  };
-}
-function diagRow(label,value){ return `<div class="diag-row"><span>${esc(label)}</span><strong>${esc(value)}</strong></div>`; }
-async function copyDiagnosticJson(){
-  const text = JSON.stringify(pncDiagnosticData(), null, 2);
-  try{ await navigator.clipboard.writeText(text); alert('Diagnostic JSONをコピーしました。'); }
-  catch(e){ console.log(text); alert('Clipboardコピーに失敗しました。Consoleに出力しました。'); }
-}
-function renderDiagnostic(state){
-  const panel = $('diagnosticPanel');
-  if(!panel) return;
-  const data = pncDiagnosticData();
-  const stateCounts = data.marketState;
-  const global = data.remoteKV.global;
-  const walletKv = data.remoteKV.wallet;
-  const localGlobal = data.localStorage.global;
-  const localWallet = data.localStorage.wallet;
-  panel.innerHTML = `<div class="diagnostic-grid">
-    <div class="diag-card"><div class="diag-title">MarketState</div>
-      ${diagRow('Wallet', short(data.wallet))}
-      ${diagRow('Collections', stateCounts.collections)}
-      ${diagRow('NFTs', stateCounts.nfts)}
-      ${diagRow('Creator Shops', stateCounts.creatorRegisteredShops)}
-      ${diagRow('Creator Minted NFTs', stateCounts.creatorMintedNfts)}
-      ${diagRow('Listings', stateCounts.listings)}
-      ${diagRow('Errors', stateCounts.errors.length)}
-      <div class="diag-actions"><button class="primary-btn" onclick="loadBlockchainState()">Reload State</button><button class="small-btn edit-btn" onclick="copyDiagnosticJson()">Copy JSON</button></div>
-    </div>
-    <div class="diag-card"><div class="diag-title">Remote KV</div>
-      ${diagRow('Global KV loaded', data.remoteKV.globalLoaded ? 'YES' : 'NO')}
-      ${diagRow('Global Shops', global.shops)}
-      ${diagRow('Global Minted NFTs', global.minted)}
-      ${diagRow('Wallet KV loaded', data.wallet ? (data.remoteKV.walletLoaded ? 'YES' : 'NO') : 'No wallet')}
-      ${diagRow('Wallet Shops', walletKv ? walletKv.shops : '-')}
-      ${diagRow('Wallet Minted NFTs', walletKv ? walletKv.minted : '-')}
-    </div>
-    <div class="diag-card"><div class="diag-title">LocalStorage fallback</div>
-      ${diagRow('Local Global exists', localGlobal.exists ? 'YES' : 'NO')}
-      ${diagRow('Local Global Shops', localGlobal.shops)}
-      ${diagRow('Local Global Minted', localGlobal.minted)}
-      ${diagRow('Local Wallet exists', localWallet ? (localWallet.exists ? 'YES' : 'NO') : 'No wallet')}
-      ${diagRow('Local Wallet Shops', localWallet ? localWallet.shops : '-')}
-      ${diagRow('Local Wallet Minted', localWallet ? localWallet.minted : '-')}
-      ${diagRow('Metadata Cache items', data.localStorage.metadataCacheItems)}
-    </div>
-    <div class="diag-card"><div class="diag-title">Route check</div>
-      ${diagRow('Storage → MarketState', (stateCounts.creatorRegisteredShops || stateCounts.creatorMintedNfts || stateCounts.collections || stateCounts.nfts) ? 'DATA FOUND' : 'EMPTY')}
-      ${diagRow('Wallet connected', data.wallet ? 'YES' : 'NO')}
-      ${diagRow('Render source', 'MarketState only')}
-      ${diagRow('Legacy rescue code', 'NO')}
-    </div>
-    <div class="diag-card diag-wide"><div class="diag-title">Loaded NFTs / Collections JSON</div><pre class="diag-pre">${esc(JSON.stringify({collections:data.loadedCollections,nfts:data.loadedNfts,errors:stateCounts.errors}, null, 2))}</pre></div>
+function renderDiagnosticSummary(state){
+  const box = $('diagnosticSummary');
+  if(!box) return;
+  const globalKey = PNC_LOCAL_GLOBAL_KEY;
+  const walletKey = state.wallet ? localWalletKey(state.wallet) : '';
+  const globalLocal = readLocalState(PNC_GLOBAL_MARKET_KEY);
+  const walletLocal = state.wallet ? readLocalState(state.wallet) : null;
+  const globalCreator = globalLocal && globalLocal.creator ? globalLocal.creator : {};
+  const walletCreator = walletLocal && walletLocal.creator ? walletLocal.creator : {};
+  box.innerHTML = `<div class="creator-help">
+    Wallet: <strong>${esc(short(state.wallet))}</strong><br>
+    MarketState Collections: <strong>${state.collections.length}</strong> / NFTs: <strong>${state.nfts.length}</strong><br>
+    Global localStorage: <strong>${globalLocal ? 'FOUND' : 'EMPTY'}</strong> ${globalLocal ? `(shops ${(globalCreator.registeredShops||[]).length}, nfts ${(globalCreator.mintedNfts||[]).length})` : ''}<br>
+    Wallet localStorage: <strong>${walletKey ? (walletLocal ? 'FOUND' : 'EMPTY') : 'CONNECT REQUIRED'}</strong> ${walletLocal ? `(shops ${(walletCreator.registeredShops||[]).length}, nfts ${(walletCreator.mintedNfts||[]).length})` : ''}<br>
+    Errors: <strong>${(state.errors||[]).length}</strong>
   </div>`;
 }
 
 function renderFooter(state){
-  $('appFooter').innerHTML = `<div class="footer-grid"><div><div class="footer-title">PNC Clean Core</div><button onclick="showPage('homePage')">Home</button><button onclick="showPage('collectionsPage')">Collections</button><button onclick="showPage('vaultPage')">My Vault</button><button onclick="showPage('diagnosticPage')">Diagnostic</button></div><div><div class="footer-title">State</div><span class="meta">Wallet: ${esc(short(state.wallet))}</span><br><span class="meta">NFTs: ${state.nfts.length}</span><br><span class="meta">Collections: ${state.collections.length}</span></div><div><div class="footer-title">Rules</div><span class="meta">Single MarketState</span><br><span class="meta">6 render functions</span><br><span class="meta">No legacy renderer</span><br><span class="meta">No old Shop/NFT seed</span></div><div><div class="footer-title">Official Links</div><div class="footer-social"><a href="${PNC_CONFIG.links.x}" target="_blank" rel="noopener noreferrer">${uiIcon('x')} X</a><a href="${PNC_CONFIG.links.telegram}" target="_blank" rel="noopener noreferrer">${uiIcon('telegram')} Telegram</a></div><div class="meta" style="margin-top:8px">Pi-ready / Sepolia adapter<br>Unified PC/mobile path</div></div></div><div class="footer-bottom">Pi Network NFT Center — ${PNC_CONFIG.app.version}<br>Built for the Pi Ecosystem / Clean Core${state.resolving ? '<div class="resolving-note">Resolving metadata...</div>' : ''}</div>`;
+  $('appFooter').innerHTML = `<div class="footer-grid"><div><div class="footer-title">PNC Clean Core</div><button onclick="showPage('homePage')">Home</button><button onclick="showPage('collectionsPage')">Collections</button><button onclick="showPage('vaultPage')">My Vault</button></div><div><div class="footer-title">State</div><span class="meta">Wallet: ${esc(short(state.wallet))}</span><br><span class="meta">NFTs: ${state.nfts.length}</span><br><span class="meta">Collections: ${state.collections.length}</span></div><div><div class="footer-title">Rules</div><span class="meta">Single MarketState</span><br><span class="meta">renderAll + minimal diagnostic</span><br><span class="meta">No legacy renderer</span><br><span class="meta">No old Shop/NFT seed</span></div><div><div class="footer-title">Official Links</div><div class="footer-social"><a href="${PNC_CONFIG.links.x}" target="_blank" rel="noopener noreferrer">${uiIcon('x')} X</a><a href="${PNC_CONFIG.links.telegram}" target="_blank" rel="noopener noreferrer">${uiIcon('telegram')} Telegram</a></div><div class="meta" style="margin-top:8px">Pi-ready / Sepolia adapter<br>Unified PC/mobile path</div></div></div><div class="footer-bottom">Pi Network NFT Center — ${PNC_CONFIG.app.version}<br>Built for the Pi Ecosystem / Clean Core${state.resolving ? '<div class="resolving-note">Resolving metadata...</div>' : ''}</div>`;
 }
 
 function openCollection(collectionId){ renderCollectionPage(PNC_STATE, collectionId); showPage('collectionPage'); }
