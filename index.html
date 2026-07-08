@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Pi NFT Center v1.3.22 Clean Architecture</title>
+<title>Pi NFT Center v1.3.23 Wallet Connect Guard</title>
 <style>
 :root{--purple:#5b2d82;--gold:#f5b041;--bg:#111017;--card:#1d1826;--text:#f7f1ff;--muted:#b7a9c6;--border:#3b2c4c;--green:#2ecc71;--red:#ff5c5c;--blue:#2f80ed}
 *{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:var(--bg);color:var(--text)}
@@ -43,7 +43,7 @@ pre{white-space:pre-wrap;word-break:break-word;max-height:260px;overflow:auto;ba
 </header>
 <main>
   <div class="page show" id="homePage">
-    <div class="hero"><h1>Pi NFT Center <span class="beta">v1.3.22 Clean Architecture</span></h1><p>Wallet → Blockchain → Storage → createMarketState() → renderAll(). Public Home does not depend on wallet connection.</p></div>
+    <div class="hero"><h1>Pi NFT Center <span class="beta">v1.3.23 Wallet Connect Guard</span></h1><p>Wallet → Blockchain → Storage → createMarketState() → renderAll(). Public Home does not depend on wallet connection.</p></div>
     <section><div class="section-title">🏆 Top Collections</div><div class="collection-list" id="topCollections"></div></section>
     <section><div class="section-title">🔥 Hot NFTs</div><div class="grid" id="hotNfts"></div></section>
     <section><div class="section-title">🆕 New NFTs</div><div class="grid" id="newNfts"></div></section>
@@ -72,7 +72,7 @@ pre{white-space:pre-wrap;word-break:break-word;max-height:260px;overflow:auto;ba
 'use strict';
 
 const PNC_CONFIG = {
-  app:{version:'v1.3.22 Clean Architecture'},
+  app:{version:'v1.3.23 Wallet Connect Guard'},
   network:{chainId:'0xaa36a7',name:'Sepolia Testnet'},
   contracts:{
     nft:'0x63C8AbE6a0e7867B7812A1237a2781D460702382',
@@ -121,7 +121,7 @@ function openWalletModal(){
   $('walletModalStatus').textContent = PNC_STATE.wallet ? short(PNC_STATE.wallet) : 'Choose a wallet provider.';
   $('walletModalActions').innerHTML = PNC_STATE.wallet
     ? `<button class="small-btn red" onclick="disconnectWallet()">Logout</button>`
-    : `<button class="small-btn gold" onclick="connectMetaMask()">🦊 MetaMask</button><button class="small-btn" onclick="alert('Pi Walletは将来接続です。')">π Pi Wallet</button>`;
+    : `<button class="small-btn gold" id="metaMaskConnectBtn" onclick="connectMetaMask()">🦊 MetaMask</button><button class="small-btn" onclick="alert('Pi Walletは将来接続です。')">π Pi Wallet</button>`;
   $('walletModal').classList.add('show');
 }
 function closeWalletModal(){ $('walletModal').classList.remove('show'); }
@@ -134,9 +134,12 @@ function toHexWord(n){ return BigInt(n).toString(16).padStart(64,'0'); }
 function sig4(name){ return {'ownerOf':'0x6352211e','tokenURI':'0xc87b56dd','mint':'0xd0def521'}[name]; }
 
 async function connectMetaMask(){
-  if(!window.ethereum){ alert('MetaMaskが見つかりません。'); return; }
+  if(!window.ethereum){ $('walletModalStatus').textContent='MetaMaskが見つかりません。'; return; }
   if(PNC_CONNECTING) return;
   PNC_CONNECTING = true;
+  const btn = $('metaMaskConnectBtn');
+  if(btn){ btn.disabled = true; btn.textContent = 'MetaMask確認中...'; }
+  $('walletModalStatus').textContent = 'MetaMaskの確認画面を開いています。MetaMask側で承認してください。';
   try{
     const accounts = await ethereum.request({method:'eth_requestAccounts'});
     const wallet = accounts && accounts[0] ? accounts[0] : null;
@@ -146,9 +149,18 @@ async function connectMetaMask(){
     closeWalletModal();
     await refreshAll();
   }catch(e){
-    if(e && e.code !== 4001) alert('Wallet接続に失敗しました。');
-    console.warn(e);
-  }finally{ PNC_CONNECTING = false; }
+    if(e && e.code === -32002){
+      $('walletModalStatus').textContent = 'MetaMaskの接続リクエストがすでに開いています。MetaMaskを確認してください。';
+    }else if(e && e.code === 4001){
+      $('walletModalStatus').textContent = '接続がキャンセルされました。';
+    }else{
+      $('walletModalStatus').textContent = 'Wallet接続に失敗しました。';
+      console.warn(e);
+    }
+  }finally{
+    PNC_CONNECTING = false;
+    if(btn){ btn.disabled = false; btn.textContent = '🦊 MetaMask'; }
+  }
 }
 async function disconnectWallet(){
   PNC_STATE.wallet = null;
