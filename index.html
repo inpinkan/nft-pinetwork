@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Pi NFT Center v1.3.17 Diagnostic</title>
+<title>Pi NFT Center v1.3.17 Clean Diagnostic</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%235b2d82'/%3E%3Ctext x='32' y='42' text-anchor='middle' font-size='34' fill='%23f5b041' font-family='Arial' font-weight='900'%3Eπ%3C/text%3E%3C/svg%3E">
 <style>
 
@@ -189,7 +189,6 @@
 .nft-badge-row{display:flex;gap:5px;flex-wrap:wrap;margin-top:3px}
 
 .status-not-for-sale{color:var(--muted);border-color:var(--border);background:rgba(255,255,255,.045)}
-.status-legacy{color:#b084ff;border-color:rgba(176,132,255,.45);background:rgba(176,132,255,.12)}
 .detail-overlay{position:fixed;inset:0;background:rgba(0,0,0,.62);z-index:90;display:none;align-items:center;justify-content:center;padding:18px}
 .detail-overlay.show{display:flex}
 .detail-box{width:100%;max-width:720px;max-height:90vh;overflow:auto;background:var(--card);border:1px solid var(--border);border-radius:24px;padding:18px;color:var(--text)}
@@ -289,7 +288,7 @@
 @media(min-width:720px){.fee-rules-grid{grid-template-columns:1fr 1fr}}
 
 
-/* v1.3.6 Creator Draft / Shop Registration Preview */
+/* Creator Draft / Shop Registration Preview */
 .draft-preview-card{border:1px solid rgba(245,176,65,.55);border-radius:18px;background:rgba(245,176,65,.08);padding:14px;margin-top:14px}
 .draft-preview-title{font-weight:950;color:var(--gold);font-size:18px;margin-bottom:10px}
 .draft-preview-layout{display:grid;grid-template-columns:1fr;gap:12px;align-items:start}
@@ -336,7 +335,7 @@
 </header>
 <main>
   <div class="page show" id="homePage">
-    <div class="hero"><h1>Pi NFT Center <span class="beta">v1.3.17 Diagnostic</span></h1><p>Wallet → Storage → createMarketState() → renderAll(). Minimal visible diagnostic.</p></div>
+    <div class="hero"><h1>Pi NFT Center <span class="beta">v1.3.17 Clean Diagnostic</span></h1><p>Wallet → Storage → createMarketState() → renderAll(). Minimal visible diagnostic.</p></div>
     <section><div class="section-title">🧪 Diagnostic</div><div class="panel" id="diagnosticSummary"></div></section>
     <section><div class="section-title">🏆 Top Collections</div><div class="collection-list" id="topCollections"></div></section>
     <section><div class="section-title">🔥 Hot NFTs</div><div class="grid" id="hotNfts"></div></section>
@@ -373,7 +372,7 @@
 'use strict';
 
 const PNC_CONFIG = {
-  app: { version: 'v1.3.17 Diagnostic' },
+  app: { version: 'v1.3.17 Clean Diagnostic' },
   network: { chainId: '0xaa36a7', name: 'Sepolia Testnet' },
   contracts: {
     nft: '0x63C8AbE6a0e7867B7812A1237a2781D460702382',
@@ -497,7 +496,6 @@ const $ = id => document.getElementById(id);
 const lc = v => String(v||'').toLowerCase();
 const esc = v => String(v ?? '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 const short = a => /^0x[a-fA-F0-9]{40}$/.test(String(a||'')) ? a.slice(0,4)+'...'+a.slice(-4) : (a||'-');
-function isZeroPaddedPlaceholderAddress(a){ return /^0x[0-9a-fA-F]{4}0{28,}[0-9a-fA-F]{4}$/.test(String(a||'')); }
 function displayAddress(a){ return /^0x[a-fA-F0-9]{40}$/.test(String(a||'')) ? short(a) : (a || '-'); }
 function isUsableMediaUrl(u){
   const s = String(u || '').trim();
@@ -839,22 +837,14 @@ function applyKVCreatorState(state, kv, options={}){
 
 function applyCollectionMedia(state){
   for(const c of state.collections){
-    // Creator Center shops keep their own Shop image/banner.
-    // NFT minting must never overwrite Shop media.
+    if(c.source !== 'creator-pinata' && c.status !== 'registered') continue;
     const pinataImage = c.pinata && c.pinata.image ? c.pinata.image.ipfsUri : '';
-    if(c.source === 'creator-pinata' || c.status === 'registered'){
-      const shopImage = c.shopImage || c.image || pinataImage || '';
-      const shopBanner = c.shopBanner || c.banner || shopImage || '';
-      c.image = shopImage;
-      c.banner = shopBanner;
-      c.shopImage = shopImage;
-      c.shopBanner = shopBanner;
-      continue;
-    }
-    // Non-creator legacy/sample collections may use a representative NFT only when they have no media.
-    if(isUsableMediaUrl(c.image || c.banner)) continue;
-    const found = state.nfts.filter(n => n.collectionId === c.id).find(n => resolveMediaUrl(n));
-    if(found){ c.image = (found.metadata && found.metadata.image) || found.image || found.banner || ''; c.banner = c.image; }
+    const shopImage = c.shopImage || c.image || pinataImage || '';
+    const shopBanner = c.shopBanner || c.banner || shopImage || '';
+    c.image = shopImage;
+    c.banner = shopBanner;
+    c.shopImage = shopImage;
+    c.shopBanner = shopBanner;
   }
 }
 
@@ -1453,9 +1443,9 @@ async function createMarketState(){
 
 function collectionItems(state, collectionId){ return state.nfts.filter(n => n.collectionId === collectionId); }
 function collectionNameById(id){ return (PNC_STATE.collections.find(c=>c.id===id)||{}).name || id || '-'; }
-function chainLabel(n){ return lc(n.contractAddress) === lc(PNC_CONFIG.contracts.nft) ? 'ERC721 On-chain' : 'Legacy'; }
-function statusLabel(n){ return n.status === 'listed' ? 'Listed' : (chainLabel(n)==='Legacy' ? 'Legacy' : 'Not for sale'); }
-function statusClass(n){ return n.status === 'listed' ? 'status-listed' : (chainLabel(n)==='Legacy' ? 'status-legacy' : 'status-not-for-sale'); }
+function chainLabel(n){ return lc(n.contractAddress) === lc(PNC_CONFIG.contracts.nft) ? 'ERC721 On-chain' : 'Unsupported'; }
+function statusLabel(n){ return n.status === 'listed' ? 'Listed' : 'Not for sale'; }
+function statusClass(n){ return n.status === 'listed' ? 'status-listed' : 'status-not-for-sale'; }
 function currencyUnit(){ return PNC_CONFIG.currency.activeSymbol || PNC_CONFIG.currency.futureSymbol || 'Pi'; }
 function uiIcon(name){ return PNC_UI_ICONS[name] || ''; }
 function priceLine(n){
