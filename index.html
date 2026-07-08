@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Pi NFT Center v1.3.20 Chain Registry</title>
+<title>Pi NFT Center v1.3.21 Public Home / Vault ChainReader</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%235b2d82'/%3E%3Ctext x='32' y='42' text-anchor='middle' font-size='34' fill='%23f5b041' font-family='Arial' font-weight='900'%3Eπ%3C/text%3E%3C/svg%3E">
 <style>
 
@@ -41,7 +41,7 @@
     @media (min-width:720px){.grid{grid-template-columns:repeat(4,1fr)}.nft-img{height:170px}.footer-grid{grid-template-columns:repeat(4,1fr)}}@media (max-width:420px){.search-row{grid-template-columns:1fr 82px}.logo-text{font-size:19px}}
   
 
-/* v1.3.20 Chain Registry Price display */
+/* v1.3.21 Public Home / Vault ChainReader Price display */
 .price-block{margin:6px 0 6px!important;display:flex!important;align-items:flex-start!important;gap:6px!important;min-height:22px!important}
 .price-label{font-size:10px!important;font-weight:900!important;color:var(--muted)!important;text-transform:uppercase!important;letter-spacing:.08em!important;margin:0!important;line-height:1.2!important}
 .price-line{display:inline-flex!important;align-items:flex-start!important;gap:5px!important;font-size:17px!important;font-weight:950!important;line-height:1!important;color:var(--text)!important}
@@ -128,7 +128,7 @@
 
 
 
-/* v1.3.20 Chain Registry foundation */
+/* v1.3.21 Public Home / Vault ChainReader foundation */
 .creator-dashboard{display:grid;grid-template-columns:1fr;gap:12px}
 .creator-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
 .creator-tab{border:1px solid var(--border);background:rgba(255,255,255,.055);color:var(--text);border-radius:999px;padding:10px 12px;font-weight:900;cursor:pointer}
@@ -151,7 +151,7 @@
 @media(min-width:720px){.creator-two-col{grid-template-columns:1fr 1fr}.creator-dashboard{grid-template-columns:1fr 1fr}.creator-status-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
 
 
-/* v1.3.20 Chain Registry readability + locked-tab behavior */
+/* v1.3.21 Public Home / Vault ChainReader readability + locked-tab behavior */
 .creator-card h2{font-size:22px;margin:0 0 10px;color:var(--text)}
 .creator-card h3{font-size:18px;margin:0 0 10px;color:var(--text)}
 .creator-help,.creator-owner-note,.clean-note{font-size:14px!important;line-height:1.65!important}
@@ -170,7 +170,7 @@
 }
 
 
-/* v1.3.20 Chain Registry cleanup */
+/* v1.3.21 Public Home / Vault ChainReader cleanup */
 .sale-status-options{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .sale-status-option{border:1px solid var(--border);border-radius:14px;padding:10px;background:rgba(255,255,255,.045);font-weight:900;cursor:pointer}
 .sale-status-option input{width:auto;margin-right:7px;accent-color:var(--gold)}
@@ -230,7 +230,7 @@
 </header>
 <main>
   <div class="page show" id="homePage">
-    <div class="hero"><h1>Pi NFT Center <span class="beta">v1.3.20 Chain Registry</span></h1><p>Chain Registry. No legacy seed<br>ChainReader ownerOf. Creator Center + ownerOf/tokenURI data only.</p></div>
+    <div class="hero"><h1>Pi NFT Center <span class="beta">v1.3.21 Public Home / Vault ChainReader</span></h1><p>Public Home is wallet-independent.<br>Vault uses ChainReader(ownerOf/tokenURI) after wallet connect.</p></div>
     <section><div class="section-title">🏆 Top Collections</div><div class="collection-list" id="topCollections"></div></section>
     <section><div class="section-title">🔥 Hot NFTs</div><div class="grid" id="hotNfts"></div></section>
     <section><div class="section-title">🆕 New NFTs</div><div class="grid" id="newNfts"></div></section>
@@ -266,7 +266,7 @@
 'use strict';
 
 const PNC_CONFIG = {
-  app: { version: 'v1.3.20 Chain Registry' },
+  app: { version: 'v1.3.21 Public Home / Vault ChainReader' },
   network: { chainId: '0xaa36a7', name: 'Sepolia Testnet' },
   contracts: {
     nft: '0x63C8AbE6a0e7867B7812A1237a2781D460702382',
@@ -303,7 +303,7 @@ const PNC_TEXT = {
   },
   creator: {
     ruleTitle: 'Creator Center v1.3.19 rule:',
-    ruleBody: '旧seedなし。registeredShops / mintedNfts / ownerOf(tokenId) をMarketStateへ統合します。',
+    ruleBody: 'HomeはWallet非依存。VaultだけownerOf/tokenURIを読みます。Creator保存はCreator Center専用です。',
     lockedTitle: 'Wallet required',
     lockedBody: 'Create Shop / Create NFT / Mint / List はWallet接続後に使えます。接続は右上のConnectボタンから行ってください。',
     dashboardHelp: '接続WalletをCreatorとして扱います。表示は公開データ、操作権限はconnected walletで判定します。',
@@ -337,7 +337,6 @@ const PNC_UI_ICONS = {
   telegram: '<span class="ui-icon ui-icon-social" aria-label="Telegram"><img src="data:image/webp;base64,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" alt="Telegram"/></span>'
 };
 const TOP_COLLECTION_LIMIT = 3;
-const PNC_CHAIN_SCAN_MAX = 80;
 
 
 const NFT_ABI = [
@@ -358,7 +357,7 @@ const MARKETPLACE_ABI = [
 
 // v1.3.19: No fixed legacy seed. All public objects come from Creator Registry storage.
 
-let PNC_STATE = { wallet:null, collections:[], nfts:[], market:{ listings:[] }, creator:{ shopDraft:null, nftDraft:null, registeredShops:[], mintedNfts:[] }, errors:[], resolving:false };
+let PNC_STATE = { wallet:null, collections:[], nfts:[], vaultNfts:[], market:{ listings:[] }, creator:{ shopDraft:null, nftDraft:null, registeredShops:[], mintedNfts:[] }, errors:[], resolving:false };
 let PNC_CREATOR_TAB = 'dashboard';
 let PNC_WALLET_CONNECTING = false;
 const PNC_METADATA_CACHE_KEY = 'PNC_METADATA_CACHE_V1';
@@ -679,8 +678,6 @@ function applyKVCreatorState(state, kv){
   }
   creator.mintedNfts = Array.from(nftMap.values());
   state.creator = creator;
-  applyCreatorRegisteredShops(state);
-  applyCreatorMintedNfts(state);
   return state;
 }
 
@@ -746,32 +743,36 @@ function applyCreatorMintedNfts(state){
   return state;
 }
 
-function ensureCollectionForNFT(state, nft){
-  const existing = state.collections.find(c => c.id === nft.collectionId);
-  if(existing) return existing;
-  const meta = nft.metadata || {};
-  const pnc = meta.pnc || {};
-  const fallbackId = 'onchain-' + lc(state.wallet || nft.owner || 'wallet').replace(/[^a-z0-9]/g,'').slice(0,12);
-  const collection = {
-    id: nft.collectionId || pnc.collectionId || fallbackId,
-    name: pnc.collectionName || nft.collectionName || 'On-chain Minted NFTs',
-    creator: pnc.creator || nft.creator || nft.owner || state.wallet || '',
-    verified:false,
-    description:'NFTs discovered from ownerOf(tokenId) and tokenURI(tokenId).',
-    icon:'🖼',
-    image:nft.image || '',
-    banner:nft.image || '',
-    source:'chain-reader'
-  };
-  nft.collectionId = collection.id;
-  state.collections.push(collection);
-  return collection;
+async function readWalletTransferTokenIds(wallet){
+  if(!wallet || !window.ethereum) return [];
+  const transferTopic = '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef';
+  const toTopic = '0x' + addressWordForCall(wallet);
+  try{
+    const logs = await ethereum.request({
+      method:'eth_getLogs',
+      params:[{
+        address: PNC_CONFIG.contracts.nft,
+        fromBlock:'0x0',
+        toBlock:'latest',
+        topics:[transferTopic, null, toTopic]
+      }]
+    });
+    const ids = [];
+    for(const log of (Array.isArray(logs) ? logs : [])){
+      const topics = log.topics || [];
+      if(topics[3]) ids.push(BigInt(topics[3]).toString());
+    }
+    return Array.from(new Set(ids));
+  }catch(e){
+    return [];
+  }
 }
 async function discoverWalletOnChainNfts(state){
   if(!state || !state.wallet || !window.ethereum) return state;
   const wallet = lc(state.wallet);
+  const tokenIds = await readWalletTransferTokenIds(state.wallet);
   const found = [];
-  for(let tokenId = 1; tokenId <= PNC_CHAIN_SCAN_MAX; tokenId++){
+  for(const tokenId of tokenIds){
     let owner = '';
     try{ owner = await readOwnerOf(tokenId); }catch(e){ continue; }
     if(lc(owner) !== wallet) continue;
@@ -779,6 +780,7 @@ async function discoverWalletOnChainNfts(state){
       id:'pnc-onchain-' + String(tokenId).padStart(6,'0'),
       name:'PNC NFT #' + tokenId,
       collectionId:'',
+      collectionName:'',
       tokenId:String(tokenId),
       contractAddress:PNC_CONFIG.contracts.nft,
       creator:state.wallet,
@@ -788,12 +790,12 @@ async function discoverWalletOnChainNfts(state){
       metadataUrl:'',
       tokenURI:'',
       status:'not_for_sale',
-      source:'chain-reader'
+      source:'vault-chain-reader'
     };
     try{
       const uri = await readTokenURI(tokenId);
       if(uri){ nft.tokenURI = uri; nft.metadataUrl = uri; }
-    }catch(e){ state.errors.push('tokenURI #' + tokenId + ' failed'); }
+    }catch(e){}
     await hydrateMetadata(nft);
     const meta = nft.metadata || {};
     const pnc = meta.pnc || {};
@@ -801,31 +803,42 @@ async function discoverWalletOnChainNfts(state){
     if(meta.description) nft.description = meta.description;
     if(meta.image) nft.image = meta.image;
     nft.creator = pnc.creator || nft.creator;
-    nft.collectionId = pnc.collectionId || nft.collectionId || '';
-    nft.collectionName = pnc.collectionName || nft.collectionName || '';
-    ensureCollectionForNFT(state, nft);
+    nft.collectionId = pnc.collectionId || '';
+    nft.collectionName = pnc.collectionName || '';
     found.push(nft);
   }
-  if(!found.length) return state;
-  const creator = state.creator || ensureCreatorState();
-  const map = new Map((creator.mintedNfts || []).map(n => [String(n.contractAddress||'').toLowerCase()+':'+String(n.tokenId||n.id), n]));
+  const map = new Map((state.vaultNfts || []).map(n => [String(n.contractAddress||'').toLowerCase()+':'+String(n.tokenId||n.id), n]));
   for(const nft of found){
     map.set(String(nft.contractAddress||'').toLowerCase()+':'+String(nft.tokenId), nft);
   }
-  creator.mintedNfts = Array.from(map.values());
-  state.creator = creator;
-  applyCreatorMintedNfts(state);
+  state.vaultNfts = Array.from(map.values());
   return state;
 }
 function creatorOwnedCollections(state){
   const wallet = lc(state.wallet);
   if(!wallet) return [];
-  return state.collections.filter(c => lc(c.creator) === wallet);
+  const list = []
+    .concat(Array.isArray(state.collections) ? state.collections : [])
+    .concat(state.creator && Array.isArray(state.creator.registeredShops) ? state.creator.registeredShops : []);
+  const map = new Map();
+  for(const c of list){ if(c && c.id && lc(c.creator) === wallet) map.set(c.id, c); }
+  return Array.from(map.values());
 }
 function creatorOwnedNFTs(state){
   const wallet = lc(state.wallet);
   if(!wallet) return [];
-  return state.nfts.filter(n => lc(n.creator) === wallet || lc(n.owner) === wallet);
+  const list = []
+    .concat(Array.isArray(state.nfts) ? state.nfts : [])
+    .concat(state.creator && Array.isArray(state.creator.mintedNfts) ? state.creator.mintedNfts : [])
+    .concat(Array.isArray(state.vaultNfts) ? state.vaultNfts : []);
+  const map = new Map();
+  for(const n of list){
+    if(!n) continue;
+    if(lc(n.creator) === wallet || lc(n.owner || n.knownOwner) === wallet){
+      map.set(String(n.contractAddress||'').toLowerCase()+':'+String(n.tokenId||n.id), n);
+    }
+  }
+  return Array.from(map.values());
 }
 function setCreatorTab(tab){
   PNC_CREATOR_TAB = tab || 'dashboard';
@@ -1251,9 +1264,7 @@ function renderAll(state){
   if(state.activeCollectionId) renderCollectionPage(state, state.activeCollectionId);
 }
 function createSeedState(){
-  const state = { wallet:PNC_STATE.wallet, collections:[], nfts:[], market:{ listings:[] }, creator: structuredClone(PNC_STATE.creator || { shopDraft:null, nftDraft:null, registeredShops:[], mintedNfts:[] }), errors:[], resolving:true };
-  applyCreatorRegisteredShops(state);
-  applyCreatorMintedNfts(state);
+  const state = { wallet:PNC_STATE.wallet, collections:[], nfts:[], vaultNfts:[], market:{ listings:[] }, creator: structuredClone(PNC_STATE.creator || { shopDraft:null, nftDraft:null, registeredShops:[], mintedNfts:[] }), errors:[], resolving:true };
   applyCollectionMedia(state);
   return state;
 }
@@ -1269,9 +1280,7 @@ async function loadBlockchainState(){
 }
 
 async function createMarketState(){
-  const state = { wallet:PNC_STATE.wallet, collections:[], nfts:[], market:{ listings:[] }, creator: structuredClone(PNC_STATE.creator || { shopDraft:null, nftDraft:null, registeredShops:[], mintedNfts:[] }), errors:[], resolving:false };
-  applyCreatorRegisteredShops(state);
-  applyCreatorMintedNfts(state);
+  const state = { wallet:PNC_STATE.wallet, collections:[], nfts:[], vaultNfts:[], market:{ listings:[] }, creator: structuredClone(PNC_STATE.creator || { shopDraft:null, nftDraft:null, registeredShops:[], mintedNfts:[] }), errors:[], resolving:false };
   const kv = await loadKVState(state.wallet);
   if(kv && typeof kv === 'object'){
     state.market.kv = kv;
@@ -1367,7 +1376,12 @@ function renderCollectionPage(state, collectionId){
 }
 function renderVault(state){
   const wallet = lc(state.wallet);
-  const owned = wallet ? state.nfts.filter(n => lc(n.owner) === wallet) : [];
+  const list = wallet ? []
+    .concat((state.nfts || []).filter(n => lc(n.owner) === wallet))
+    .concat(state.vaultNfts || []) : [];
+  const map = new Map();
+  for(const n of list){ if(n) map.set(String(n.contractAddress||'').toLowerCase()+':'+String(n.tokenId||n.id), n); }
+  const owned = Array.from(map.values());
   $('vaultStats').textContent = wallet ? `Wallet: ${short(state.wallet)} / Owned NFTs: ${owned.length}` : 'Connect wallet to load ownerOf-based vault.';
   $('myShopNfts').innerHTML = wallet ? (owned.map(nftCard).join('') || '<div class="panel">No ownerOf NFTs for this wallet.</div>') : '<div class="panel">Wallet not connected.</div>';
   const btn=$('walletConnectBtn'); if(btn) btn.textContent = state.wallet ? short(state.wallet) : 'Connect';
@@ -1390,7 +1404,7 @@ function renderCreatorCenter(state){
   $('creatorForm').innerHTML = `<div class="clean-note"><strong>${esc(PNC_TEXT.creator.ruleTitle)}</strong><br>${esc(PNC_TEXT.creator.ruleBody)}</div><div class="creator-tabs">${creatorTabButton('dashboard','Dashboard')}${creatorTabButton('shop','Create Shop')}${creatorTabButton('nft','Create NFT')}${creatorTabButton('market','List / Unlist')}</div>${body}${feeRoyaltyRulesHtml()}`;
 }
 function renderFooter(state){
-  $('appFooter').innerHTML = `<div class="footer-grid"><div><div class="footer-title">PNC Clean Core</div><button onclick="showPage('homePage')">Home</button><button onclick="showPage('collectionsPage')">Collections</button><button onclick="showPage('vaultPage')">My Vault</button></div><div><div class="footer-title">State</div><span class="meta">Wallet: ${esc(short(state.wallet))}</span><br><span class="meta">NFTs: ${state.nfts.length}</span><br><span class="meta">Collections: ${state.collections.length}</span></div><div><div class="footer-title">Rules</div><span class="meta">Single MarketState</span><br><span class="meta">6 render functions</span><br><span class="meta">No legacy seed<br>ChainReader ownerOf</span></div><div><div class="footer-title">Official Links</div><div class="footer-social"><a href="${PNC_CONFIG.links.x}" target="_blank" rel="noopener noreferrer">${uiIcon('x')} X</a><a href="${PNC_CONFIG.links.telegram}" target="_blank" rel="noopener noreferrer">${uiIcon('telegram')} Telegram</a></div><div class="meta" style="margin-top:8px">Pi-ready / Sepolia adapter<br>Unified PC/mobile path</div></div></div><div class="footer-bottom">Pi Network NFT Center — ${PNC_CONFIG.app.version}<br>Built for the Pi Ecosystem / Clean Core${state.resolving ? '<div class="resolving-note">Resolving metadata...</div>' : ''}</div>`;
+  $('appFooter').innerHTML = `<div class="footer-grid"><div><div class="footer-title">PNC Clean Core</div><button onclick="showPage('homePage')">Home</button><button onclick="showPage('collectionsPage')">Collections</button><button onclick="showPage('vaultPage')">My Vault</button></div><div><div class="footer-title">State</div><span class="meta">Wallet: ${esc(short(state.wallet))}</span><br><span class="meta">Public NFTs: ${state.nfts.length}</span><br><span class="meta">Vault NFTs: ${(state.vaultNfts||[]).length}</span><br><span class="meta">Collections: ${state.collections.length}</span></div><div><div class="footer-title">Rules</div><span class="meta">Single MarketState</span><br><span class="meta">6 render functions</span><br><span class="meta">No legacy seed<br>Home ≠ Wallet<br>Vault ChainReader</span></div><div><div class="footer-title">Official Links</div><div class="footer-social"><a href="${PNC_CONFIG.links.x}" target="_blank" rel="noopener noreferrer">${uiIcon('x')} X</a><a href="${PNC_CONFIG.links.telegram}" target="_blank" rel="noopener noreferrer">${uiIcon('telegram')} Telegram</a></div><div class="meta" style="margin-top:8px">Pi-ready / Sepolia adapter<br>Unified PC/mobile path</div></div></div><div class="footer-bottom">Pi Network NFT Center — ${PNC_CONFIG.app.version}<br>Built for the Pi Ecosystem / Clean Core${state.resolving ? '<div class="resolving-note">Resolving metadata...</div>' : ''}</div>`;
 }
 
 function openCollection(collectionId){ renderCollectionPage(PNC_STATE, collectionId); showPage('collectionPage'); }
