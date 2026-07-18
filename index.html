@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pi NFT Center v1.5.5.2 Brand Icon Unification</title>
+<title>Pi NFT Center v1.5.6 My Vault Send Receive</title>
 <style>
 :root{--purple:#5b2d82;--gold:#f5b041;--bg:#111017;--card:#1d1826;--text:#f7f1ff;--muted:#b7a9c6;--border:#3b2c4c;--green:#2ecc71;--red:#ff5c5c;--blue:#2f80ed;--soft:rgba(255,255,255,.055)}
 body.light{--bg:#f7f4fb;--card:#fff;--text:#19151f;--muted:#70647c;--border:#e5d8ef;--soft:rgba(91,45,130,.055)}
@@ -34,7 +34,8 @@ main{max-width:950px;margin:auto;padding:18px 14px 42px}.page{display:none}.page
 
 .shop-social-links{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.shop-social-link{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--border);border-radius:999px;padding:8px 11px;background:var(--soft);color:var(--text);text-decoration:none;font-size:13px;font-weight:900}.shop-social-link:hover{color:var(--gold);border-color:rgba(245,176,65,.55)}.shop-social-icon{width:16px;height:16px;object-fit:cover;border-radius:50%}
 .shop-edit-preview{height:190px;border:1px solid var(--border);border-radius:16px;background:radial-gradient(circle at top left,var(--gold),var(--purple));background-size:cover;background-position:center;display:flex;align-items:center;justify-content:center;font-size:42px}.shop-edit-preview.has-image{color:transparent}
-.vault-receive{display:grid;gap:10px}.vault-address{font-family:Consolas,monospace;word-break:break-all;border:1px solid var(--border);border-radius:14px;background:var(--soft);padding:12px;color:var(--text)}.vault-warning{color:var(--gold);font-size:12px;line-height:1.5}.vault-card-actions{padding:0 12px 12px}.send-disabled-note{font-size:10px;color:var(--muted);margin-top:6px}
+
+.vault-hero{padding-bottom:14px}.vault-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}.vault-tab{border:1px solid rgba(245,176,65,.6);background:rgba(255,255,255,.08);color:#fff;border-radius:999px;padding:10px 15px;font-weight:950}.vault-tab.active{background:var(--gold);border-color:var(--gold);color:#2d1743}.vault-tab:disabled{opacity:.45}.vault-panel{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:16px}.vault-panel h2{margin:0 0 8px}.vault-address{border:1px solid var(--border);border-radius:14px;background:var(--soft);padding:13px;word-break:break-all;font-family:Consolas,monospace;font-size:13px}.vault-send-layout{display:grid;gap:14px}.vault-nft-picker{display:grid;grid-template-columns:92px minmax(0,1fr);gap:12px;align-items:center;border:1px solid var(--border);border-radius:16px;background:var(--soft);padding:10px}.vault-nft-picker-media{height:76px;border-radius:12px;overflow:hidden;background:#000}.vault-nft-picker-media img,.vault-nft-picker-media video{width:100%;height:100%;object-fit:cover}.vault-empty{padding:18px;text-align:center;color:var(--muted)}.vault-warning{border-color:rgba(245,176,65,.55);background:rgba(245,176,65,.08)}@media(max-width:520px){.vault-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}.vault-tab{padding:9px 7px;font-size:12px}.vault-nft-picker{grid-template-columns:72px minmax(0,1fr)}.vault-nft-picker-media{height:62px}}
 @media(min-width:720px){.nft-media-card{height:170px}.footer-grid{grid-template-columns:repeat(4,minmax(0,1fr))}.grid{grid-template-columns:repeat(4,minmax(0,1fr))}.nft-img{height:170px}.two-col,.creator-grid{grid-template-columns:1fr 1fr}.status-grid{grid-template-columns:repeat(4,minmax(0,1fr))}.market-stats{grid-template-columns:repeat(5,minmax(0,1fr))}.draft-layout{grid-template-columns:180px 1fr}.draft-image{height:180px}.detail-info-grid{grid-template-columns:1fr 1fr}.footer-grid{grid-template-columns:repeat(4,1fr)}}
 @media(max-width:720px){.nft-media-card{height:128px}.nft-media-detail{height:320px;max-height:55vh}.detail-summary{padding:0}.media-optimization-grid{grid-template-columns:1fr}.media-optimization-grid strong{text-align:left}header{padding:10px}.logo{font-size:19px}main{padding:12px 10px 30px}.hero{border-radius:18px;padding:16px}.hero h1{font-size:21px}.hero p{font-size:12px}.section-title{font-size:20px}.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.collection-row{grid-template-columns:24px 82px 1fr;gap:8px}.top-banner{width:82px;height:46px}.nft-img{height:128px}.collection-banner{height:96px}.body{padding:9px}.nft-name,.collection-name,.name{font-size:13px}.meta{font-size:10px}.creator-tabs{display:grid;grid-template-columns:1fr 1fr}.detail-head{grid-template-columns:1fr}.detail-image{width:100%;height:260px}.footer-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.search-row{grid-template-columns:minmax(0,1fr) 130px}.search-results{right:138px}}
 @media(max-width:390px){.grid{grid-template-columns:1fr}}
@@ -47,10 +48,10 @@ main{max-width:950px;margin:auto;padding:18px 14px 42px}.page{display:none}.page
   <div class="menu" id="menu"><div class="menu-title">Navigation</div><button onclick="showPage('homePage')">🏠 Home</button><button onclick="showPage('collectionsPage')">🏪 Collections</button><button onclick="showPage('vaultPage')">🏦 My Vault</button><button onclick="showPage('creatorPage')">🎨 Creator Center</button><div class="menu-title">Appearance</div><button onclick="setTheme('light')">☀️ Light</button><button onclick="setTheme('dark')">🌙 Dark</button></div>
 </header>
 <main>
-  <div class="page show" id="homePage"><div class="hero"><h1>Pi NFT Center <span class="beta">v1.5.6</span></h1><p>Shop social links are limited to X and LINE OpenChat, with approved-domain validation.</p></div><section class="section"><div class="section-title">🏆 Top Collections</div><div class="collection-list" id="topCollections"></div></section><section class="section"><div class="section-title">🔥 Hot NFTs</div><div class="grid" id="hotNfts"></div></section><section class="section"><div class="section-title">🔨 Live Auctions</div><div class="grid" id="liveAuctions"></div></section><section class="section"><div class="section-title">🆕 New NFTs</div><div class="grid" id="newNfts"></div></section><section class="section"><div class="section-title">🆕 New Collections</div><div class="grid" id="newCollections"></div></section><section class="section"><div class="section-title">⭐ Featured Collections</div><div class="grid" id="featuredCollections"></div></section></div>
+  <div class="page show" id="homePage"><div class="hero"><h1>Pi NFT Center <span class="beta">v1.5.6</span></h1><p>My Vault Send / Receive restored with ownerOf-based NFT management.</p></div><section class="section"><div class="section-title">🏆 Top Collections</div><div class="collection-list" id="topCollections"></div></section><section class="section"><div class="section-title">🔥 Hot NFTs</div><div class="grid" id="hotNfts"></div></section><section class="section"><div class="section-title">🔨 Live Auctions</div><div class="grid" id="liveAuctions"></div></section><section class="section"><div class="section-title">🆕 New NFTs</div><div class="grid" id="newNfts"></div></section><section class="section"><div class="section-title">🆕 New Collections</div><div class="grid" id="newCollections"></div></section><section class="section"><div class="section-title">⭐ Featured Collections</div><div class="grid" id="featuredCollections"></div></section></div>
   <div class="page" id="collectionsPage"><div class="hero"><h1>Collections</h1><p>All collections are rendered from MarketState only.</p></div><section class="section"><div class="grid" id="allCollections"></div></section></div>
   <div class="page" id="collectionPage"><div id="collectionDetail"></div></div>
-  <div class="page" id="vaultPage"><div class="hero"><h1>My Vault</h1><p id="vaultStats">Connect wallet to load ownerOf-based vault.</p></div><section class="section"><div class="section-title">Receive</div><div class="panel" id="vaultReceivePanel"></div></section><section class="section"><div class="section-title">🖼 Owned NFTs</div><div class="grid" id="myShopNfts"></div></section></div>
+  <div class="page" id="vaultPage"><div class="hero vault-hero"><h1>My Vault</h1><p id="vaultStats">Connect wallet to load ownerOf-based vault.</p><div class="vault-tabs" role="tablist" aria-label="My Vault"><button class="vault-tab active" id="vaultTabOwned" type="button" onclick="setVaultTab('owned')">Owned NFTs</button><button class="vault-tab" id="vaultTabSend" type="button" onclick="setVaultTab('send')">Send</button><button class="vault-tab" id="vaultTabReceive" type="button" onclick="setVaultTab('receive')">Receive</button></div></div><section class="section"><div id="vaultContent"></div></section></div>
   <div class="page" id="creatorPage"><div class="hero"><h1>Creator Center</h1><p>Create Shop → Create Image / Video NFT → Upload media and metadata → Mint → My Vault → List.</p></div><section class="section"><div class="panel" id="creatorForm"></div></section></div>
 </main>
 <footer id="appFooter"></footer>
@@ -158,6 +159,7 @@ const PNC_TEXT={wallet:{connectRequired:'WalletをConnectしてください。�
 const TOP_COLLECTION_LIMIT=3;const NEW_NFT_LIMIT=8;
 let PNC_STATE={wallet:null,collections:[],nfts:[],market:{listings:[],offers:[],auctions:[],minimumNativeWei:'0',pendingBidRefundWei:'0'},creator:emptyCreatorState(),errors:[],resolving:false};
 let PNC_CREATOR_TAB='dashboard';
+let PNC_VAULT_TAB='owned';
 let PNC_EDIT_SHOP_ID='';let PNC_WALLET_CONNECTING=false;let PNC_LOAD_SEQUENCE=0;
 const PNC_METADATA_CACHE_KEY='PNC_METADATA_CACHE_V1';const PNC_GLOBAL_MARKET_KEY='PNC_GLOBAL_MARKET';const PNC_LOCAL_GLOBAL_KEY='PNC_LOCAL_GLOBAL_MARKET_V1';const PNC_LOCAL_WALLET_PREFIX='PNC_LOCAL_WALLET_STATE_V1:';const PNC_LOCAL_SNAPSHOT_KEY='PNC_RESTORE_SNAPSHOT_V1';
 const $=id=>document.getElementById(id);const lc=v=>String(v||'').toLowerCase();const esc=v=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));const short=a=>/^0x[a-fA-F0-9]{40}$/.test(String(a||''))?a.slice(0,4)+'...'+a.slice(-4):(a||'-');const displayAddress=a=>/^0x[a-fA-F0-9]{40}$/.test(String(a||''))?short(a):(a||'-');
@@ -898,12 +900,6 @@ async function handleWithdrawBidRefund(){
     alert(PNC_TEXT.market.txFailed+'\n'+(e.message||e));
   }
 }
-function isValidEvmAddress(value){return /^0x[a-fA-F0-9]{40}$/.test(String(value||'').trim());}
-async function copyVaultAddress(){if(!PNC_STATE.wallet)return;try{await navigator.clipboard.writeText(PNC_STATE.wallet);alert('Receive address copied.');}catch(e){prompt('Copy this receive address:',PNC_STATE.wallet);}}
-function vaultReceiveHtml(state){if(!state.wallet)return'<div class="meta">Connect wallet to show your receive address.</div>';return`<div class="vault-receive"><div class="meta">Send ERC721 NFTs on ${esc(PNC_CONFIG.network.name)} to this connected wallet address.</div><div class="vault-address">${esc(state.wallet)}</div><div class="toolbar"><button class="small-btn sell-btn" onclick="copyVaultAddress()">Copy Address</button></div><div class="vault-warning">Confirm the network and recipient address before sending. Sending to an incompatible chain or an address you cannot control may permanently lose access.</div></div>`;}
-function vaultSendAvailability(n,state){if(!state.wallet)return{ok:false,reason:'Wallet not connected'};if(chainLabel(n)!=='ERC721 On-chain'||!n.tokenId)return{ok:false,reason:'Only ERC721 On-chain NFTs can be sent'};if(lc(n.owner)!==lc(state.wallet))return{ok:false,reason:n.auction&&n.auction.active?'Auction escrow: cancel or finalize first':'Connected wallet is not the current owner'};if(n.status==='listed')return{ok:false,reason:'Unlist before sending'};if(n.auction&&n.auction.active)return{ok:false,reason:'Cancel or finalize the auction before sending'};return{ok:true,reason:''};}
-function vaultNftCard(n,state){const availability=vaultSendAvailability(n,state);return`<div>${nftCard(n)}<div class="vault-card-actions"><button class="small-btn sell-btn" ${availability.ok?'':'disabled'} onclick="event.stopPropagation();handleSendNFT('${esc(n.id)}')">Send</button>${availability.reason?`<div class="send-disabled-note">${esc(availability.reason)}</div>`:''}</div></div>`;}
-async function handleSendNFT(id){if(!requireWallet())return;const n=PNC_STATE.nfts.find(x=>x.id===id);if(!n)return;const availability=vaultSendAvailability(n,PNC_STATE);if(!availability.ok){alert(availability.reason);return;}const recipientInput=prompt('Recipient wallet address (Sepolia / EVM):','');if(recipientInput===null)return;const recipient=String(recipientInput).trim();if(!isValidEvmAddress(recipient)){alert('Enter a valid 0x wallet address.');return;}if(lc(recipient)===lc(PNC_STATE.wallet)){alert('Recipient is the same as the current owner.');return;}if(!confirm(`Send this NFT?\n\nNFT: ${n.name}\nToken ID: ${n.tokenId}\nFrom: ${PNC_STATE.wallet}\nTo: ${recipient}\nNetwork: ${PNC_CONFIG.network.name}\n\nThis blockchain transfer cannot be undone.`))return;try{const from=PNC_STATE.wallet;const txHash=await sendTx({from,to:PNC_CONFIG.contracts.nft,data:encodeSafeTransferFromCall(from,recipient,n.tokenId)});assertSuccessfulReceipt(await waitForReceipt(txHash),'NFT send transaction');const owner=await readOwnerOfWithRetry(n.tokenId,recipient,10,1500);if(lc(owner)!==lc(recipient))throw new Error('Transfer succeeded, but ownerOf verification did not match the recipient.');await loadBlockchainState();closeNftDetail();alert('NFT Send completed.\nNew owner: '+recipient);}catch(e){console.warn(e);alert(PNC_TEXT.market.txFailed+'\n'+(e.message||e));}}
 async function handleList(id){
   if(!requireWallet())return;
   const n=PNC_STATE.nfts.find(x=>x.id===id);
@@ -1025,7 +1021,102 @@ function storageDebugHtml(state){
   ];
   return `<details class="note" style="margin-top:14px"><summary style="cursor:pointer;color:var(--gold);font-weight:950">Storage Debug</summary><div class="creator-list" style="margin-top:10px">${rows.map(r=>`<div class="creator-list-item"><div class="creator-list-title">${esc(r[0])}: ${esc(r[1])}</div><div class="meta">${esc(r[2])}</div></div>`).join('')}</div><div class="meta" style="margin-top:8px">Chromeの白い候補は入力履歴です。MarketStateに入っているデータはこのDebug欄で確認します。</div></details>`;
 }
-function renderAll(state){renderHome(state);renderCollections(state);renderVault(state);renderCreatorCenter(state);renderFooter(state);if(state.activeCollectionId)renderCollectionPage(state,state.activeCollectionId);}function renderHome(state){$('topCollections').innerHTML=state.collections.slice(0,TOP_COLLECTION_LIMIT).map((c,i)=>collectionRow(c,state,i)).join('')||'<div class="meta">No collections yet. Create Shopで登録するとここに表示されます。</div>';$('hotNfts').innerHTML=state.nfts.filter(n=>n.status==='listed').map(nftCard).join('')||'<div class="panel">No listed NFTs yet.</div>';$('liveAuctions').innerHTML=state.nfts.filter(n=>n.status==='auction'&&n.auction&&n.auction.active&&auctionPhase(n.auction)!=='ended').map(nftCard).join('')||'<div class="panel">No live auctions yet.</div>';$('newNfts').innerHTML=newestNFTs(state.nfts).map(nftCard).join('')||'<div class="panel">No NFTs yet.</div>';$('newCollections').innerHTML=state.collections.map(c=>collectionCard(c,state,false)).join('')||'<div class="panel">No collections yet.</div>';$('featuredCollections').innerHTML=state.collections.filter(c=>c.verified).map(c=>collectionCard(c,state,true)).join('')||'<div class="panel">No featured collections yet.</div>';}function renderCollections(state){$('allCollections').innerHTML=state.collections.map(c=>collectionCard(c,state,false)).join('')||'<div class="panel">No collections yet.</div>';}function renderCollectionPage(state,collectionId){const c=state.collections.find(x=>x.id===collectionId||lc(x.name)===lc(collectionId));if(!c)return;state.activeCollectionId=c.id;const items=collectionItems(state,c.id);$('collectionDetail').innerHTML=`${mediaBox(c,'collection-banner')}<div class="hero"><h1>${esc(c.name)} ${c.verified?'<span class="badge">✔</span>':''}</h1><p>${esc(c.description||'')}</p>${shopSocialHtml(c)}${state.wallet&&lc(c.creator)===lc(state.wallet)?`<div class="toolbar"><button class="small-btn sell-btn" onclick="openEditShop('${esc(c.id)}')">Edit Shop</button></div>`:''}</div><div class="market-stats"><div class="stat"><strong>${items.length}</strong><span>Items</span></div><div class="stat"><strong>${items.filter(n=>n.status==='listed').length}</strong><span>Listed</span></div><div class="stat"><strong>${new Set(items.map(n=>lc(n.owner)).filter(Boolean)).size}</strong><span>Owners</span></div><div class="stat"><strong>-</strong><span>Floor</span></div><div class="stat"><strong>0</strong><span>Volume</span></div></div><section class="section"><div class="section-title">🖼 NFTs</div><div class="grid">${items.map(nftCard).join('')||'<div class="panel">No NFTs.</div>'}</div></section>`;}function renderVault(state){const wallet=lc(state.wallet),owned=wallet?state.nfts.filter(n=>lc(n.owner)===wallet||(n.auction&&n.auction.active&&lc(n.auction.seller)===wallet)):[];$('vaultStats').textContent=wallet?`Wallet: ${short(state.wallet)} / Owned NFTs: ${owned.length}`:'Connect wallet to load ownerOf-based vault.';const receive=$('vaultReceivePanel');if(receive)receive.innerHTML=vaultReceiveHtml(state);$('myShopNfts').innerHTML=wallet?(owned.map(n=>vaultNftCard(n,state)).join('')||'<div class="panel">No ownerOf NFTs for this wallet.</div>'):'<div class="panel">Wallet not connected.</div>';const btn=$('walletConnectBtn');if(btn)btn.textContent=state.wallet?short(state.wallet):'Connect';}function renderCreatorCenter(state){let body='';const tab=PNC_CREATOR_TAB||'dashboard';if(!state.wallet)body=lockedCreatorPanel();else if(tab==='shop')body=creatorShopFormHtml(state);else if(tab==='editShop')body=editShopFormHtml(state);else if(tab==='nft')body=creatorNFTFormHtml(state);else if(tab==='market')body=creatorMarketplaceHtml(state);else body=creatorDashboardHtml(state);$('creatorForm').innerHTML=`<div class="note"><strong>${esc(PNC_TEXT.creator.ruleTitle)}</strong><br>${esc(PNC_TEXT.creator.ruleBody)}</div><div class="creator-tabs">${creatorTabButton('dashboard','Dashboard')}${creatorTabButton('shop','Create Shop')}${creatorTabButton('nft','Create NFT')}${creatorTabButton('market','List / Unlist')}</div>${body}${feeRoyaltyRulesHtml()}${storageDebugHtml(state)}`;}function footerIconHtml(icon){if(!icon||!PNC_UI_ICONS[icon])return'';return`<img class="footer-link-icon" src="${PNC_UI_ICONS[icon]}" alt="">`;}
+function renderAll(state){renderHome(state);renderCollections(state);renderVault(state);renderCreatorCenter(state);renderFooter(state);if(state.activeCollectionId)renderCollectionPage(state,state.activeCollectionId);}function renderHome(state){$('topCollections').innerHTML=state.collections.slice(0,TOP_COLLECTION_LIMIT).map((c,i)=>collectionRow(c,state,i)).join('')||'<div class="meta">No collections yet. Create Shopで登録するとここに表示されます。</div>';$('hotNfts').innerHTML=state.nfts.filter(n=>n.status==='listed').map(nftCard).join('')||'<div class="panel">No listed NFTs yet.</div>';$('liveAuctions').innerHTML=state.nfts.filter(n=>n.status==='auction'&&n.auction&&n.auction.active&&auctionPhase(n.auction)!=='ended').map(nftCard).join('')||'<div class="panel">No live auctions yet.</div>';$('newNfts').innerHTML=newestNFTs(state.nfts).map(nftCard).join('')||'<div class="panel">No NFTs yet.</div>';$('newCollections').innerHTML=state.collections.map(c=>collectionCard(c,state,false)).join('')||'<div class="panel">No collections yet.</div>';$('featuredCollections').innerHTML=state.collections.filter(c=>c.verified).map(c=>collectionCard(c,state,true)).join('')||'<div class="panel">No featured collections yet.</div>';}function renderCollections(state){$('allCollections').innerHTML=state.collections.map(c=>collectionCard(c,state,false)).join('')||'<div class="panel">No collections yet.</div>';}function renderCollectionPage(state,collectionId){const c=state.collections.find(x=>x.id===collectionId||lc(x.name)===lc(collectionId));if(!c)return;state.activeCollectionId=c.id;const items=collectionItems(state,c.id);$('collectionDetail').innerHTML=`${mediaBox(c,'collection-banner')}<div class="hero"><h1>${esc(c.name)} ${c.verified?'<span class="badge">✔</span>':''}</h1><p>${esc(c.description||'')}</p>${shopSocialHtml(c)}${state.wallet&&lc(c.creator)===lc(state.wallet)?`<div class="toolbar"><button class="small-btn sell-btn" onclick="openEditShop('${esc(c.id)}')">Edit Shop</button></div>`:''}</div><div class="market-stats"><div class="stat"><strong>${items.length}</strong><span>Items</span></div><div class="stat"><strong>${items.filter(n=>n.status==='listed').length}</strong><span>Listed</span></div><div class="stat"><strong>${new Set(items.map(n=>lc(n.owner)).filter(Boolean)).size}</strong><span>Owners</span></div><div class="stat"><strong>-</strong><span>Floor</span></div><div class="stat"><strong>0</strong><span>Volume</span></div></div><section class="section"><div class="section-title">🖼 NFTs</div><div class="grid">${items.map(nftCard).join('')||'<div class="panel">No NFTs.</div>'}</div></section>`;}function vaultOwnedNFTs(state){
+  const wallet=lc(state.wallet);
+  return wallet?state.nfts.filter(n=>lc(n.owner)===wallet||(n.auction&&n.auction.active&&lc(n.auction.seller)===wallet)):[];
+}
+function vaultSendableNFTs(state){
+  const wallet=lc(state.wallet);
+  return wallet?state.nfts.filter(n=>lc(n.owner)===wallet&&chainLabel(n)==='ERC721 On-chain'&&n.status!=='listed'&&!(n.auction&&n.auction.active)):[];
+}
+function setVaultTab(tab){
+  PNC_VAULT_TAB=['owned','send','receive'].includes(tab)?tab:'owned';
+  renderVault(PNC_STATE);
+}
+function vaultTabState(){
+  ['owned','send','receive'].forEach(tab=>{
+    const id='vaultTab'+tab.charAt(0).toUpperCase()+tab.slice(1);
+    $(id)?.classList.toggle('active',PNC_VAULT_TAB===tab);
+  });
+}
+function vaultReceiveHtml(state){
+  if(!state.wallet)return`<div class="vault-panel"><div class="vault-empty">Wallet not connected.</div></div>`;
+  return`<div class="vault-panel"><h2>Receive</h2><p class="meta">Send an ERC721 NFT to this connected Sepolia wallet address.</p><div class="vault-address" id="vaultReceiveAddress">${esc(state.wallet)}</div><div class="toolbar"><button class="primary-btn" type="button" onclick="copyVaultAddress()">Copy Address</button></div><div class="note vault-warning" style="margin-top:14px">Always confirm the network and full destination address before sending. Blockchain transfers cannot normally be reversed.</div></div>`;
+}
+function vaultSendHtml(state){
+  if(!state.wallet)return`<div class="vault-panel"><div class="vault-empty">Wallet not connected.</div></div>`;
+  const sendable=vaultSendableNFTs(state);
+  if(!sendable.length)return`<div class="vault-panel"><h2>Send</h2><div class="vault-empty">No transferable NFT is available. Listed NFTs and active-auction NFTs must be removed from the Marketplace first.</div></div>`;
+  const options=sendable.map(n=>`<option value="${esc(n.id)}">${esc(n.name)} / Token ID ${esc(n.tokenId)}</option>`).join('');
+  const first=sendable[0];
+  return`<div class="vault-panel"><h2>Send</h2><p class="meta">Select an NFT and transfer it directly from the connected wallet.</p><form class="form vault-send-layout" onsubmit="event.preventDefault();handleVaultSend(this);"><label>NFT<select name="nftId" onchange="renderVaultSendPreview(this.value)" required>${options}</select></label><div id="vaultSendPreview">${vaultSendPreviewHtml(first)}</div><label>To Address<span>Enter the complete Sepolia-compatible EVM address.</span><input name="toAddress" type="text" inputmode="text" autocomplete="off" placeholder="0x..." required></label><div class="note vault-warning">The NFT leaves My Vault after the transaction is confirmed. The recipient will need control of the destination wallet to send it again.</div><div class="toolbar"><button class="primary-btn" type="submit">Send NFT</button></div></form></div>`;
+}
+function vaultSendPreviewHtml(n){
+  if(!n)return'';
+  const media=resolveNFTMedia(n),src=media.thumbnailUrl||media.imageUrl||'';
+  const visual=src?`<div class="vault-nft-picker-media"><img src="${esc(src)}" alt="${esc(n.name)}"></div>`:`<div class="vault-nft-picker-media" style="display:flex;align-items:center;justify-content:center;font-size:28px">🖼</div>`;
+  return`<div class="vault-nft-picker">${visual}<div><strong>${esc(n.name)}</strong><div class="meta">Token ID: ${esc(n.tokenId)}<br>Contract: ${esc(displayAddress(n.contractAddress))}<br>Status: ${esc(statusLabel(n))}</div></div></div>`;
+}
+function renderVaultSendPreview(id){
+  const n=vaultSendableNFTs(PNC_STATE).find(x=>x.id===id);
+  const box=$('vaultSendPreview');
+  if(box)box.innerHTML=vaultSendPreviewHtml(n);
+}
+async function copyVaultAddress(){
+  if(!PNC_STATE.wallet)return;
+  try{
+    await navigator.clipboard.writeText(PNC_STATE.wallet);
+    alert('Wallet address copied.');
+  }catch(e){
+    const area=document.createElement('textarea');
+    area.value=PNC_STATE.wallet;
+    document.body.appendChild(area);
+    area.select();
+    document.execCommand('copy');
+    area.remove();
+    alert('Wallet address copied.');
+  }
+}
+async function handleVaultSend(form){
+  if(!requireWallet())return;
+  const fd=new FormData(form),id=String(fd.get('nftId')||''),to=String(fd.get('toAddress')||'').trim();
+  const n=vaultSendableNFTs(PNC_STATE).find(x=>x.id===id);
+  if(!n){alert('This NFT is no longer transferable. Reload My Vault.');return;}
+  if(!/^0x[a-fA-F0-9]{40}$/.test(to)){alert('Enter a valid 42-character EVM address.');return;}
+  if(lc(to)===lc(PNC_STATE.wallet)){alert('The destination is the connected wallet. Enter a different address.');return;}
+  if(lc(to)==='0x0000000000000000000000000000000000000000'){alert('The zero address cannot receive this NFT.');return;}
+  if(n.status==='listed'||(n.auction&&n.auction.active)){alert('Unlist or cancel the auction before sending this NFT.');return;}
+  if(!confirm(`Send this NFT?\n\nNFT: ${n.name}\nToken ID: ${n.tokenId}\nTo: ${to}\n\nThis blockchain transfer cannot normally be reversed.`))return;
+  try{
+    const ownerBefore=await readOwnerOf(n.tokenId);
+    if(lc(ownerBefore)!==lc(PNC_STATE.wallet))throw new Error('The connected wallet is no longer the NFT owner.');
+    const txHash=await sendTx({from:PNC_STATE.wallet,to:n.contractAddress,data:encodeSafeTransferFromCall(PNC_STATE.wallet,to,n.tokenId)});
+    assertSuccessfulReceipt(await waitForReceipt(txHash),'NFT transfer transaction');
+    const ownerAfter=await readOwnerOfWithRetry(n.tokenId,to);
+    if(lc(ownerAfter)!==lc(to))throw new Error('The new owner could not be confirmed.');
+    await loadBlockchainState();
+    PNC_VAULT_TAB='owned';
+    renderVault(PNC_STATE);
+    alert('NFT Send completed.\nNew owner: '+to);
+  }catch(e){
+    console.warn(e);
+    alert('NFT Send failed.\n'+(e.message||e));
+  }
+}
+function renderVault(state){
+  const owned=vaultOwnedNFTs(state);
+  $('vaultStats').textContent=state.wallet?`Wallet: ${short(state.wallet)} / Owned NFTs: ${owned.length}`:'Connect wallet to load ownerOf-based vault.';
+  vaultTabState();
+  const content=$('vaultContent');
+  if(content){
+    if(PNC_VAULT_TAB==='receive')content.innerHTML=vaultReceiveHtml(state);
+    else if(PNC_VAULT_TAB==='send')content.innerHTML=vaultSendHtml(state);
+    else content.innerHTML=`<div class="section-title">🖼 Owned NFTs</div><div class="grid">${state.wallet?(owned.map(nftCard).join('')||'<div class="panel">No ownerOf NFTs for this wallet.</div>'):'<div class="panel">Wallet not connected.</div>'}</div>`;
+  }
+  const btn=$('walletConnectBtn');
+  if(btn)btn.textContent=state.wallet?short(state.wallet):'Connect';
+}
+function renderCreatorCenter(state){let body='';const tab=PNC_CREATOR_TAB||'dashboard';if(!state.wallet)body=lockedCreatorPanel();else if(tab==='shop')body=creatorShopFormHtml(state);else if(tab==='editShop')body=editShopFormHtml(state);else if(tab==='nft')body=creatorNFTFormHtml(state);else if(tab==='market')body=creatorMarketplaceHtml(state);else body=creatorDashboardHtml(state);$('creatorForm').innerHTML=`<div class="note"><strong>${esc(PNC_TEXT.creator.ruleTitle)}</strong><br>${esc(PNC_TEXT.creator.ruleBody)}</div><div class="creator-tabs">${creatorTabButton('dashboard','Dashboard')}${creatorTabButton('shop','Create Shop')}${creatorTabButton('nft','Create NFT')}${creatorTabButton('market','List / Unlist')}</div>${body}${feeRoyaltyRulesHtml()}${storageDebugHtml(state)}`;}function footerIconHtml(icon){if(!icon||!PNC_UI_ICONS[icon])return'';return`<img class="footer-link-icon" src="${PNC_UI_ICONS[icon]}" alt="">`;}
 function footerItemHtml(item){
   if(item.kind==='page')return`<button class="footer-item" type="button" onclick="showPage('${esc(item.target)}')">${esc(item.label)}</button>`;
   if(item.kind==='legal')return`<button class="footer-item" type="button" onclick="showLegal('${esc(item.target)}')">${esc(item.label)}</button>`;
