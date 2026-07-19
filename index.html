@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pi NFT Center v1.6.2 New NFTs Auto Scroll</title>
+<title>Pi NFT Center v1.6.3 New NFTs Auto Scroll Fixed</title>
 <style>
 :root{--purple:#5b2d82;--gold:#f5b041;--bg:#111017;--card:#1d1826;--text:#f7f1ff;--muted:#b7a9c6;--border:#3b2c4c;--green:#2ecc71;--red:#ff5c5c;--blue:#2f80ed;--soft:rgba(255,255,255,.055)}
 body.light{--bg:#f7f4fb;--card:#fff;--text:#19151f;--muted:#70647c;--border:#e5d8ef;--soft:rgba(91,45,130,.055)}
@@ -54,7 +54,7 @@ body.light .carousel-btn{background:rgba(255,255,255,.9)}
 .carousel-track{display:flex!important;grid-template-columns:none!important;gap:12px;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x proximity;scroll-behavior:auto;scrollbar-width:none;padding:2px 2px 10px;cursor:grab;overscroll-behavior-x:contain;touch-action:pan-x pan-y pinch-zoom;-webkit-overflow-scrolling:touch;scroll-padding-inline:2px}
 .carousel-track::-webkit-scrollbar{display:none}
 .carousel-track.is-dragging{cursor:grabbing;user-select:none;scroll-snap-type:none}
-.carousel-track.is-animating{scroll-snap-type:none}
+.carousel-track.is-animating,.carousel-track.is-auto-scrolling{scroll-snap-type:none}
 .carousel-track>.card{flex:0 0 clamp(180px,24%,220px);scroll-snap-align:start;scroll-snap-stop:normal}
 .carousel-track>.panel{flex:1 0 100%;scroll-snap-align:start}
 .carousel-track .collection-card{flex:0 0 clamp(220px,31%,285px);scroll-snap-align:start;scroll-snap-stop:normal}
@@ -1130,19 +1130,22 @@ function resumeNewNftsFromOutside(event){
   setAutoCarouselPaused(track,false);
 }
 function startCarouselAuto(track){
+  if(!track)return;
   if(track.id!==PNC_AUTO_CAROUSEL_ID){
     if(track._carouselAutoFrame)cancelAnimationFrame(track._carouselAutoFrame);
     track._carouselAutoFrame=0;
+    track.classList.remove('is-auto-scrolling');
     return;
   }
   if(track._carouselAutoFrame)cancelAnimationFrame(track._carouselAutoFrame);
   track._carouselAutoDirection=track._carouselAutoDirection||1;
   let previous=performance.now();
-  const speed=18;
+  const speed=28;
   const frame=now=>{
     const elapsed=Math.min(50,now-previous)/1000;previous=now;
     const max=Math.max(0,track.scrollWidth-track.clientWidth);
     const blocked=document.hidden||track.dataset.carouselPaused==='1'||track.classList.contains('is-dragging')||track.classList.contains('is-animating')||max<4;
+    track.classList.toggle('is-auto-scrolling',!blocked);
     if(!blocked){
       let next=track.scrollLeft+(track._carouselAutoDirection*speed*elapsed);
       if(next>=max){next=max;track._carouselAutoDirection=-1;}
