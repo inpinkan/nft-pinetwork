@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pi NFT Center v1.6.1 Smooth Carousel</title>
+<title>Pi NFT Center v1.6.2 New NFTs Auto Scroll</title>
 <style>
 :root{--purple:#5b2d82;--gold:#f5b041;--bg:#111017;--card:#1d1826;--text:#f7f1ff;--muted:#b7a9c6;--border:#3b2c4c;--green:#2ecc71;--red:#ff5c5c;--blue:#2f80ed;--soft:rgba(255,255,255,.055)}
 body.light{--bg:#f7f4fb;--card:#fff;--text:#19151f;--muted:#70647c;--border:#e5d8ef;--soft:rgba(91,45,130,.055)}
@@ -40,7 +40,7 @@ main{max-width:950px;margin:auto;padding:18px 14px 42px}.page{display:none}.page
 @media(max-width:720px){.collection-detail-banner{height:190px}.nft-media-card{height:128px}.nft-media-detail{height:320px;max-height:55vh}.detail-summary{padding:0}.media-optimization-grid{grid-template-columns:1fr}.media-optimization-grid strong{text-align:left}header{padding:10px}.logo{font-size:19px}main{padding:12px 10px 30px}.hero{border-radius:18px;padding:16px}.hero h1{font-size:21px}.hero p{font-size:12px}.section-title{font-size:20px}.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.collection-row{grid-template-columns:24px 82px 1fr;gap:8px}.top-banner{width:82px;height:46px}.nft-img{height:128px}.collection-banner{height:96px}.body{padding:9px}.nft-name,.collection-name,.name{font-size:13px}.meta{font-size:10px}.creator-tabs{display:grid;grid-template-columns:1fr 1fr}.detail-head{grid-template-columns:1fr}.detail-image{width:100%;height:260px}.footer-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.search-row{grid-template-columns:minmax(0,1fr) 130px}.search-results{right:138px}}
 @media(max-width:390px){.grid{grid-template-columns:1fr}}
 
-/* v1.6.1 Smooth Home carousel */
+/* v1.6.2 Smooth Home carousel */
 .carousel-section{position:relative}
 .carousel-header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:9px}
 .carousel-header .section-title{margin-bottom:0}
@@ -72,7 +72,7 @@ body.light .carousel-btn{background:rgba(255,255,255,.9)}
   <div class="menu" id="menu"><div class="menu-title">Navigation</div><button onclick="showPage('homePage')">🏠 Home</button><button onclick="showPage('collectionsPage')">🏪 Collections</button><button onclick="showPage('vaultPage')">🏦 My Vault</button><button onclick="showPage('creatorPage')">🎨 Creator Center</button><div class="menu-title">Appearance</div><button onclick="setTheme('light')">☀️ Light</button><button onclick="setTheme('dark')">🌙 Dark</button></div>
 </header>
 <main>
-  <div class="page show" id="homePage"><div class="hero"><h1>Pi NFT Center <span class="beta">v1.6.1</span></h1><p>New NFTs glides automatically. Every marketplace row supports smooth free scrolling.</p></div><section class="section"><div class="section-title">🏆 Top Collections</div><div class="collection-list" id="topCollections"></div></section><section class="section carousel-section"><div class="carousel-header"><div class="section-title">🔥 Hot NFTs</div><div class="carousel-controls"><button class="carousel-btn" type="button" data-carousel-prev="hotNfts" aria-label="Scroll 🔥 Hot NFTs left">◀</button><button class="carousel-btn" type="button" data-carousel-next="hotNfts" aria-label="Scroll 🔥 Hot NFTs right">▶</button></div></div><div class="carousel-shell"><span class="carousel-edge left"></span><div class="grid carousel-track" id="hotNfts" tabindex="0"></div><span class="carousel-edge right"></span></div></section><section class="section carousel-section"><div class="carousel-header"><div class="section-title">🔨 Live Auctions</div><div class="carousel-controls"><button class="carousel-btn" type="button" data-carousel-prev="liveAuctions" aria-label="Scroll 🔨 Live Auctions left">◀</button><button class="carousel-btn" type="button" data-carousel-next="liveAuctions" aria-label="Scroll 🔨 Live Auctions right">▶</button></div></div><div class="carousel-shell"><span class="carousel-edge left"></span><div class="grid carousel-track" id="liveAuctions" tabindex="0"></div><span class="carousel-edge right"></span></div></section><section class="section carousel-section"><div class="carousel-header"><div class="section-title">🆕 New NFTs</div><div class="carousel-controls"><button class="carousel-btn" type="button" data-carousel-prev="newNfts" aria-label="Scroll 🆕 New NFTs left">◀</button><button class="carousel-btn" type="button" data-carousel-next="newNfts" aria-label="Scroll 🆕 New NFTs right">▶</button></div></div><div class="carousel-shell"><span class="carousel-edge left"></span><div class="grid carousel-track" id="newNfts" tabindex="0"></div><span class="carousel-edge right"></span></div></section><section class="section carousel-section"><div class="carousel-header"><div class="section-title">🆕 New Collections</div><div class="carousel-controls"><button class="carousel-btn" type="button" data-carousel-prev="newCollections" aria-label="Scroll 🆕 New Collections left">◀</button><button class="carousel-btn" type="button" data-carousel-next="newCollections" aria-label="Scroll 🆕 New Collections right">▶</button></div></div><div class="carousel-shell"><span class="carousel-edge left"></span><div class="grid carousel-track" id="newCollections" tabindex="0"></div><span class="carousel-edge right"></span></div></section><section class="section carousel-section"><div class="carousel-header"><div class="section-title">⭐ Featured Collections</div><div class="carousel-controls"><button class="carousel-btn" type="button" data-carousel-prev="featuredCollections" aria-label="Scroll ⭐ Featured Collections left">◀</button><button class="carousel-btn" type="button" data-carousel-next="featuredCollections" aria-label="Scroll ⭐ Featured Collections right">▶</button></div></div><div class="carousel-shell"><span class="carousel-edge left"></span><div class="grid carousel-track" id="featuredCollections" tabindex="0"></div><span class="carousel-edge right"></span></div></section></div>
+  <div class="page show" id="homePage"><div class="hero"><h1>Pi NFT Center <span class="beta">v1.6.2</span></h1><p>New NFTs glides automatically and pauses only while you interact with it. Every marketplace row supports smooth free scrolling.</p></div><section class="section"><div class="section-title">🏆 Top Collections</div><div class="collection-list" id="topCollections"></div></section><section class="section carousel-section"><div class="carousel-header"><div class="section-title">🔥 Hot NFTs</div><div class="carousel-controls"><button class="carousel-btn" type="button" data-carousel-prev="hotNfts" aria-label="Scroll 🔥 Hot NFTs left">◀</button><button class="carousel-btn" type="button" data-carousel-next="hotNfts" aria-label="Scroll 🔥 Hot NFTs right">▶</button></div></div><div class="carousel-shell"><span class="carousel-edge left"></span><div class="grid carousel-track" id="hotNfts" tabindex="0"></div><span class="carousel-edge right"></span></div></section><section class="section carousel-section"><div class="carousel-header"><div class="section-title">🔨 Live Auctions</div><div class="carousel-controls"><button class="carousel-btn" type="button" data-carousel-prev="liveAuctions" aria-label="Scroll 🔨 Live Auctions left">◀</button><button class="carousel-btn" type="button" data-carousel-next="liveAuctions" aria-label="Scroll 🔨 Live Auctions right">▶</button></div></div><div class="carousel-shell"><span class="carousel-edge left"></span><div class="grid carousel-track" id="liveAuctions" tabindex="0"></div><span class="carousel-edge right"></span></div></section><section class="section carousel-section"><div class="carousel-header"><div class="section-title">🆕 New NFTs</div><div class="carousel-controls"><button class="carousel-btn" type="button" data-carousel-prev="newNfts" aria-label="Scroll 🆕 New NFTs left">◀</button><button class="carousel-btn" type="button" data-carousel-next="newNfts" aria-label="Scroll 🆕 New NFTs right">▶</button></div></div><div class="carousel-shell"><span class="carousel-edge left"></span><div class="grid carousel-track" id="newNfts" tabindex="0"></div><span class="carousel-edge right"></span></div></section><section class="section carousel-section"><div class="carousel-header"><div class="section-title">🆕 New Collections</div><div class="carousel-controls"><button class="carousel-btn" type="button" data-carousel-prev="newCollections" aria-label="Scroll 🆕 New Collections left">◀</button><button class="carousel-btn" type="button" data-carousel-next="newCollections" aria-label="Scroll 🆕 New Collections right">▶</button></div></div><div class="carousel-shell"><span class="carousel-edge left"></span><div class="grid carousel-track" id="newCollections" tabindex="0"></div><span class="carousel-edge right"></span></div></section><section class="section carousel-section"><div class="carousel-header"><div class="section-title">⭐ Featured Collections</div><div class="carousel-controls"><button class="carousel-btn" type="button" data-carousel-prev="featuredCollections" aria-label="Scroll ⭐ Featured Collections left">◀</button><button class="carousel-btn" type="button" data-carousel-next="featuredCollections" aria-label="Scroll ⭐ Featured Collections right">▶</button></div></div><div class="carousel-shell"><span class="carousel-edge left"></span><div class="grid carousel-track" id="featuredCollections" tabindex="0"></div><span class="carousel-edge right"></span></div></section></div>
   <div class="page" id="collectionsPage"><div class="hero"><h1>Collections</h1><p>All collections are rendered from MarketState only.</p></div><section class="section"><div class="grid" id="allCollections"></div></section></div>
   <div class="page" id="collectionPage"><div id="collectionDetail"></div></div>
   <div class="page" id="vaultPage"><div class="hero vault-hero"><h1>My Vault</h1><p id="vaultStats">Connect wallet to load ownerOf-based vault.</p><div class="vault-tabs" role="tablist" aria-label="My Vault"><button class="vault-tab active" id="vaultTabOwned" type="button" onclick="setVaultTab('owned')">Owned NFTs</button><button class="vault-tab" id="vaultTabSend" type="button" onclick="setVaultTab('send')">Send</button><button class="vault-tab" id="vaultTabReceive" type="button" onclick="setVaultTab('receive')">Receive</button></div></div><section class="section"><div id="vaultContent"></div></section></div>
@@ -1115,15 +1115,19 @@ function animateCarouselTo(track,target,duration=720){
   };
   track._carouselAnimationFrame=requestAnimationFrame(frame);
 }
+function setAutoCarouselPaused(track,paused){
+  if(!track||track.id!==PNC_AUTO_CAROUSEL_ID)return;
+  track.dataset.carouselPaused=paused?'1':'0';
+}
 function moveCarousel(id,direction){
   const track=$(id);if(!track)return;
-  pauseCarousel(track,3600);
+  setAutoCarouselPaused(track,true);
   animateCarouselTo(track,track.scrollLeft+(direction*carouselStep(track)),760);
 }
-function pauseCarousel(track,delay=3200){
-  track.dataset.carouselPaused='1';
-  clearTimeout(track._carouselResumeTimer);
-  track._carouselResumeTimer=setTimeout(()=>{track.dataset.carouselPaused='0';},delay);
+function resumeNewNftsFromOutside(event){
+  const track=$(PNC_AUTO_CAROUSEL_ID);if(!track)return;
+  if(event&&track.contains(event.target))return;
+  setAutoCarouselPaused(track,false);
 }
 function startCarouselAuto(track){
   if(track.id!==PNC_AUTO_CAROUSEL_ID){
@@ -1138,7 +1142,7 @@ function startCarouselAuto(track){
   const frame=now=>{
     const elapsed=Math.min(50,now-previous)/1000;previous=now;
     const max=Math.max(0,track.scrollWidth-track.clientWidth);
-    const blocked=document.hidden||track.dataset.carouselPaused==='1'||track.matches(':hover')||track.classList.contains('is-dragging')||track.classList.contains('is-animating')||max<4;
+    const blocked=document.hidden||track.dataset.carouselPaused==='1'||track.classList.contains('is-dragging')||track.classList.contains('is-animating')||max<4;
     if(!blocked){
       let next=track.scrollLeft+(track._carouselAutoDirection*speed*elapsed);
       if(next>=max){next=max;track._carouselAutoDirection=-1;}
@@ -1168,6 +1172,7 @@ function applyDesktopMomentum(track,velocity){
 function bindCarousel(track){
   if(track.dataset.carouselBound==='1'){updateCarouselControls(track);startCarouselAuto(track);return;}
   track.dataset.carouselBound='1';
+  if(track.id===PNC_AUTO_CAROUSEL_ID)track.dataset.carouselPaused='0';
   const prev=document.querySelector(`[data-carousel-prev="${track.id}"]`);
   const next=document.querySelector(`[data-carousel-next="${track.id}"]`);
   prev?.addEventListener('click',()=>moveCarousel(track.id,-1));
@@ -1176,13 +1181,14 @@ function bindCarousel(track){
     if(track.scrollWidth<=track.clientWidth+4)return;
     const delta=Math.abs(event.deltaX)>Math.abs(event.deltaY)?event.deltaX:event.deltaY;
     if(!delta)return;
-    event.preventDefault();cancelCarouselAnimation(track);track.scrollLeft+=delta;pauseCarousel(track,2600);
+    event.preventDefault();cancelCarouselAnimation(track);track.scrollLeft+=delta;setAutoCarouselPaused(track,true);
   },{passive:false});
   let dragging=false,startX=0,startScroll=0,moved=false,lastX=0,lastTime=0,velocity=0;
   track.addEventListener('pointerdown',event=>{
+    setAutoCarouselPaused(track,true);
     if(event.pointerType==='touch')return;
     cancelCarouselAnimation(track);dragging=true;moved=false;startX=lastX=event.clientX;startScroll=track.scrollLeft;lastTime=performance.now();velocity=0;
-    track.classList.add('is-dragging');track.setPointerCapture(event.pointerId);pauseCarousel(track,4200);
+    track.classList.add('is-dragging');track.setPointerCapture(event.pointerId);
   });
   track.addEventListener('pointermove',event=>{
     if(!dragging)return;
@@ -1198,13 +1204,16 @@ function bindCarousel(track){
   };
   track.addEventListener('pointerup',stopDrag);track.addEventListener('pointercancel',stopDrag);
   track.addEventListener('click',event=>{if(moved){event.preventDefault();event.stopPropagation();moved=false;}},true);
-  track.addEventListener('touchstart',()=>{cancelCarouselAnimation(track);pauseCarousel(track,4200);},{passive:true});
-  track.addEventListener('touchmove',()=>pauseCarousel(track,4200),{passive:true});
+  track.addEventListener('touchstart',()=>{cancelCarouselAnimation(track);setAutoCarouselPaused(track,true);},{passive:true});
+  track.addEventListener('touchmove',()=>setAutoCarouselPaused(track,true),{passive:true});
   track.addEventListener('keydown',event=>{if(event.key==='ArrowLeft'){event.preventDefault();moveCarousel(track.id,-1);}if(event.key==='ArrowRight'){event.preventDefault();moveCarousel(track.id,1);}});
   updateCarouselControls(track);startCarouselAuto(track);
 }
 function initHomeCarousels(){PNC_CAROUSEL_IDS.forEach(id=>{const track=$(id);if(track)bindCarousel(track);});}
 window.addEventListener('resize',()=>PNC_CAROUSEL_IDS.forEach(id=>{const track=$(id);if(track)updateCarouselControls(track);}));
+document.addEventListener('pointerdown',resumeNewNftsFromOutside,true);
+window.addEventListener('scroll',()=>setAutoCarouselPaused($(PNC_AUTO_CAROUSEL_ID),false),{passive:true});
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)startCarouselAuto($(PNC_AUTO_CAROUSEL_ID));});
 
 function renderAll(state){renderHome(state);renderCollections(state);renderVault(state);renderCreatorCenter(state);renderFooter(state);if(state.activeCollectionId)renderCollectionPage(state,state.activeCollectionId);}function renderHome(state){$('topCollections').innerHTML=state.collections.slice(0,TOP_COLLECTION_LIMIT).map((c,i)=>collectionRow(c,state,i)).join('')||'<div class="meta">No collections yet. Create Shopで登録するとここに表示されます。</div>';$('hotNfts').innerHTML=state.nfts.filter(n=>n.status==='listed').map(nftCard).join('')||'<div class="panel">No listed NFTs yet.</div>';$('liveAuctions').innerHTML=state.nfts.filter(n=>n.status==='auction'&&n.auction&&n.auction.active&&auctionPhase(n.auction)!=='ended').map(nftCard).join('')||'<div class="panel">No live auctions yet.</div>';$('newNfts').innerHTML=newestNFTs(state.nfts).map(nftCard).join('')||'<div class="panel">No NFTs yet.</div>';$('newCollections').innerHTML=state.collections.map(c=>collectionCard(c,state,false)).join('')||'<div class="panel">No collections yet.</div>';$('featuredCollections').innerHTML=state.collections.filter(c=>c.verified).map(c=>collectionCard(c,state,true)).join('')||'<div class="panel">No featured collections yet.</div>';requestAnimationFrame(initHomeCarousels);}function renderCollections(state){$('allCollections').innerHTML=state.collections.map(c=>collectionCard(c,state,false)).join('')||'<div class="panel">No collections yet.</div>';}function renderCollectionPage(state,collectionId){const c=state.collections.find(x=>x.id===collectionId||lc(x.name)===lc(collectionId));if(!c)return;state.activeCollectionId=c.id;const items=collectionItems(state,c.id);$('collectionDetail').innerHTML=`${mediaBox(c,'collection-detail-banner')}<div class="hero"><h1>${esc(c.name)} ${c.verified?'<span class="badge">✔</span>':''}</h1><p>${esc(c.description||'')}</p>${shopSocialHtml(c)}${state.wallet&&lc(c.creator)===lc(state.wallet)?`<div class="toolbar"><button class="small-btn sell-btn" onclick="openEditShop('${esc(c.id)}')">Edit Shop</button></div>`:''}</div><div class="market-stats"><div class="stat"><strong>${items.length}</strong><span>Items</span></div><div class="stat"><strong>${items.filter(n=>n.status==='listed').length}</strong><span>Listed</span></div><div class="stat"><strong>${new Set(items.map(n=>lc(n.owner)).filter(Boolean)).size}</strong><span>Owners</span></div><div class="stat"><strong>-</strong><span>Floor</span></div><div class="stat"><strong>0</strong><span>Volume</span></div></div><section class="section"><div class="section-title">🖼 NFTs</div><div class="grid">${items.map(nftCard).join('')||'<div class="panel">No NFTs.</div>'}</div></section>`;}function vaultOwnedNFTs(state){
   const wallet=lc(state.wallet);
