@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pi NFT Center v1.6.6 New NFTs Auto Scroll Rebuilt</title>
+<title>Pi NFT Center v1.6.7 Mobile Debug Edition</title>
 <style>
 :root{--purple:#5b2d82;--gold:#f5b041;--bg:#111017;--card:#1d1826;--text:#f7f1ff;--muted:#b7a9c6;--border:#3b2c4c;--green:#2ecc71;--red:#ff5c5c;--blue:#2f80ed;--soft:rgba(255,255,255,.055)}
 body.light{--bg:#f7f4fb;--card:#fff;--text:#19151f;--muted:#70647c;--border:#e5d8ef;--soft:rgba(91,45,130,.055)}
@@ -63,6 +63,21 @@ body.light .carousel-btn{background:rgba(255,255,255,.9)}
 .carousel-edge.left{left:0;background:linear-gradient(90deg,var(--bg),transparent)}
 .carousel-edge.right{right:0;background:linear-gradient(270deg,var(--bg),transparent)}
 @media(max-width:759px){.carousel-track{padding-right:18px}.carousel-track>.card{flex-basis:72vw;max-width:260px}.carousel-track .collection-card{flex-basis:78vw;max-width:300px}.carousel-btn{width:36px;height:36px;font-size:20px}}
+
+/* v1.6.7 Mobile Debug Edition */
+.pnc-debug-panel{position:fixed;left:8px;right:8px;bottom:8px;z-index:200;background:rgba(17,16,23,.96);color:#f7f1ff;border:2px solid #f5b041;border-radius:16px;box-shadow:0 14px 38px rgba(0,0,0,.55);font-family:Consolas,monospace;font-size:12px;max-height:46vh;overflow:hidden}
+.pnc-debug-panel.minimized .pnc-debug-body{display:none}
+.pnc-debug-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:9px 10px;background:#5b2d82}
+.pnc-debug-title{font-weight:950;color:#f5b041}
+.pnc-debug-actions{display:flex;gap:6px}
+.pnc-debug-actions button{border:1px solid rgba(245,176,65,.65);background:transparent;color:#f5b041;border-radius:9px;padding:5px 8px;font-weight:900}
+.pnc-debug-body{padding:9px;max-height:38vh;overflow:auto}
+.pnc-debug-summary{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px;margin-bottom:8px}
+.pnc-debug-chip{border:1px solid #3b2c4c;border-radius:9px;padding:5px 7px;background:rgba(255,255,255,.05);word-break:break-word}
+.pnc-debug-log{white-space:pre-wrap;word-break:break-word;line-height:1.45;margin:0}
+.pnc-debug-ok{color:#7ff0a8}.pnc-debug-warn{color:#ffd37e}.pnc-debug-error{color:#ff8b8b}.pnc-debug-info{color:#d9c8ee}
+@media(max-width:520px){.pnc-debug-panel{left:5px;right:5px;bottom:5px;font-size:10px}.pnc-debug-summary{grid-template-columns:1fr}.pnc-debug-head{padding:7px}.pnc-debug-body{max-height:40vh}}
+
 </style>
 </head>
 <body>
@@ -71,8 +86,24 @@ body.light .carousel-btn{background:rgba(255,255,255,.9)}
   <div class="search-row"><input id="searchInput" oninput="searchPNC()" placeholder="Search NFTs or Collections"><button class="wallet-btn" id="walletConnectBtn" onclick="openWalletModal()">Connect</button><div class="search-results" id="searchResults"></div></div>
   <div class="menu" id="menu"><div class="menu-title">Navigation</div><button onclick="showPage('homePage')">🏠 Home</button><button onclick="showPage('collectionsPage')">🏪 Collections</button><button onclick="showPage('vaultPage')">🏦 My Vault</button><button onclick="showPage('creatorPage')">🎨 Creator Center</button><div class="menu-title">Appearance</div><button onclick="setTheme('light')">☀️ Light</button><button onclick="setTheme('dark')">🌙 Dark</button></div>
 </header>
+
+<div class="pnc-debug-panel" id="pncDebugPanel" aria-live="polite">
+  <div class="pnc-debug-head">
+    <div class="pnc-debug-title">📱 PNC v1.6.7 Mobile Diagnostic</div>
+    <div class="pnc-debug-actions">
+      <button type="button" onclick="pncDebugCopy()">Copy</button>
+      <button type="button" onclick="pncDebugClear()">Clear</button>
+      <button type="button" onclick="pncDebugToggle()">−</button>
+    </div>
+  </div>
+  <div class="pnc-debug-body">
+    <div class="pnc-debug-summary" id="pncDebugSummary"></div>
+    <pre class="pnc-debug-log" id="pncDebugLog">[BOOT] Diagnostic panel loaded.</pre>
+  </div>
+</div>
+
 <main>
-  <div class="page show" id="homePage"><div class="hero"><h1>Pi NFT Center <span class="beta">v1.6.6</span></h1><p>New NFTs glides automatically and pauses only while you interact with it. Every marketplace row supports smooth free scrolling.</p></div><section class="section"><div class="section-title">🏆 Top Collections</div><div class="collection-list" id="topCollections"></div></section><section class="section carousel-section"><div class="carousel-header"><div class="section-title">🔥 Hot NFTs</div><div class="carousel-controls"><button class="carousel-btn" type="button" data-carousel-prev="hotNfts" aria-label="Scroll 🔥 Hot NFTs left">◀</button><button class="carousel-btn" type="button" data-carousel-next="hotNfts" aria-label="Scroll 🔥 Hot NFTs right">▶</button></div></div><div class="carousel-shell"><span class="carousel-edge left"></span><div class="grid carousel-track" id="hotNfts" tabindex="0"></div><span class="carousel-edge right"></span></div></section><section class="section carousel-section"><div class="carousel-header"><div class="section-title">🔨 Live Auctions</div><div class="carousel-controls"><button class="carousel-btn" type="button" data-carousel-prev="liveAuctions" aria-label="Scroll 🔨 Live Auctions left">◀</button><button class="carousel-btn" type="button" data-carousel-next="liveAuctions" aria-label="Scroll 🔨 Live Auctions right">▶</button></div></div><div class="carousel-shell"><span class="carousel-edge left"></span><div class="grid carousel-track" id="liveAuctions" tabindex="0"></div><span class="carousel-edge right"></span></div></section><section class="section carousel-section"><div class="carousel-header"><div class="section-title">🆕 New NFTs</div><div class="carousel-controls"><button class="carousel-btn" type="button" data-carousel-prev="newNfts" aria-label="Scroll 🆕 New NFTs left">◀</button><button class="carousel-btn" type="button" data-carousel-next="newNfts" aria-label="Scroll 🆕 New NFTs right">▶</button></div></div><div class="carousel-shell"><span class="carousel-edge left"></span><div class="grid carousel-track" id="newNfts" tabindex="0"></div><span class="carousel-edge right"></span></div></section><section class="section carousel-section"><div class="carousel-header"><div class="section-title">🆕 New Collections</div><div class="carousel-controls"><button class="carousel-btn" type="button" data-carousel-prev="newCollections" aria-label="Scroll 🆕 New Collections left">◀</button><button class="carousel-btn" type="button" data-carousel-next="newCollections" aria-label="Scroll 🆕 New Collections right">▶</button></div></div><div class="carousel-shell"><span class="carousel-edge left"></span><div class="grid carousel-track" id="newCollections" tabindex="0"></div><span class="carousel-edge right"></span></div></section><section class="section carousel-section"><div class="carousel-header"><div class="section-title">⭐ Featured Collections</div><div class="carousel-controls"><button class="carousel-btn" type="button" data-carousel-prev="featuredCollections" aria-label="Scroll ⭐ Featured Collections left">◀</button><button class="carousel-btn" type="button" data-carousel-next="featuredCollections" aria-label="Scroll ⭐ Featured Collections right">▶</button></div></div><div class="carousel-shell"><span class="carousel-edge left"></span><div class="grid carousel-track" id="featuredCollections" tabindex="0"></div><span class="carousel-edge right"></span></div></section></div>
+  <div class="page show" id="homePage"><div class="hero"><h1>Pi NFT Center <span class="beta">v1.6.7 Mobile Debug</span></h1><p>New NFTs glides automatically and pauses only while you interact with it. Every marketplace row supports smooth free scrolling.</p></div><section class="section"><div class="section-title">🏆 Top Collections</div><div class="collection-list" id="topCollections"></div></section><section class="section carousel-section"><div class="carousel-header"><div class="section-title">🔥 Hot NFTs</div><div class="carousel-controls"><button class="carousel-btn" type="button" data-carousel-prev="hotNfts" aria-label="Scroll 🔥 Hot NFTs left">◀</button><button class="carousel-btn" type="button" data-carousel-next="hotNfts" aria-label="Scroll 🔥 Hot NFTs right">▶</button></div></div><div class="carousel-shell"><span class="carousel-edge left"></span><div class="grid carousel-track" id="hotNfts" tabindex="0"></div><span class="carousel-edge right"></span></div></section><section class="section carousel-section"><div class="carousel-header"><div class="section-title">🔨 Live Auctions</div><div class="carousel-controls"><button class="carousel-btn" type="button" data-carousel-prev="liveAuctions" aria-label="Scroll 🔨 Live Auctions left">◀</button><button class="carousel-btn" type="button" data-carousel-next="liveAuctions" aria-label="Scroll 🔨 Live Auctions right">▶</button></div></div><div class="carousel-shell"><span class="carousel-edge left"></span><div class="grid carousel-track" id="liveAuctions" tabindex="0"></div><span class="carousel-edge right"></span></div></section><section class="section carousel-section"><div class="carousel-header"><div class="section-title">🆕 New NFTs</div><div class="carousel-controls"><button class="carousel-btn" type="button" data-carousel-prev="newNfts" aria-label="Scroll 🆕 New NFTs left">◀</button><button class="carousel-btn" type="button" data-carousel-next="newNfts" aria-label="Scroll 🆕 New NFTs right">▶</button></div></div><div class="carousel-shell"><span class="carousel-edge left"></span><div class="grid carousel-track" id="newNfts" tabindex="0"></div><span class="carousel-edge right"></span></div></section><section class="section carousel-section"><div class="carousel-header"><div class="section-title">🆕 New Collections</div><div class="carousel-controls"><button class="carousel-btn" type="button" data-carousel-prev="newCollections" aria-label="Scroll 🆕 New Collections left">◀</button><button class="carousel-btn" type="button" data-carousel-next="newCollections" aria-label="Scroll 🆕 New Collections right">▶</button></div></div><div class="carousel-shell"><span class="carousel-edge left"></span><div class="grid carousel-track" id="newCollections" tabindex="0"></div><span class="carousel-edge right"></span></div></section><section class="section carousel-section"><div class="carousel-header"><div class="section-title">⭐ Featured Collections</div><div class="carousel-controls"><button class="carousel-btn" type="button" data-carousel-prev="featuredCollections" aria-label="Scroll ⭐ Featured Collections left">◀</button><button class="carousel-btn" type="button" data-carousel-next="featuredCollections" aria-label="Scroll ⭐ Featured Collections right">▶</button></div></div><div class="carousel-shell"><span class="carousel-edge left"></span><div class="grid carousel-track" id="featuredCollections" tabindex="0"></div><span class="carousel-edge right"></span></div></section></div>
   <div class="page" id="collectionsPage"><div class="hero"><h1>Collections</h1><p>All collections are rendered from MarketState only.</p></div><section class="section"><div class="grid" id="allCollections"></div></section></div>
   <div class="page" id="collectionPage"><div id="collectionDetail"></div></div>
   <div class="page" id="vaultPage"><div class="hero vault-hero"><h1>My Vault</h1><p id="vaultStats">Connect wallet to load ownerOf-based vault.</p><div class="vault-tabs" role="tablist" aria-label="My Vault"><button class="vault-tab active" id="vaultTabOwned" type="button" onclick="setVaultTab('owned')">Owned NFTs</button><button class="vault-tab" id="vaultTabSend" type="button" onclick="setVaultTab('send')">Send</button><button class="vault-tab" id="vaultTabReceive" type="button" onclick="setVaultTab('receive')">Receive</button></div></div><section class="section"><div id="vaultContent"></div></section></div>
@@ -84,7 +115,63 @@ body.light .carousel-btn{background:rgba(255,255,255,.9)}
 <div class="legal-modal" id="legalModal" onclick="closeLegal(event)"><div class="legal-box" id="legalBox" role="dialog" aria-modal="true" aria-labelledby="legalTitle"></div></div>
 <script>
 'use strict';
-const PNC_CONFIG={app:{version:'v1.5.8'},network:{chainId:'0xaa36a7',name:'Sepolia Testnet'},contracts:{nft:'0x63C8AbE6a0e7867B7812A1237a2781D460702382',marketplace:'0x6151447c07Fa68b5A90E4DdD0c04e46aaa8EB5dc',feeWallet:'0x4a45Cd6Aa78C7AB51b0d9ba0e36E035A47a0BC1b'},pinata:{gateway:'https://gateway.pinata.cloud/ipfs/'},currency:{activeSymbol:'SepoliaETH',futureSymbol:'Pi'},marketRules:{initialSale:{seller:95,pncFee:5},resale:{seller:85,creatorRoyalty:10,pncFee:5},examplePrice:1000},links:{x:'https://x.com/picoreteam?s=21&t=OEh4osxhpQf_YpLWZaL1kQ',telegram:'https://t.me/PiAnnouncements'},performance:{readChainBeforeWalletConnect:true}};
+
+const PNC_DEBUG={entries:[],startedAt:Date.now(),lastStage:'script-start'};
+function pncDebugValue(value){
+  if(value instanceof Error)return `${value.name||'Error'}: ${value.message||String(value)}`;
+  if(typeof value==='string')return value;
+  try{return JSON.stringify(value);}catch(e){return String(value);}
+}
+function pncDebug(stage,detail='',level='info'){
+  const elapsed=((Date.now()-PNC_DEBUG.startedAt)/1000).toFixed(2);
+  const line=`[${elapsed}s] ${stage}${detail!==''?' | '+pncDebugValue(detail):''}`;
+  PNC_DEBUG.lastStage=stage;
+  PNC_DEBUG.entries.push({line,level});
+  if(PNC_DEBUG.entries.length>250)PNC_DEBUG.entries.shift();
+  const log=document.getElementById('pncDebugLog');
+  if(log){
+    log.innerHTML=PNC_DEBUG.entries.map(x=>`<span class="pnc-debug-${x.level}">${x.line.replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]))}</span>`).join('\n');
+    log.parentElement.scrollTop=log.parentElement.scrollHeight;
+  }
+  pncDebugSummary();
+  try{(level==='error'?console.error:level==='warn'?console.warn:console.log)('[PNC DEBUG]',stage,detail);}catch(e){}
+}
+function pncDebugSummary(){
+  const box=document.getElementById('pncDebugSummary');if(!box)return;
+  const ethereum=!!window.ethereum;
+  const wallet=(typeof PNC_STATE!=='undefined'&&PNC_STATE&&PNC_STATE.wallet)||'not connected';
+  const collections=(typeof PNC_STATE!=='undefined'&&PNC_STATE&&Array.isArray(PNC_STATE.collections))?PNC_STATE.collections.length:'-';
+  const nfts=(typeof PNC_STATE!=='undefined'&&PNC_STATE&&Array.isArray(PNC_STATE.nfts))?PNC_STATE.nfts.length:'-';
+  box.innerHTML=[
+    `Stage: ${PNC_DEBUG.lastStage}`,
+    `Ethereum: ${ethereum?'YES':'NO'}`,
+    `Wallet: ${String(wallet).slice(0,10)}${String(wallet).length>10?'…':''}`,
+    `Collections / NFTs: ${collections} / ${nfts}`,
+    `Online: ${navigator.onLine?'YES':'NO'}`,
+    `Viewport: ${window.innerWidth}×${window.innerHeight}`
+  ].map(x=>`<div class="pnc-debug-chip">${x}</div>`).join('');
+}
+function pncDebugToggle(){document.getElementById('pncDebugPanel')?.classList.toggle('minimized');}
+function pncDebugClear(){PNC_DEBUG.entries=[];pncDebug('LOG CLEARED','','warn');}
+async function pncDebugCopy(){
+  const report=[
+    'PNC v1.6.7 Mobile Diagnostic',
+    `URL: ${location.href}`,
+    `UA: ${navigator.userAgent}`,
+    `Online: ${navigator.onLine}`,
+    `Ethereum: ${!!window.ethereum}`,
+    ...PNC_DEBUG.entries.map(x=>x.line)
+  ].join('\n');
+  try{await navigator.clipboard.writeText(report);alert('Diagnostic log copied.');}
+  catch(e){prompt('Copy this diagnostic log:',report);}
+}
+window.addEventListener('error',event=>pncDebug('WINDOW ERROR',`${event.message} @ ${event.filename||'-'}:${event.lineno||0}:${event.colno||0}`,'error'));
+window.addEventListener('unhandledrejection',event=>pncDebug('UNHANDLED PROMISE',event.reason||'Unknown rejection','error'));
+window.addEventListener('online',()=>pncDebug('NETWORK','online','ok'));
+window.addEventListener('offline',()=>pncDebug('NETWORK','offline','error'));
+pncDebug('SCRIPT START',navigator.userAgent,'ok');
+
+const PNC_CONFIG={app:{version:'v1.6.7-mobile-debug'},network:{chainId:'0xaa36a7',name:'Sepolia Testnet'},contracts:{nft:'0x63C8AbE6a0e7867B7812A1237a2781D460702382',marketplace:'0x6151447c07Fa68b5A90E4DdD0c04e46aaa8EB5dc',feeWallet:'0x4a45Cd6Aa78C7AB51b0d9ba0e36E035A47a0BC1b'},pinata:{gateway:'https://gateway.pinata.cloud/ipfs/'},currency:{activeSymbol:'SepoliaETH',futureSymbol:'Pi'},marketRules:{initialSale:{seller:95,pncFee:5},resale:{seller:85,creatorRoyalty:10,pncFee:5},examplePrice:1000},links:{x:'https://x.com/picoreteam?s=21&t=OEh4osxhpQf_YpLWZaL1kQ',telegram:'https://t.me/PiAnnouncements'},performance:{readChainBeforeWalletConnect:true}};
 const PNC_FOOTER={
   navigation:{title:'PNC',items:[
     {label:'Home',kind:'page',target:'homePage'},
@@ -397,7 +484,26 @@ function readLocalState(walletKey){try{const key=walletKey===PNC_GLOBAL_MARKET_K
 function writeLocalState(walletKey,state){try{const key=walletKey===PNC_GLOBAL_MARKET_KEY?PNC_LOCAL_GLOBAL_KEY:localWalletKey(walletKey);localStorage.setItem(key,JSON.stringify(state));}catch(e){console.warn(e);}}
 function readRestoreSnapshot(){try{const raw=localStorage.getItem(PNC_LOCAL_SNAPSHOT_KEY);return raw?JSON.parse(raw):null;}catch(e){return null;}}
 function writeRestoreSnapshot(creatorState){try{localStorage.setItem(PNC_LOCAL_SNAPSHOT_KEY,JSON.stringify({at:Date.now(),version:PNC_CONFIG.app.version,creator:creatorState||emptyCreatorState()}));}catch(e){console.warn(e);}}
-async function loadRemoteKVState(wallet){if(!wallet)return null;try{const r=await fetch('/api/load-state?walletAddress='+encodeURIComponent(wallet),{cache:'no-store'});const j=await r.json();return j.ok?j.state:null;}catch(e){console.warn('KV load failed:',e.message||e);return null;}}
+async function loadRemoteKVState(wallet){
+  if(!wallet)return null;
+  const label=wallet===PNC_GLOBAL_MARKET_KEY?'GLOBAL':short(wallet);
+  pncDebug('KV FETCH START',label);
+  try{
+    const r=await fetch('/api/load-state?walletAddress='+encodeURIComponent(wallet),{cache:'no-store'});
+    pncDebug('KV HTTP',`${label} status=${r.status}`,r.ok?'ok':'warn');
+    const raw=await r.text();
+    let j=null;
+    try{j=JSON.parse(raw);}catch(parseError){pncDebug('KV JSON ERROR',`${label}: ${parseError.message}; body=${raw.slice(0,160)}`,'error');return null;}
+    const state=j&&j.ok?j.state:null;
+    const c=extractCreatorStorage(state);
+    pncDebug('KV FETCH DONE',`${label} shops=${c.registeredShops.length} nfts=${c.mintedNfts.length}`,state?'ok':'warn');
+    return state;
+  }catch(e){
+    pncDebug('KV FETCH FAILED',`${label}: ${e.message||e}`,'error');
+    console.warn('KV load failed:',e.message||e);
+    return null;
+  }
+}
 async function loadStoredStateSources(walletKey){return{local:readLocalState(walletKey),remote:await loadRemoteKVState(walletKey),snapshot:readRestoreSnapshot()};}
 async function loadKVState(wallet){const s=await loadStoredStateSources(wallet);return s.remote||s.local||s.snapshot||null;}
 async function loadGlobalMarketState(){return await loadKVState(PNC_GLOBAL_MARKET_KEY);}
@@ -440,33 +546,46 @@ function applyKVCreatorState(state,kv,options={}){
 function createSeedState(wallet,creatorSeed){return{wallet:wallet||null,collections:[],nfts:[],market:{listings:[],offers:[],auctions:[],minimumNativeWei:'0',pendingBidRefundWei:'0',storageReads:[]},creator:structuredCopy(creatorSeed||emptyCreatorState()),errors:[],resolving:true};}
 async function loadBlockchainState(){
   const loadId=++PNC_LOAD_SEQUENCE;
+  pncDebug('LOAD START',`id=${loadId} wallet=${PNC_STATE.wallet?short(PNC_STATE.wallet):'none'}`);
   const walletSnapshot=PNC_STATE.wallet||null;
   const creatorSnapshot=structuredCopy(PNC_STATE.creator||emptyCreatorState());
   const seed=createSeedState(walletSnapshot,creatorSnapshot);
   if(loadId===PNC_LOAD_SEQUENCE){
     PNC_STATE=seed;
+    pncDebug('SEED RENDER',`collections=${seed.collections.length} nfts=${seed.nfts.length}`);
     renderAll(PNC_STATE);
   }
+  pncDebug('CREATE MARKETSTATE CALL');
   const nextState=await createMarketState(walletSnapshot,creatorSnapshot);
+  pncDebug('CREATE MARKETSTATE RETURN',`collections=${nextState.collections.length} nfts=${nextState.nfts.length} errors=${nextState.errors.length}`,'ok');
   if(loadId!==PNC_LOAD_SEQUENCE||lc(PNC_STATE.wallet)!==lc(walletSnapshot)){
     console.warn('Discarded stale MarketState load:',loadId);
     return PNC_STATE;
   }
   PNC_STATE=nextState;
+  pncDebug('FINAL RENDER START');
   renderAll(PNC_STATE);
+  pncDebug('LOAD COMPLETE',`collections=${PNC_STATE.collections.length} nfts=${PNC_STATE.nfts.length}`,'ok');
   return PNC_STATE;
 }
 async function createMarketState(walletSnapshot,creatorSnapshot){
+  pncDebug('MARKETSTATE START',`wallet=${walletSnapshot?short(walletSnapshot):'none'}`);
   const state={wallet:walletSnapshot||null,collections:[],nfts:[],market:{listings:[],offers:[],auctions:[],minimumNativeWei:'0',pendingBidRefundWei:'0',storageReads:[]},creator:structuredCopy(creatorSnapshot||emptyCreatorState()),errors:[],resolving:false};
 
+  pncDebug('GLOBAL SOURCES START');
   const globalSources=await loadStoredStateSources(PNC_GLOBAL_MARKET_KEY);
+  pncDebug('GLOBAL SOURCES READY',`local=${!!globalSources.local} snapshot=${!!globalSources.snapshot} remote=${!!globalSources.remote}`,'ok');
   state.market.globalSources=globalSources;
   for(const source of [globalSources.local,globalSources.snapshot,globalSources.remote]){
     if(source&&typeof source==='object') applyKVCreatorState(state,source,{requireWalletMatch:false});
   }
 
+  pncDebug('GLOBAL MERGE DONE',`collections=${state.collections.length} nfts=${state.nfts.length}`,'ok');
+
   if(state.wallet){
+    pncDebug('WALLET SOURCES START',short(state.wallet));
     const walletSources=await loadStoredStateSources(state.wallet);
+    pncDebug('WALLET SOURCES READY',`local=${!!walletSources.local} snapshot=${!!walletSources.snapshot} remote=${!!walletSources.remote}`,'ok');
     state.market.walletSources=walletSources;
     for(const source of [walletSources.local,walletSources.snapshot,walletSources.remote]){
       if(source&&typeof source==='object') applyKVCreatorState(state,source,{requireWalletMatch:false});
@@ -475,14 +594,18 @@ async function createMarketState(walletSnapshot,creatorSnapshot){
 
   applyCreatorRegisteredShops(state);
   applyCreatorMintedNFTs(state);
+  pncDebug('STORAGE MERGE COMPLETE',`collections=${state.collections.length} nfts=${state.nfts.length}`,'ok');
 
   if(window.ethereum){
-    try{state.market.minimumNativeWei=await readMinimumNativeWei();}catch(e){state.errors.push('minimumNativeWei read failed');}
+    pncDebug('CHAIN PROVIDER','window.ethereum detected','ok');
+    try{state.market.minimumNativeWei=await readMinimumNativeWei();pncDebug('CHAIN MINIMUM OK',state.market.minimumNativeWei,'ok');}catch(e){state.errors.push('minimumNativeWei read failed');pncDebug('CHAIN MINIMUM FAILED',e,'error');}
     if(state.wallet){
       try{state.market.pendingBidRefundWei=await readPendingBidRefund(state.wallet);}catch(e){state.errors.push('pendingBidRefunds read failed');}
     }
   }
 
+  pncDebug('NFT HYDRATION START',`count=${state.nfts.length}`);
+  let pncDebugNftDone=0;
   await Promise.all(state.nfts.map(async nft=>{
     nft.status=nft.status||'not_for_sale';
     applyCachedMetadata(nft);
@@ -519,9 +642,13 @@ async function createMarketState(walletSnapshot,creatorSnapshot){
         state.errors.push((nft.name||nft.id)+' auction state read failed');
       }
     }else await hydrateMetadata(nft);
+    pncDebugNftDone++;
+    pncDebug('NFT READY',`${pncDebugNftDone}/${state.nfts.length} ${nft.name||nft.id}`,'ok');
   }));
 
+  pncDebug('NFT HYDRATION COMPLETE',`count=${state.nfts.length}`,'ok');
   applyCollectionMedia(state);
+  pncDebug('MARKETSTATE COMPLETE',`collections=${state.collections.length} nfts=${state.nfts.length} errors=${state.errors.length}`,'ok');
   return state;
 }
 function walletModalHtmlConnected(){return`<button class="wallet-option" onclick="disconnectWallet()">Logout</button>`;}function walletModalHtmlDisconnected(){return`<button class="wallet-option" onclick="connectMetaMask()">🦊 MetaMask</button><button class="wallet-option" onclick="piWalletComingSoon()">Pi Wallet <span class="meta">Coming soon</span></button>`;}function openWalletModal(){const modal=$('walletModal'),status=$('walletModalStatus'),actions=$('walletModalActions'),title=modal?.querySelector('h2');if(PNC_STATE.wallet){if(title)title.textContent=PNC_TEXT.wallet.modalConnectedTitle;if(status)status.textContent=short(PNC_STATE.wallet);if(actions)actions.innerHTML=walletModalHtmlConnected();}else{if(title)title.textContent=PNC_TEXT.wallet.modalConnectTitle;if(status)status.textContent=PNC_TEXT.wallet.modalChooseProvider;if(actions)actions.innerHTML=walletModalHtmlDisconnected();}modal?.classList.add('show');}function closeWalletModal(){$('walletModal')?.classList.remove('show');}function piWalletComingSoon(){alert(PNC_TEXT.wallet.piComingSoon);}function isMetaMaskPendingError(e){return e&&e.code===-32002;}function isMetaMaskUserRejected(e){return e&&e.code===4001;}
@@ -1259,7 +1386,7 @@ document.addEventListener('visibilitychange',()=>{
 });
 window.addEventListener('beforeunload',()=>stopCarouselAuto($(PNC_AUTO_CAROUSEL_ID)));
 
-function renderAll(state){renderHome(state);renderCollections(state);renderVault(state);renderCreatorCenter(state);renderFooter(state);if(state.activeCollectionId)renderCollectionPage(state,state.activeCollectionId);}function renderHome(state){$('topCollections').innerHTML=state.collections.slice(0,TOP_COLLECTION_LIMIT).map((c,i)=>collectionRow(c,state,i)).join('')||'<div class="meta">No collections yet. Create Shopで登録するとここに表示されます。</div>';$('hotNfts').innerHTML=state.nfts.filter(n=>n.status==='listed').map(nftCard).join('')||'<div class="panel">No listed NFTs yet.</div>';$('liveAuctions').innerHTML=state.nfts.filter(n=>n.status==='auction'&&n.auction&&n.auction.active&&auctionPhase(n.auction)!=='ended').map(nftCard).join('')||'<div class="panel">No live auctions yet.</div>';$('newNfts').innerHTML=newestNFTs(state.nfts).map(nftCard).join('')||'<div class="panel">No NFTs yet.</div>';$('newCollections').innerHTML=state.collections.map(c=>collectionCard(c,state,false)).join('')||'<div class="panel">No collections yet.</div>';$('featuredCollections').innerHTML=state.collections.filter(c=>c.verified).map(c=>collectionCard(c,state,true)).join('')||'<div class="panel">No featured collections yet.</div>';requestAnimationFrame(initHomeCarousels);}function renderCollections(state){$('allCollections').innerHTML=state.collections.map(c=>collectionCard(c,state,false)).join('')||'<div class="panel">No collections yet.</div>';}function renderCollectionPage(state,collectionId){const c=state.collections.find(x=>x.id===collectionId||lc(x.name)===lc(collectionId));if(!c)return;state.activeCollectionId=c.id;const items=collectionItems(state,c.id);$('collectionDetail').innerHTML=`${mediaBox(c,'collection-detail-banner')}<div class="hero"><h1>${esc(c.name)} ${c.verified?'<span class="badge">✔</span>':''}</h1><p>${esc(c.description||'')}</p>${shopSocialHtml(c)}${state.wallet&&lc(c.creator)===lc(state.wallet)?`<div class="toolbar"><button class="small-btn sell-btn" onclick="openEditShop('${esc(c.id)}')">Edit Shop</button></div>`:''}</div><div class="market-stats"><div class="stat"><strong>${items.length}</strong><span>Items</span></div><div class="stat"><strong>${items.filter(n=>n.status==='listed').length}</strong><span>Listed</span></div><div class="stat"><strong>${new Set(items.map(n=>lc(n.owner)).filter(Boolean)).size}</strong><span>Owners</span></div><div class="stat"><strong>-</strong><span>Floor</span></div><div class="stat"><strong>0</strong><span>Volume</span></div></div><section class="section"><div class="section-title">🖼 NFTs</div><div class="grid">${items.map(nftCard).join('')||'<div class="panel">No NFTs.</div>'}</div></section>`;}function vaultOwnedNFTs(state){
+function renderAll(state){pncDebug('RENDER ALL',`resolving=${!!state.resolving} collections=${state.collections.length} nfts=${state.nfts.length}`);renderHome(state);renderCollections(state);renderVault(state);renderCreatorCenter(state);renderFooter(state);if(state.activeCollectionId)renderCollectionPage(state,state.activeCollectionId);pncDebug('RENDER ALL DONE','','ok');}function renderHome(state){$('topCollections').innerHTML=state.collections.slice(0,TOP_COLLECTION_LIMIT).map((c,i)=>collectionRow(c,state,i)).join('')||'<div class="meta">No collections yet. Create Shopで登録するとここに表示されます。</div>';$('hotNfts').innerHTML=state.nfts.filter(n=>n.status==='listed').map(nftCard).join('')||'<div class="panel">No listed NFTs yet.</div>';$('liveAuctions').innerHTML=state.nfts.filter(n=>n.status==='auction'&&n.auction&&n.auction.active&&auctionPhase(n.auction)!=='ended').map(nftCard).join('')||'<div class="panel">No live auctions yet.</div>';$('newNfts').innerHTML=newestNFTs(state.nfts).map(nftCard).join('')||'<div class="panel">No NFTs yet.</div>';$('newCollections').innerHTML=state.collections.map(c=>collectionCard(c,state,false)).join('')||'<div class="panel">No collections yet.</div>';$('featuredCollections').innerHTML=state.collections.filter(c=>c.verified).map(c=>collectionCard(c,state,true)).join('')||'<div class="panel">No featured collections yet.</div>';requestAnimationFrame(initHomeCarousels);}function renderCollections(state){$('allCollections').innerHTML=state.collections.map(c=>collectionCard(c,state,false)).join('')||'<div class="panel">No collections yet.</div>';}function renderCollectionPage(state,collectionId){const c=state.collections.find(x=>x.id===collectionId||lc(x.name)===lc(collectionId));if(!c)return;state.activeCollectionId=c.id;const items=collectionItems(state,c.id);$('collectionDetail').innerHTML=`${mediaBox(c,'collection-detail-banner')}<div class="hero"><h1>${esc(c.name)} ${c.verified?'<span class="badge">✔</span>':''}</h1><p>${esc(c.description||'')}</p>${shopSocialHtml(c)}${state.wallet&&lc(c.creator)===lc(state.wallet)?`<div class="toolbar"><button class="small-btn sell-btn" onclick="openEditShop('${esc(c.id)}')">Edit Shop</button></div>`:''}</div><div class="market-stats"><div class="stat"><strong>${items.length}</strong><span>Items</span></div><div class="stat"><strong>${items.filter(n=>n.status==='listed').length}</strong><span>Listed</span></div><div class="stat"><strong>${new Set(items.map(n=>lc(n.owner)).filter(Boolean)).size}</strong><span>Owners</span></div><div class="stat"><strong>-</strong><span>Floor</span></div><div class="stat"><strong>0</strong><span>Volume</span></div></div><section class="section"><div class="section-title">🖼 NFTs</div><div class="grid">${items.map(nftCard).join('')||'<div class="panel">No NFTs.</div>'}</div></section>`;}function vaultOwnedNFTs(state){
   const wallet=lc(state.wallet);
   return wallet?state.nfts.filter(n=>lc(n.owner)===wallet||(n.auction&&n.auction.active&&lc(n.auction.seller)===wallet)):[];
 }
@@ -1380,7 +1507,22 @@ function closeLegal(event){
   document.body.style.overflow='';
 }
 function openCollection(collectionId){renderCollectionPage(PNC_STATE,collectionId);showPage('collectionPage');}function showDetailById(id){const n=PNC_STATE.nfts.find(x=>x.id===id);if(!n)return;const c=PNC_STATE.collections.find(x=>x.id===n.collectionId)||{};const desc=n.description||(n.metadata&&n.metadata.description)||'';$('nftDetailBox').innerHTML=`<div class="detail-toolbar"><button class="detail-close" onclick="closeNftDetail()">×</button></div><div class="detail-head">${renderNFTMedia(n,'detail')}<div class="detail-summary"><div class="detail-title">${esc(n.name)}</div><div class="meta">${esc(c.name||n.collectionName||'-')} ${c.verified?'<span class="badge">✔</span>':''}</div>${priceLine(n)}${shopSocialHtml(c)}<div class="badge-row"><span class="badge ${statusClass(n)}">${esc(statusLabel(n))}</span><span class="chain-badge">${esc(chainLabel(n))}</span></div></div></div>${desc?`<div class="detail-section"><div class="detail-section-title">Description</div><div class="meta">${esc(desc)}</div></div>`:''}<div class="detail-section"><div class="detail-section-title">NFT Information</div><div class="detail-info-grid"><div>${infoRow('NFT ID',n.id)}${infoRow('Media Type',resolveNFTMedia(n).mediaType==='video'?'Video NFT':'Image NFT')}${infoRow('Token ID',n.tokenId||'-')}${infoRow('Collection',c.name||n.collectionName||'-')}${infoRow('Contract',displayAddress(n.contractAddress))}</div><div>${infoRow('Owner',displayAddress(n.owner))}${infoRow('Creator',displayAddress(n.creator))}${infoRow('Primary Sale',n.primarySaleCompleted?'Completed':'Not completed')}${infoRow('Seller',displayAddress(n.seller))}${infoRow('Listing ID',n.listingId||'-')}${infoRow('Active Offers',(n.offers||[]).length)}${n.auction?infoRow('Auction ID',n.auction.auctionId):''}${n.auction?infoRow('Auction Seller',displayAddress(n.auction.seller)):''}</div></div></div><div class="detail-section"><div class="detail-section-title">Offers</div>${offerListHtml(n)}</div><div class="detail-section"><div class="detail-section-title">Auction</div>${auctionListHtml(n)}</div>${bidRefundHtml()}${detailActionButtons(n)}`;$('nftDetailOverlay').classList.add('show');}function closeNftDetail(ev){if(ev&&ev.target&&ev.target.id!=='nftDetailOverlay')return;$('nftDetailOverlay')?.classList.remove('show');}function searchPNC(){const q=lc($('searchInput').value).trim(),box=$('searchResults');if(!q){box.classList.remove('show');box.innerHTML='';return;}const cs=PNC_STATE.collections.filter(c=>lc(c.name).includes(q));const ns=PNC_STATE.nfts.filter(n=>lc(n.name).includes(q));box.innerHTML=cs.map(c=>`<div class="search-item" onclick="openCollection('${esc(c.id)}')">🏪 ${esc(c.name)}<div class="meta">Collection</div></div>`).join('')+ns.map(n=>`<div class="search-item" onclick="showDetailById('${esc(n.id)}')">🖼 ${esc(n.name)}<div class="meta">NFT</div></div>`).join('');box.classList.toggle('show',!!box.innerHTML);}
-document.addEventListener('keydown',event=>{if(event.key==='Escape'){closeLegal();closeNftDetail();closeWalletModal();}});document.addEventListener('DOMContentLoaded',async()=>{applyPNCBrandIcon();installWalletListeners();await refreshPlatform();});
+document.addEventListener('keydown',event=>{if(event.key==='Escape'){closeLegal();closeNftDetail();closeWalletModal();}});
+document.addEventListener('DOMContentLoaded',async()=>{
+  pncDebug('DOM READY',`readyState=${document.readyState}`,'ok');
+  try{
+    applyPNCBrandIcon();
+    pncDebug('BRAND ICON OK','','ok');
+    pncDebug('PROVIDER CHECK',`ethereum=${!!window.ethereum}; isMetaMask=${!!(window.ethereum&&window.ethereum.isMetaMask)}`,window.ethereum?'ok':'warn');
+    installWalletListeners();
+    pncDebug('WALLET LISTENERS OK','','ok');
+    await refreshPlatform();
+    pncDebug('BOOT COMPLETE','','ok');
+  }catch(e){
+    pncDebug('BOOT FAILED',e,'error');
+    setRefreshButtonState('error');
+  }
+});
 </script>
 </body>
 </html>
