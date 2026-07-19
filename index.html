@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pi NFT Center v1.6.12 Mobile Footer Auto Scroll Search UX Fix</title>
+<title>Pi NFT Center v1.6.13 Unified Forward Loop Carousel</title>
 <style>
 :root{--purple:#5b2d82;--gold:#f5b041;--bg:#111017;--card:#1d1826;--text:#f7f1ff;--muted:#b7a9c6;--border:#3b2c4c;--green:#2ecc71;--red:#ff5c5c;--blue:#2f80ed;--soft:rgba(255,255,255,.055)}
 body.light{--bg:#f7f4fb;--card:#fff;--text:#19151f;--muted:#70647c;--border:#e5d8ef;--soft:rgba(91,45,130,.055)}
@@ -85,7 +85,7 @@ body.light .carousel-btn{background:rgba(255,255,255,.9)}
 </header>
 
 <main>
-  <div class="page show" id="homePage"><div class="hero"><h1>Pi NFT Center <span class="beta">v1.6.12 Mobile Footer Auto Scroll Search UX Fix</span></h1><p>New NFTs glides automatically and pauses only while you interact with it. Every marketplace row supports smooth free scrolling.</p></div><section class="section"><div class="section-title">🏆 Top Collections</div><div class="collection-list" id="topCollections"></div></section><section class="section carousel-section"><div class="carousel-header"><div class="section-title">🔥 Hot NFTs</div><div class="carousel-controls"><button class="carousel-btn" type="button" data-carousel-prev="hotNfts" aria-label="Scroll 🔥 Hot NFTs left">◀</button><button class="carousel-btn" type="button" data-carousel-next="hotNfts" aria-label="Scroll 🔥 Hot NFTs right">▶</button></div></div><div class="carousel-shell"><span class="carousel-edge left"></span><div class="grid carousel-track" id="hotNfts" tabindex="0"></div><span class="carousel-edge right"></span></div></section><section class="section carousel-section"><div class="carousel-header"><div class="section-title">🔨 Live Auctions</div><div class="carousel-controls"><button class="carousel-btn" type="button" data-carousel-prev="liveAuctions" aria-label="Scroll 🔨 Live Auctions left">◀</button><button class="carousel-btn" type="button" data-carousel-next="liveAuctions" aria-label="Scroll 🔨 Live Auctions right">▶</button></div></div><div class="carousel-shell"><span class="carousel-edge left"></span><div class="grid carousel-track" id="liveAuctions" tabindex="0"></div><span class="carousel-edge right"></span></div></section><section class="section carousel-section"><div class="carousel-header"><div class="section-title">🆕 New NFTs</div><div class="carousel-controls"><button class="carousel-btn" type="button" data-carousel-prev="newNfts" aria-label="Scroll 🆕 New NFTs left">◀</button><button class="carousel-btn" type="button" data-carousel-next="newNfts" aria-label="Scroll 🆕 New NFTs right">▶</button></div></div><div class="carousel-shell"><span class="carousel-edge left"></span><div class="grid carousel-track" id="newNfts" tabindex="0"></div><span class="carousel-edge right"></span></div></section><section class="section carousel-section"><div class="carousel-header"><div class="section-title">🆕 New Collections</div><div class="carousel-controls"><button class="carousel-btn" type="button" data-carousel-prev="newCollections" aria-label="Scroll 🆕 New Collections left">◀</button><button class="carousel-btn" type="button" data-carousel-next="newCollections" aria-label="Scroll 🆕 New Collections right">▶</button></div></div><div class="carousel-shell"><span class="carousel-edge left"></span><div class="grid carousel-track" id="newCollections" tabindex="0"></div><span class="carousel-edge right"></span></div></section><section class="section carousel-section"><div class="carousel-header"><div class="section-title">⭐ Featured Collections</div><div class="carousel-controls"><button class="carousel-btn" type="button" data-carousel-prev="featuredCollections" aria-label="Scroll ⭐ Featured Collections left">◀</button><button class="carousel-btn" type="button" data-carousel-next="featuredCollections" aria-label="Scroll ⭐ Featured Collections right">▶</button></div></div><div class="carousel-shell"><span class="carousel-edge left"></span><div class="grid carousel-track" id="featuredCollections" tabindex="0"></div><span class="carousel-edge right"></span></div></section></div>
+  <div class="page show" id="homePage"><div class="hero"><h1>Pi NFT Center <span class="beta">v1.6.13 Unified Forward Loop Carousel</span></h1><p>New NFTs glides automatically and pauses only while you interact with it. Every marketplace row supports smooth free scrolling.</p></div><section class="section"><div class="section-title">🏆 Top Collections</div><div class="collection-list" id="topCollections"></div></section><section class="section carousel-section"><div class="carousel-header"><div class="section-title">🔥 Hot NFTs</div><div class="carousel-controls"><button class="carousel-btn" type="button" data-carousel-prev="hotNfts" aria-label="Scroll 🔥 Hot NFTs left">◀</button><button class="carousel-btn" type="button" data-carousel-next="hotNfts" aria-label="Scroll 🔥 Hot NFTs right">▶</button></div></div><div class="carousel-shell"><span class="carousel-edge left"></span><div class="grid carousel-track" id="hotNfts" tabindex="0"></div><span class="carousel-edge right"></span></div></section><section class="section carousel-section"><div class="carousel-header"><div class="section-title">🔨 Live Auctions</div><div class="carousel-controls"><button class="carousel-btn" type="button" data-carousel-prev="liveAuctions" aria-label="Scroll 🔨 Live Auctions left">◀</button><button class="carousel-btn" type="button" data-carousel-next="liveAuctions" aria-label="Scroll 🔨 Live Auctions right">▶</button></div></div><div class="carousel-shell"><span class="carousel-edge left"></span><div class="grid carousel-track" id="liveAuctions" tabindex="0"></div><span class="carousel-edge right"></span></div></section><section class="section carousel-section"><div class="carousel-header"><div class="section-title">🆕 New NFTs</div><div class="carousel-controls"><button class="carousel-btn" type="button" data-carousel-prev="newNfts" aria-label="Scroll 🆕 New NFTs left">◀</button><button class="carousel-btn" type="button" data-carousel-next="newNfts" aria-label="Scroll 🆕 New NFTs right">▶</button></div></div><div class="carousel-shell"><span class="carousel-edge left"></span><div class="grid carousel-track" id="newNfts" tabindex="0"></div><span class="carousel-edge right"></span></div></section><section class="section carousel-section"><div class="carousel-header"><div class="section-title">🆕 New Collections</div><div class="carousel-controls"><button class="carousel-btn" type="button" data-carousel-prev="newCollections" aria-label="Scroll 🆕 New Collections left">◀</button><button class="carousel-btn" type="button" data-carousel-next="newCollections" aria-label="Scroll 🆕 New Collections right">▶</button></div></div><div class="carousel-shell"><span class="carousel-edge left"></span><div class="grid carousel-track" id="newCollections" tabindex="0"></div><span class="carousel-edge right"></span></div></section><section class="section carousel-section"><div class="carousel-header"><div class="section-title">⭐ Featured Collections</div><div class="carousel-controls"><button class="carousel-btn" type="button" data-carousel-prev="featuredCollections" aria-label="Scroll ⭐ Featured Collections left">◀</button><button class="carousel-btn" type="button" data-carousel-next="featuredCollections" aria-label="Scroll ⭐ Featured Collections right">▶</button></div></div><div class="carousel-shell"><span class="carousel-edge left"></span><div class="grid carousel-track" id="featuredCollections" tabindex="0"></div><span class="carousel-edge right"></span></div></section></div>
   <div class="page" id="collectionsPage"><div class="hero"><h1>Collections</h1><p>All collections are rendered from MarketState only.</p></div><section class="section"><div class="grid" id="allCollections"></div></section></div>
   <div class="page" id="collectionPage"><div id="collectionDetail"></div></div>
   <div class="page" id="vaultPage"><div class="hero vault-hero"><h1>My Vault</h1><p id="vaultStats">Connect wallet to load ownerOf-based vault.</p><div class="vault-tabs" role="tablist" aria-label="My Vault"><button class="vault-tab active" id="vaultTabOwned" type="button" onclick="setVaultTab('owned')">Owned NFTs</button><button class="vault-tab" id="vaultTabSend" type="button" onclick="setVaultTab('send')">Send</button><button class="vault-tab" id="vaultTabReceive" type="button" onclick="setVaultTab('receive')">Receive</button></div></div><section class="section"><div id="vaultContent"></div></section></div>
@@ -100,7 +100,7 @@ body.light .carousel-btn{background:rgba(255,255,255,.9)}
 
 
 
-const PNC_CONFIG={app:{version:'v1.6.11-mobile-layout-optimization'},network:{chainId:'0xaa36a7',name:'Sepolia Testnet'},contracts:{nft:'0x63C8AbE6a0e7867B7812A1237a2781D460702382',marketplace:'0x6151447c07Fa68b5A90E4DdD0c04e46aaa8EB5dc',feeWallet:'0x4a45Cd6Aa78C7AB51b0d9ba0e36E035A47a0BC1b'},pinata:{gateway:'https://gateway.pinata.cloud/ipfs/'},currency:{activeSymbol:'SepoliaETH',futureSymbol:'Pi'},marketRules:{initialSale:{seller:95,pncFee:5},resale:{seller:85,creatorRoyalty:10,pncFee:5},examplePrice:1000},links:{x:'https://x.com/picoreteam?s=21&t=OEh4osxhpQf_YpLWZaL1kQ',telegram:'https://t.me/PiAnnouncements'},performance:{readChainBeforeWalletConnect:true}};
+const PNC_CONFIG={app:{version:'v1.6.13-unified-forward-loop-carousel'},network:{chainId:'0xaa36a7',name:'Sepolia Testnet'},contracts:{nft:'0x63C8AbE6a0e7867B7812A1237a2781D460702382',marketplace:'0x6151447c07Fa68b5A90E4DdD0c04e46aaa8EB5dc',feeWallet:'0x4a45Cd6Aa78C7AB51b0d9ba0e36E035A47a0BC1b'},pinata:{gateway:'https://gateway.pinata.cloud/ipfs/'},currency:{activeSymbol:'SepoliaETH',futureSymbol:'Pi'},marketRules:{initialSale:{seller:95,pncFee:5},resale:{seller:85,creatorRoyalty:10,pncFee:5},examplePrice:1000},links:{x:'https://x.com/picoreteam?s=21&t=OEh4osxhpQf_YpLWZaL1kQ',telegram:'https://t.me/PiAnnouncements'},performance:{readChainBeforeWalletConnect:true}};
 const PNC_FOOTER={
   navigation:{title:'PNC',items:[
     {label:'Home',kind:'page',target:'homePage'},
@@ -1115,6 +1115,10 @@ function storageDebugHtml(state){
 
 const PNC_CAROUSEL_IDS=['hotNfts','liveAuctions','newNfts','newCollections','featuredCollections'];
 const PNC_AUTO_CAROUSEL_ID='newNfts';
+const PNC_AUTO_SCROLL_TICK_MS=25;
+const PNC_AUTO_SCROLL_SPEED=0.7;
+const PNC_AUTO_RESUME_DELAY_MS=900;
+
 function carouselStep(track){
   return Math.max(160,Math.round(track.clientWidth*.62));
 }
@@ -1126,16 +1130,62 @@ function updateCarouselControls(track){
   if(next)next.disabled=!overflow;
 }
 function cancelCarouselAnimation(track){
+  if(!track)return;
   if(track._carouselAnimationFrame)cancelAnimationFrame(track._carouselAnimationFrame);
   track._carouselAnimationFrame=0;
   track.classList.remove('is-animating');
 }
-
-function carouselButtonClick(track,direction){
-  if(track && track.id===PNC_AUTO_CAROUSEL_ID){track._carouselAutoDirection=direction<0?-1:1;startCarouselAuto(track);return;}
-  animateCarousel(track,direction);
+function clearCarouselResumeTimer(track){
+  if(!track||!track._carouselResumeTimer)return;
+  clearTimeout(track._carouselResumeTimer);
+  track._carouselResumeTimer=0;
+}
+function setAutoCarouselPaused(track,paused){
+  if(!track||track.id!==PNC_AUTO_CAROUSEL_ID)return;
+  track.dataset.carouselPaused=paused?'1':'0';
+  track.classList.toggle('is-auto-scrolling',!paused&&!document.hidden);
+}
+function pauseCarouselAuto(track){
+  if(!track||track.id!==PNC_AUTO_CAROUSEL_ID)return;
+  clearCarouselResumeTimer(track);
+  setAutoCarouselPaused(track,true);
+}
+function resumeCarouselAuto(track,delay=PNC_AUTO_RESUME_DELAY_MS){
+  if(!track||track.id!==PNC_AUTO_CAROUSEL_ID)return;
+  clearCarouselResumeTimer(track);
+  track._carouselResumeTimer=setTimeout(()=>{
+    track._carouselResumeTimer=0;
+    setAutoCarouselPaused(track,false);
+    startCarouselAuto(track);
+  },Math.max(0,delay));
+}
+function stopCarouselAuto(track){
+  if(!track)return;
+  clearCarouselResumeTimer(track);
+  if(track._carouselAutoTimer){
+    clearInterval(track._carouselAutoTimer);
+    track._carouselAutoTimer=0;
+  }
+  track.classList.remove('is-auto-scrolling');
+}
+function startCarouselAuto(track){
+  if(!track||track.id!==PNC_AUTO_CAROUSEL_ID)return;
+  if(track._carouselAutoTimer)return;
+  if(!track.dataset.carouselPaused)track.dataset.carouselPaused='0';
+  track._carouselAutoTimer=setInterval(()=>{
+    const max=Math.max(0,track.scrollWidth-track.clientWidth);
+    const blocked=document.hidden||track.dataset.carouselPaused==='1'||track.classList.contains('is-dragging')||track.classList.contains('is-animating')||max<4;
+    track.classList.toggle('is-auto-scrolling',!blocked);
+    if(blocked)return;
+    if(track.scrollLeft>=max-1){
+      track.scrollLeft=0;
+      return;
+    }
+    track.scrollLeft=Math.min(max,track.scrollLeft+PNC_AUTO_SCROLL_SPEED);
+  },PNC_AUTO_SCROLL_TICK_MS);
 }
 function animateCarouselTo(track,target,duration=720){
+  if(!track)return;
   cancelCarouselAnimation(track);
   const max=Math.max(0,track.scrollWidth-track.clientWidth);
   const from=track.scrollLeft;
@@ -1148,66 +1198,21 @@ function animateCarouselTo(track,target,duration=720){
   const frame=now=>{
     const progress=Math.min(1,(now-started)/duration);
     track.scrollLeft=from+(distance*ease(progress));
-    if(progress<1)track._carouselAnimationFrame=requestAnimationFrame(frame);
-    else{track._carouselAnimationFrame=0;track.classList.remove('is-animating');}
+    if(progress<1){
+      track._carouselAnimationFrame=requestAnimationFrame(frame);
+    }else{
+      track._carouselAnimationFrame=0;
+      track.classList.remove('is-animating');
+      resumeCarouselAuto(track);
+    }
   };
   track._carouselAnimationFrame=requestAnimationFrame(frame);
 }
-function setAutoCarouselPaused(track,paused){
-  if(!track||track.id!==PNC_AUTO_CAROUSEL_ID)return;
-  track.dataset.carouselPaused=paused?'1':'0';
-}
 function moveCarousel(id,direction){
-  const track=$(id);if(!track)return;
-  setAutoCarouselPaused(track,true);
+  const track=$(id);
+  if(!track)return;
+  pauseCarouselAuto(track);
   animateCarouselTo(track,track.scrollLeft+(direction*carouselStep(track)),760);
-}
-function resumeNewNftsFromOutside(event){
-  const track=$(PNC_AUTO_CAROUSEL_ID);if(!track)return;
-  if(event&&track.contains(event.target))return;
-  setAutoCarouselPaused(track,false);
-}
-function stopCarouselAuto(track){
-  if(!track)return;
-  if(track._carouselAutoTimer){
-    clearInterval(track._carouselAutoTimer);
-    track._carouselAutoTimer=0;
-  }
-  track.classList.remove('is-auto-scrolling');
-}
-function startCarouselAuto(track){
-  if(!track)return;
-  stopCarouselAuto(track);
-  if(track.id!==PNC_AUTO_CAROUSEL_ID)return;
-
-  track._carouselAutoDirection=Number(track._carouselAutoDirection)||1;
-
-  /* One official autoplay loop. No requestAnimationFrame autoplay remains. */
-  track._carouselAutoTimer=setInterval(()=>{
-    const max=Math.max(0,track.scrollWidth-track.clientWidth);
-    const blocked=
-      document.hidden||
-      track.dataset.carouselPaused==='1'||
-      track.classList.contains('is-dragging')||
-      track.classList.contains('is-animating')||
-      max<4;
-
-    track.classList.toggle('is-auto-scrolling',!blocked);
-    if(blocked)return;
-
-    const speedPerTick=.7;
-    let next=track.scrollLeft+(track._carouselAutoDirection*speedPerTick);
-
-    if(next>=max){
-      next=max;
-      track._carouselAutoDirection=-1;
-    }else if(next<=0){
-      next=0;
-      track._carouselAutoDirection=1;
-    }
-
-    track.scrollLeft=next;
-  },25);
 }
 function applyDesktopMomentum(track,velocity){
   cancelCarouselAnimation(track);
@@ -1215,94 +1220,149 @@ function applyDesktopMomentum(track,velocity){
   let previous=performance.now();
   track.classList.add('is-animating');
   const frame=now=>{
-    const dt=Math.min(32,now-previous);previous=now;
+    const dt=Math.min(32,now-previous);
+    previous=now;
     track.scrollLeft-=v*dt;
     v*=Math.pow(.94,dt/16.67);
     const max=Math.max(0,track.scrollWidth-track.clientWidth);
     if(track.scrollLeft<=0||track.scrollLeft>=max)v*=.45;
-    if(Math.abs(v)>.02)track._carouselAnimationFrame=requestAnimationFrame(frame);
-    else{track._carouselAnimationFrame=0;track.classList.remove('is-animating');}
+    if(Math.abs(v)>.02){
+      track._carouselAnimationFrame=requestAnimationFrame(frame);
+    }else{
+      track._carouselAnimationFrame=0;
+      track.classList.remove('is-animating');
+      resumeCarouselAuto(track);
+    }
   };
   track._carouselAnimationFrame=requestAnimationFrame(frame);
 }
 function bindCarousel(track){
-  if(track.dataset.carouselBound==='1'){updateCarouselControls(track);startCarouselAuto(track);return;}
+  if(track.dataset.carouselBound==='1'){
+    updateCarouselControls(track);
+    if(track.id===PNC_AUTO_CAROUSEL_ID){
+      track.dataset.carouselPaused='0';
+      startCarouselAuto(track);
+    }
+    return;
+  }
   track.dataset.carouselBound='1';
   if(track.id===PNC_AUTO_CAROUSEL_ID)track.dataset.carouselPaused='0';
+
   const prev=document.querySelector(`[data-carousel-prev="${track.id}"]`);
   const next=document.querySelector(`[data-carousel-next="${track.id}"]`);
   prev?.addEventListener('click',()=>moveCarousel(track.id,-1));
   next?.addEventListener('click',()=>moveCarousel(track.id,1));
+
   track.addEventListener('wheel',event=>{
     if(track.scrollWidth<=track.clientWidth+4)return;
     const delta=Math.abs(event.deltaX)>Math.abs(event.deltaY)?event.deltaX:event.deltaY;
     if(!delta)return;
-    event.preventDefault();cancelCarouselAnimation(track);track.scrollLeft+=delta;setAutoCarouselPaused(track,true);
+    event.preventDefault();
+    pauseCarouselAuto(track);
+    cancelCarouselAnimation(track);
+    track.scrollLeft+=delta;
+    resumeCarouselAuto(track);
   },{passive:false});
+
   let pointerActive=false,dragging=false,startX=0,startY=0,startScroll=0,moved=false,lastX=0,lastTime=0,velocity=0,activePointerId=null;
   track.addEventListener('pointerdown',event=>{
-    setAutoCarouselPaused(track,true);
+    pauseCarouselAuto(track);
     if(event.pointerType==='touch')return;
     cancelCarouselAnimation(track);
-    pointerActive=true;dragging=false;moved=false;activePointerId=event.pointerId;
-    startX=lastX=event.clientX;startY=event.clientY;startScroll=track.scrollLeft;lastTime=performance.now();velocity=0;
+    pointerActive=true;
+    dragging=false;
+    moved=false;
+    activePointerId=event.pointerId;
+    startX=lastX=event.clientX;
+    startY=event.clientY;
+    startScroll=track.scrollLeft;
+    lastTime=performance.now();
+    velocity=0;
   });
   track.addEventListener('pointermove',event=>{
     if(!pointerActive||event.pointerId!==activePointerId)return;
-    const dx=event.clientX-startX,dy=event.clientY-startY;
+    const dx=event.clientX-startX;
+    const dy=event.clientY-startY;
     if(!dragging){
       if(Math.abs(dx)<7)return;
-      if(Math.abs(dy)>Math.abs(dx)){pointerActive=false;return;}
-      dragging=true;moved=true;track.classList.add('is-dragging');
+      if(Math.abs(dy)>Math.abs(dx)){
+        pointerActive=false;
+        resumeCarouselAuto(track);
+        return;
+      }
+      dragging=true;
+      moved=true;
+      track.classList.add('is-dragging');
       try{track.setPointerCapture(event.pointerId);}catch(_){}
     }
-    const now=performance.now(),segment=event.clientX-lastX,dt=Math.max(1,now-lastTime);
+    const now=performance.now();
+    const segment=event.clientX-lastX;
+    const dt=Math.max(1,now-lastTime);
     track.scrollLeft=startScroll-dx;
-    velocity=(velocity*.65)+((segment/dt)*.35);lastX=event.clientX;lastTime=now;
+    velocity=(velocity*.65)+((segment/dt)*.35);
+    lastX=event.clientX;
+    lastTime=now;
   });
   const stopDrag=event=>{
     if(event.pointerId!==activePointerId)return;
     const wasDragging=dragging;
-    pointerActive=false;dragging=false;activePointerId=null;track.classList.remove('is-dragging');
+    pointerActive=false;
+    dragging=false;
+    activePointerId=null;
+    track.classList.remove('is-dragging');
     try{track.releasePointerCapture(event.pointerId);}catch(_){}
     if(wasDragging&&Math.abs(velocity)>.08)applyDesktopMomentum(track,velocity);
+    else resumeCarouselAuto(track);
   };
-  track.addEventListener('pointerup',stopDrag);track.addEventListener('pointercancel',stopDrag);
+  track.addEventListener('pointerup',stopDrag);
+  track.addEventListener('pointercancel',stopDrag);
   track.addEventListener('click',event=>{
     if(!moved)return;
-    event.preventDefault();event.stopPropagation();moved=false;
+    event.preventDefault();
+    event.stopPropagation();
+    moved=false;
   },true);
+
   const pauseForTouch=()=>{
     cancelCarouselAnimation(track);
-    setAutoCarouselPaused(track,true);
-    if(track._carouselResumeTimer){clearTimeout(track._carouselResumeTimer);track._carouselResumeTimer=0;}
+    pauseCarouselAuto(track);
   };
-  const resumeAfterTouch=()=>{
-    if(track.id!==PNC_AUTO_CAROUSEL_ID)return;
-    if(track._carouselResumeTimer)clearTimeout(track._carouselResumeTimer);
-    track._carouselResumeTimer=setTimeout(()=>{
-      track._carouselResumeTimer=0;
-      setAutoCarouselPaused(track,false);
-      startCarouselAuto(track);
-    },1200);
-  };
+  const resumeAfterTouch=()=>resumeCarouselAuto(track);
   track.addEventListener('touchstart',pauseForTouch,{passive:true});
   track.addEventListener('touchmove',pauseForTouch,{passive:true});
   track.addEventListener('touchend',resumeAfterTouch,{passive:true});
   track.addEventListener('touchcancel',resumeAfterTouch,{passive:true});
-  track.addEventListener('keydown',event=>{if(event.key==='ArrowLeft'){event.preventDefault();moveCarousel(track.id,-1);}if(event.key==='ArrowRight'){event.preventDefault();moveCarousel(track.id,1);}});
-  updateCarouselControls(track);startCarouselAuto(track);
+  track.addEventListener('keydown',event=>{
+    if(event.key==='ArrowLeft'){
+      event.preventDefault();
+      moveCarousel(track.id,-1);
+    }
+    if(event.key==='ArrowRight'){
+      event.preventDefault();
+      moveCarousel(track.id,1);
+    }
+  });
+
+  updateCarouselControls(track);
+  startCarouselAuto(track);
 }
-function initHomeCarousels(){PNC_CAROUSEL_IDS.forEach(id=>{const track=$(id);if(track)bindCarousel(track);});}
-window.addEventListener('resize',()=>PNC_CAROUSEL_IDS.forEach(id=>{const track=$(id);if(track)updateCarouselControls(track);}));
-document.addEventListener('pointerdown',resumeNewNftsFromOutside,true);
-window.addEventListener('scroll',()=>setAutoCarouselPaused($(PNC_AUTO_CAROUSEL_ID),false),{passive:true});
+function initHomeCarousels(){
+  PNC_CAROUSEL_IDS.forEach(id=>{
+    const track=$(id);
+    if(track)bindCarousel(track);
+  });
+}
+window.addEventListener('resize',()=>PNC_CAROUSEL_IDS.forEach(id=>{
+  const track=$(id);
+  if(track)updateCarouselControls(track);
+}));
 document.addEventListener('visibilitychange',()=>{
   const track=$(PNC_AUTO_CAROUSEL_ID);
   if(!track)return;
   if(document.hidden){
     track.classList.remove('is-auto-scrolling');
   }else{
+    setAutoCarouselPaused(track,false);
     startCarouselAuto(track);
   }
 });
