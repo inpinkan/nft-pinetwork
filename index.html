@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pi NFT Center v1.6.9 KV Structure Diagnostic Edition</title>
+<title>Pi NFT Center v1.6.10 Mobile Load Coordination Fix</title>
 <style>
 :root{--purple:#5b2d82;--gold:#f5b041;--bg:#111017;--card:#1d1826;--text:#f7f1ff;--muted:#b7a9c6;--border:#3b2c4c;--green:#2ecc71;--red:#ff5c5c;--blue:#2f80ed;--soft:rgba(255,255,255,.055)}
 body.light{--bg:#f7f4fb;--card:#fff;--text:#19151f;--muted:#70647c;--border:#e5d8ef;--soft:rgba(91,45,130,.055)}
@@ -89,7 +89,7 @@ body.light .carousel-btn{background:rgba(255,255,255,.9)}
 
 <div class="pnc-debug-panel" id="pncDebugPanel" aria-live="polite">
   <div class="pnc-debug-head">
-    <div class="pnc-debug-title">📱 PNC v1.6.9 KV Structure Diagnostic</div>
+    <div class="pnc-debug-title">📱 PNC v1.6.10 Mobile Load Fix</div>
     <div class="pnc-debug-actions">
       <button type="button" onclick="pncDebugCopy()">Copy</button>
       <button type="button" onclick="pncDebugClear()">Clear</button>
@@ -103,7 +103,7 @@ body.light .carousel-btn{background:rgba(255,255,255,.9)}
 </div>
 
 <main>
-  <div class="page show" id="homePage"><div class="hero"><h1>Pi NFT Center <span class="beta">v1.6.9 KV Structure Diagnostic</span></h1><p>New NFTs glides automatically and pauses only while you interact with it. Every marketplace row supports smooth free scrolling.</p></div><section class="section"><div class="section-title">🏆 Top Collections</div><div class="collection-list" id="topCollections"></div></section><section class="section carousel-section"><div class="carousel-header"><div class="section-title">🔥 Hot NFTs</div><div class="carousel-controls"><button class="carousel-btn" type="button" data-carousel-prev="hotNfts" aria-label="Scroll 🔥 Hot NFTs left">◀</button><button class="carousel-btn" type="button" data-carousel-next="hotNfts" aria-label="Scroll 🔥 Hot NFTs right">▶</button></div></div><div class="carousel-shell"><span class="carousel-edge left"></span><div class="grid carousel-track" id="hotNfts" tabindex="0"></div><span class="carousel-edge right"></span></div></section><section class="section carousel-section"><div class="carousel-header"><div class="section-title">🔨 Live Auctions</div><div class="carousel-controls"><button class="carousel-btn" type="button" data-carousel-prev="liveAuctions" aria-label="Scroll 🔨 Live Auctions left">◀</button><button class="carousel-btn" type="button" data-carousel-next="liveAuctions" aria-label="Scroll 🔨 Live Auctions right">▶</button></div></div><div class="carousel-shell"><span class="carousel-edge left"></span><div class="grid carousel-track" id="liveAuctions" tabindex="0"></div><span class="carousel-edge right"></span></div></section><section class="section carousel-section"><div class="carousel-header"><div class="section-title">🆕 New NFTs</div><div class="carousel-controls"><button class="carousel-btn" type="button" data-carousel-prev="newNfts" aria-label="Scroll 🆕 New NFTs left">◀</button><button class="carousel-btn" type="button" data-carousel-next="newNfts" aria-label="Scroll 🆕 New NFTs right">▶</button></div></div><div class="carousel-shell"><span class="carousel-edge left"></span><div class="grid carousel-track" id="newNfts" tabindex="0"></div><span class="carousel-edge right"></span></div></section><section class="section carousel-section"><div class="carousel-header"><div class="section-title">🆕 New Collections</div><div class="carousel-controls"><button class="carousel-btn" type="button" data-carousel-prev="newCollections" aria-label="Scroll 🆕 New Collections left">◀</button><button class="carousel-btn" type="button" data-carousel-next="newCollections" aria-label="Scroll 🆕 New Collections right">▶</button></div></div><div class="carousel-shell"><span class="carousel-edge left"></span><div class="grid carousel-track" id="newCollections" tabindex="0"></div><span class="carousel-edge right"></span></div></section><section class="section carousel-section"><div class="carousel-header"><div class="section-title">⭐ Featured Collections</div><div class="carousel-controls"><button class="carousel-btn" type="button" data-carousel-prev="featuredCollections" aria-label="Scroll ⭐ Featured Collections left">◀</button><button class="carousel-btn" type="button" data-carousel-next="featuredCollections" aria-label="Scroll ⭐ Featured Collections right">▶</button></div></div><div class="carousel-shell"><span class="carousel-edge left"></span><div class="grid carousel-track" id="featuredCollections" tabindex="0"></div><span class="carousel-edge right"></span></div></section></div>
+  <div class="page show" id="homePage"><div class="hero"><h1>Pi NFT Center <span class="beta">v1.6.10 Mobile Load Fix</span></h1><p>New NFTs glides automatically and pauses only while you interact with it. Every marketplace row supports smooth free scrolling.</p></div><section class="section"><div class="section-title">🏆 Top Collections</div><div class="collection-list" id="topCollections"></div></section><section class="section carousel-section"><div class="carousel-header"><div class="section-title">🔥 Hot NFTs</div><div class="carousel-controls"><button class="carousel-btn" type="button" data-carousel-prev="hotNfts" aria-label="Scroll 🔥 Hot NFTs left">◀</button><button class="carousel-btn" type="button" data-carousel-next="hotNfts" aria-label="Scroll 🔥 Hot NFTs right">▶</button></div></div><div class="carousel-shell"><span class="carousel-edge left"></span><div class="grid carousel-track" id="hotNfts" tabindex="0"></div><span class="carousel-edge right"></span></div></section><section class="section carousel-section"><div class="carousel-header"><div class="section-title">🔨 Live Auctions</div><div class="carousel-controls"><button class="carousel-btn" type="button" data-carousel-prev="liveAuctions" aria-label="Scroll 🔨 Live Auctions left">◀</button><button class="carousel-btn" type="button" data-carousel-next="liveAuctions" aria-label="Scroll 🔨 Live Auctions right">▶</button></div></div><div class="carousel-shell"><span class="carousel-edge left"></span><div class="grid carousel-track" id="liveAuctions" tabindex="0"></div><span class="carousel-edge right"></span></div></section><section class="section carousel-section"><div class="carousel-header"><div class="section-title">🆕 New NFTs</div><div class="carousel-controls"><button class="carousel-btn" type="button" data-carousel-prev="newNfts" aria-label="Scroll 🆕 New NFTs left">◀</button><button class="carousel-btn" type="button" data-carousel-next="newNfts" aria-label="Scroll 🆕 New NFTs right">▶</button></div></div><div class="carousel-shell"><span class="carousel-edge left"></span><div class="grid carousel-track" id="newNfts" tabindex="0"></div><span class="carousel-edge right"></span></div></section><section class="section carousel-section"><div class="carousel-header"><div class="section-title">🆕 New Collections</div><div class="carousel-controls"><button class="carousel-btn" type="button" data-carousel-prev="newCollections" aria-label="Scroll 🆕 New Collections left">◀</button><button class="carousel-btn" type="button" data-carousel-next="newCollections" aria-label="Scroll 🆕 New Collections right">▶</button></div></div><div class="carousel-shell"><span class="carousel-edge left"></span><div class="grid carousel-track" id="newCollections" tabindex="0"></div><span class="carousel-edge right"></span></div></section><section class="section carousel-section"><div class="carousel-header"><div class="section-title">⭐ Featured Collections</div><div class="carousel-controls"><button class="carousel-btn" type="button" data-carousel-prev="featuredCollections" aria-label="Scroll ⭐ Featured Collections left">◀</button><button class="carousel-btn" type="button" data-carousel-next="featuredCollections" aria-label="Scroll ⭐ Featured Collections right">▶</button></div></div><div class="carousel-shell"><span class="carousel-edge left"></span><div class="grid carousel-track" id="featuredCollections" tabindex="0"></div><span class="carousel-edge right"></span></div></section></div>
   <div class="page" id="collectionsPage"><div class="hero"><h1>Collections</h1><p>All collections are rendered from MarketState only.</p></div><section class="section"><div class="grid" id="allCollections"></div></section></div>
   <div class="page" id="collectionPage"><div id="collectionDetail"></div></div>
   <div class="page" id="vaultPage"><div class="hero vault-hero"><h1>My Vault</h1><p id="vaultStats">Connect wallet to load ownerOf-based vault.</p><div class="vault-tabs" role="tablist" aria-label="My Vault"><button class="vault-tab active" id="vaultTabOwned" type="button" onclick="setVaultTab('owned')">Owned NFTs</button><button class="vault-tab" id="vaultTabSend" type="button" onclick="setVaultTab('send')">Send</button><button class="vault-tab" id="vaultTabReceive" type="button" onclick="setVaultTab('receive')">Receive</button></div></div><section class="section"><div id="vaultContent"></div></section></div>
@@ -163,7 +163,7 @@ function pncDebugToggle(){document.getElementById('pncDebugPanel')?.classList.to
 function pncDebugClear(){PNC_DEBUG.entries=[];pncDebug('LOG CLEARED','','warn');}
 async function pncDebugCopy(){
   const report=[
-    'PNC v1.6.9 KV Structure Diagnostic',
+    'PNC v1.6.10 Mobile Load Fix',
     `URL: ${location.href}`,
     `UA: ${navigator.userAgent}`,
     `Online: ${navigator.onLine}`,
@@ -179,7 +179,7 @@ window.addEventListener('online',()=>pncDebug('NETWORK','online','ok'));
 window.addEventListener('offline',()=>pncDebug('NETWORK','offline','error'));
 pncDebug('SCRIPT START',navigator.userAgent,'ok');
 
-const PNC_CONFIG={app:{version:'v1.6.9-kv-structure-diagnostic'},network:{chainId:'0xaa36a7',name:'Sepolia Testnet'},contracts:{nft:'0x63C8AbE6a0e7867B7812A1237a2781D460702382',marketplace:'0x6151447c07Fa68b5A90E4DdD0c04e46aaa8EB5dc',feeWallet:'0x4a45Cd6Aa78C7AB51b0d9ba0e36E035A47a0BC1b'},pinata:{gateway:'https://gateway.pinata.cloud/ipfs/'},currency:{activeSymbol:'SepoliaETH',futureSymbol:'Pi'},marketRules:{initialSale:{seller:95,pncFee:5},resale:{seller:85,creatorRoyalty:10,pncFee:5},examplePrice:1000},links:{x:'https://x.com/picoreteam?s=21&t=OEh4osxhpQf_YpLWZaL1kQ',telegram:'https://t.me/PiAnnouncements'},performance:{readChainBeforeWalletConnect:true}};
+const PNC_CONFIG={app:{version:'v1.6.10-mobile-load-fix'},network:{chainId:'0xaa36a7',name:'Sepolia Testnet'},contracts:{nft:'0x63C8AbE6a0e7867B7812A1237a2781D460702382',marketplace:'0x6151447c07Fa68b5A90E4DdD0c04e46aaa8EB5dc',feeWallet:'0x4a45Cd6Aa78C7AB51b0d9ba0e36E035A47a0BC1b'},pinata:{gateway:'https://gateway.pinata.cloud/ipfs/'},currency:{activeSymbol:'SepoliaETH',futureSymbol:'Pi'},marketRules:{initialSale:{seller:95,pncFee:5},resale:{seller:85,creatorRoyalty:10,pncFee:5},examplePrice:1000},links:{x:'https://x.com/picoreteam?s=21&t=OEh4osxhpQf_YpLWZaL1kQ',telegram:'https://t.me/PiAnnouncements'},performance:{readChainBeforeWalletConnect:true}};
 const PNC_FOOTER={
   navigation:{title:'PNC',items:[
     {label:'Home',kind:'page',target:'homePage'},
@@ -279,12 +279,12 @@ const TOP_COLLECTION_LIMIT=3;const NEW_NFT_LIMIT=8;
 let PNC_STATE={wallet:null,collections:[],nfts:[],market:{listings:[],offers:[],auctions:[],minimumNativeWei:'0',pendingBidRefundWei:'0'},creator:emptyCreatorState(),errors:[],resolving:false};
 let PNC_CREATOR_TAB='dashboard';
 let PNC_VAULT_TAB='owned';
-let PNC_EDIT_SHOP_ID='';let PNC_WALLET_CONNECTING=false;let PNC_LOAD_SEQUENCE=0;
-let PNC_REFRESHING=false;
+let PNC_EDIT_SHOP_ID='';let PNC_WALLET_CONNECTING=false;
+let PNC_REFRESHING=false;let PNC_REFRESH_QUEUED=false;let PNC_REFRESH_PROMISE=null;
 PNC_DEBUG_APP_READY=true;
 pncDebug('APP VARIABLES READY','PNC_STATE / $ / PNC_REFRESHING initialized','ok');
 
-const PNC_METADATA_CACHE_KEY='PNC_METADATA_CACHE_V1';const PNC_GLOBAL_MARKET_KEY='PNC_GLOBAL_MARKET';const PNC_LOCAL_GLOBAL_KEY='PNC_LOCAL_GLOBAL_MARKET_V1';const PNC_LOCAL_WALLET_PREFIX='PNC_LOCAL_WALLET_STATE_V1:';const PNC_LOCAL_SNAPSHOT_KEY='PNC_RESTORE_SNAPSHOT_V1';
+const PNC_METADATA_CACHE_KEY='PNC_METADATA_CACHE_V1';const PNC_GLOBAL_MARKET_KEY='PNC_GLOBAL_MARKET';
 const $=id=>document.getElementById(id);const lc=v=>String(v||'').toLowerCase();const esc=v=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));const short=a=>/^0x[a-fA-F0-9]{40}$/.test(String(a||''))?a.slice(0,4)+'...'+a.slice(-4):(a||'-');const displayAddress=a=>/^0x[a-fA-F0-9]{40}$/.test(String(a||''))?short(a):(a||'-');
 function emptyCreatorState(){return{shopDraft:null,nftDraft:null,registeredShops:[],mintedNfts:[]};}
 function emptyShopSocial(){return{x:'',lineOpenChat:''};}
@@ -489,84 +489,44 @@ function applyMarketplaceStateToNFT(state,nft,result){
 function extractMintedTokenId(receipt){const transferTopic='0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef';const zeroTopic='0x'+'0'.repeat(64);const walletTopic='0x'+addrWord(PNC_STATE.wallet);for(const log of(receipt&&receipt.logs)||[]){const topics=log.topics||[];if(lc(log.address)===lc(PNC_CONFIG.contracts.nft)&&lc(topics[0])===transferTopic&&lc(topics[1])===zeroTopic){if(!topics[2]||lc(topics[2])===lc(walletTopic))return BigInt(topics[3]).toString();}}return'';}
 function readMetadataCache(){try{return JSON.parse(localStorage.getItem(PNC_METADATA_CACHE_KEY)||'{}')||{};}catch(e){return{};}}function writeMetadataCache(cache){try{localStorage.setItem(PNC_METADATA_CACHE_KEY,JSON.stringify(cache));}catch(e){}}function saveMetadataToCache(key,meta){if(!key||!meta)return;const cache=readMetadataCache();cache[key]=meta;writeMetadataCache(cache);}function applyCachedMetadata(nft){const cache=readMetadataCache();const key=nft.metadataUrl||nft.tokenURI||nft.id;let cached=cache[key];if(!cached&&nft.name)cached=Object.values(cache).find(m=>m&&typeof m==='object'&&lc(m.name)===lc(nft.name));if(cached&&typeof cached==='object'){nft.metadata=cached;if(cached.name&&(!nft.name||nft.name===nft.id))nft.name=cached.name;if(cached.description)nft.description=cached.description;if(cached.image&&!nft.image)nft.image=cached.image;if(cached.image&&!nft.imageUrl)nft.imageUrl=cached.image;if(cached.pnc&&cached.pnc.thumbnail)nft.thumbnailUrl=cached.pnc.thumbnail;if(cached.animation_url)nft.animationUrl=cached.animation_url;if(cached.animation_url)nft.mediaType='video';}}
 async function fetchWithTimeout(url,options={},ms=6500){const controller=new AbortController();const timer=setTimeout(()=>controller.abort(),ms);try{return await fetch(url,{...options,signal:controller.signal});}finally{clearTimeout(timer);}}function isUsableMetadataUrl(u){const s=String(u||'').trim();return !!s&&s!=='test'&&s!=='ipfs://test'&&(s.startsWith('ipfs://')||s.startsWith('https://')||s.startsWith('http://'));}async function hydrateMetadata(nft){const metaUrl=nft.metadataUrl||nft.tokenURI||'';applyCachedMetadata(nft);if(!isUsableMetadataUrl(metaUrl))return;try{const res=await fetchWithTimeout(ipfs(metaUrl),{cache:'force-cache'},6500);if(!res.ok)throw new Error('metadata fetch failed');const meta=await res.json();nft.metadata=meta;saveMetadataToCache(metaUrl,meta);if(meta.name&&(!nft.name||nft.name===nft.id))nft.name=meta.name;if(meta.description)nft.description=meta.description;if(meta.image&&!nft.image)nft.image=meta.image;if(meta.image&&!nft.imageUrl)nft.imageUrl=meta.image;if(meta.pnc&&meta.pnc.thumbnail)nft.thumbnailUrl=meta.pnc.thumbnail;if(meta.animation_url)nft.animationUrl=meta.animation_url;if(meta.animation_url)nft.mediaType='video';}catch(e){nft.metadataError=e.message||String(e);}}
-function localWalletKey(walletKey){return PNC_LOCAL_WALLET_PREFIX+String(walletKey||'').toLowerCase();}
-function readLocalState(walletKey){try{const key=walletKey===PNC_GLOBAL_MARKET_KEY?PNC_LOCAL_GLOBAL_KEY:localWalletKey(walletKey);const raw=localStorage.getItem(key);return raw?JSON.parse(raw):null;}catch(e){return null;}}
-function writeLocalState(walletKey,state){try{const key=walletKey===PNC_GLOBAL_MARKET_KEY?PNC_LOCAL_GLOBAL_KEY:localWalletKey(walletKey);localStorage.setItem(key,JSON.stringify(state));}catch(e){console.warn(e);}}
-function readRestoreSnapshot(){try{const raw=localStorage.getItem(PNC_LOCAL_SNAPSHOT_KEY);return raw?JSON.parse(raw):null;}catch(e){return null;}}
-function writeRestoreSnapshot(creatorState){try{localStorage.setItem(PNC_LOCAL_SNAPSHOT_KEY,JSON.stringify({at:Date.now(),version:PNC_CONFIG.app.version,creator:creatorState||emptyCreatorState()}));}catch(e){console.warn(e);}}
-function pncObjectKeys(value){
-  return value&&typeof value==='object'&&!Array.isArray(value)?Object.keys(value):[];
+function parseKVState(value){
+  if(value&&typeof value==='object')return value;
+  if(typeof value!=='string')return null;
+  try{const parsed=JSON.parse(value);return parsed&&typeof parsed==='object'?parsed:null;}catch(e){return null;}
 }
-function pncValueType(value){
-  if(value===null)return'null';
-  if(Array.isArray(value))return`array(${value.length})`;
-  return typeof value;
-}
-function pncSafePreview(value,max=280){
-  let text='';
-  try{text=typeof value==='string'?value:JSON.stringify(value);}catch(e){text=String(value);}
-  return String(text||'').replace(/\s+/g,' ').slice(0,max);
-}
-function pncTryParseJSONText(value){
-  if(typeof value!=='string')return value;
-  const text=value.trim();
-  if(!text||(!text.startsWith('{')&&!text.startsWith('[')))return value;
-  try{return JSON.parse(text);}catch(e){return value;}
-}
-function pncInspectKVCandidate(label,path,value){
-  const parsed=pncTryParseJSONText(value);
-  const keys=pncObjectKeys(parsed);
-  const creator=extractCreatorStorage(parsed);
-  pncDebug('KV CANDIDATE',`${label} ${path} type=${pncValueType(value)} parsed=${pncValueType(parsed)} keys=${keys.length?keys.join(','):'-'} shops=${creator.registeredShops.length} nfts=${creator.mintedNfts.length}`,creator.registeredShops.length||creator.mintedNfts.length?'ok':'info');
-  return parsed;
-}
-async function loadRemoteKVState(wallet){
-  if(!wallet)return null;
-  const label=wallet===PNC_GLOBAL_MARKET_KEY?'GLOBAL':short(wallet);
-  const requestUrl='/api/load-state?walletAddress='+encodeURIComponent(wallet);
-  pncDebug('KV FETCH START',`${label} key=${wallet}`);
-  pncDebug('KV REQUEST',requestUrl);
+async function loadRemoteKVState(walletKey){
+  if(!walletKey)return null;
+  const label=walletKey===PNC_GLOBAL_MARKET_KEY?'GLOBAL':short(walletKey);
   try{
-    const r=await fetch(requestUrl,{cache:'no-store'});
-    pncDebug('KV HTTP',`${label} status=${r.status} ok=${r.ok} content-type=${r.headers.get('content-type')||'-'}`,r.ok?'ok':'warn');
-    const raw=await r.text();
-    pncDebug('KV RAW',`${label} bytes=${raw.length} preview=${pncSafePreview(raw,320)}`,raw?'info':'warn');
-    let j=null;
-    try{j=JSON.parse(raw);}catch(parseError){
-      pncDebug('KV JSON ERROR',`${label}: ${parseError.message}; body=${pncSafePreview(raw,320)}`,'error');
-      return null;
-    }
-
-    const topKeys=pncObjectKeys(j);
-    pncDebug('KV TOP LEVEL',`${label} type=${pncValueType(j)} keys=${topKeys.length?topKeys.join(','):'-'} ok=${String(j&&j.ok)} schema=${String(j&&j.schema||'-')} version=${String(j&&j.version||'-')} revision=${String(j&&j.revision||'-')}`,'info');
-
-    const inspected={
-      state:pncInspectKVCandidate(label,'j.state',j&&j.state),
-      data:pncInspectKVCandidate(label,'j.data',j&&j.data),
-      result:pncInspectKVCandidate(label,'j.result',j&&j.result),
-      value:pncInspectKVCandidate(label,'j.value',j&&j.value)
-    };
-    if(inspected.data&&typeof inspected.data==='object')pncInspectKVCandidate(label,'j.data.state',inspected.data.state);
-    if(inspected.result&&typeof inspected.result==='object')pncInspectKVCandidate(label,'j.result.state',inspected.result.state);
-
-    const state=j&&j.ok?inspected.state:null;
-    pncDebug('KV SELECTED PATH',`${label} selected=${state?'j.state':'null'} because ok=${String(j&&j.ok)} stateType=${pncValueType(inspected.state)}`,state?'ok':'warn');
-    const c=extractCreatorStorage(state);
-    pncDebug('KV FETCH DONE',`${label} shops=${c.registeredShops.length} nfts=${c.mintedNfts.length}`,state?'ok':'warn');
+    const response=await fetch('/api/load-state?walletAddress='+encodeURIComponent(walletKey),{cache:'no-store'});
+    if(!response.ok)throw new Error('HTTP '+response.status);
+    const payload=await response.json();
+    const state=payload&&payload.ok?parseKVState(payload.state):null;
+    const creator=extractCreatorStorage(state);
+    pncDebug('KV LOAD',`${label} shops=${creator.registeredShops.length} nfts=${creator.mintedNfts.length}`,state?'ok':'warn');
     return state;
   }catch(e){
-    pncDebug('KV FETCH FAILED',`${label}: ${e.message||e}`,'error');
-    console.warn('KV load failed:',e.message||e);
+    pncDebug('KV LOAD FAILED',`${label}: ${e.message||e}`,'error');
+    console.warn('KV load failed:',label,e);
     return null;
   }
 }
-async function loadStoredStateSources(walletKey){return{local:readLocalState(walletKey),remote:await loadRemoteKVState(walletKey),snapshot:readRestoreSnapshot()};}
-async function loadKVState(wallet){const s=await loadStoredStateSources(wallet);return s.remote||s.local||s.snapshot||null;}
-async function loadGlobalMarketState(){return await loadKVState(PNC_GLOBAL_MARKET_KEY);}
 function creatorStateFromMarketState(state){const c=(state&&state.creator)||emptyCreatorState();return{registeredShops:Array.isArray(c.registeredShops)?c.registeredShops:[],mintedNfts:Array.isArray(c.mintedNfts)?c.mintedNfts:[]};}
 function publicCreatorStateForSave(){return creatorStateFromMarketState(PNC_STATE);}
-async function saveStateForWalletKey(walletKey,creatorState){if(!walletKey)return;const stateToSave={at:Date.now(),version:PNC_CONFIG.app.version,creator:creatorState||emptyCreatorState()};writeLocalState(walletKey,stateToSave);writeRestoreSnapshot(creatorState);const res=await fetch('/api/save-state',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({walletAddress:walletKey,state:stateToSave})});let json=null;try{json=await res.json();}catch(e){}if(!res.ok||json&&json.ok===false)console.warn('KV save failed',walletKey,json||res.status);}
-async function saveKVState(){try{const c=publicCreatorStateForSave();writeRestoreSnapshot(c);if(PNC_STATE.wallet)await saveStateForWalletKey(PNC_STATE.wallet,c);await saveStateForWalletKey(PNC_GLOBAL_MARKET_KEY,c);}catch(e){console.warn(e);}}
+async function saveStateForWalletKey(walletKey,creatorState){
+  if(!walletKey)return;
+  const stateToSave={at:Date.now(),version:PNC_CONFIG.app.version,creator:creatorState||emptyCreatorState()};
+  const response=await fetch('/api/save-state',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({walletAddress:walletKey,state:stateToSave})});
+  let payload=null;try{payload=await response.json();}catch(e){}
+  if(!response.ok||(payload&&payload.ok===false))throw new Error('KV save failed: '+response.status);
+}
+async function saveKVState(){
+  try{
+    const creator=publicCreatorStateForSave();
+    if(PNC_STATE.wallet)await saveStateForWalletKey(PNC_STATE.wallet,creator);
+    await saveStateForWalletKey(PNC_GLOBAL_MARKET_KEY,creator);
+  }catch(e){console.warn(e);}
+}
 function normalizeShopForMarket(shop){if(!shop)return shop;const pinataImage=shop.pinata&&shop.pinata.image?shop.pinata.image.ipfsUri:'';const image=shop.shopImage||shop.image||pinataImage||'';const banner=shop.shopBanner||shop.banner||image||'';const social=normalizeShopSocial(shop.social);return{...shop,image,banner,shopImage:image,shopBanner:banner,social};}function shopDraftToCollection(draft){const ipfsImage=draft&&draft.pinata&&draft.pinata.image?draft.pinata.image.ipfsUri:'';return{id:draft.collectionId||draft.id,name:draft.name,creator:draft.creator,verified:false,description:draft.description,icon:'🏪',image:ipfsImage,banner:ipfsImage,shopImage:ipfsImage,shopBanner:ipfsImage,social:normalizeShopSocial(draft.social),source:'creator-pinata',status:'registered',pinata:draft.pinata||null,registeredAt:draft.registeredAt||Date.now(),createdAt:draft.createdAt||Date.now()};}function nftKey(n){return lc(n&&n.contractAddress)+':'+String(n&&n.tokenId||'');}
 function nftMintOrderValue(n){
   const mintedAt=Number(n&&n.mintedAt||0);
@@ -599,27 +559,17 @@ function applyKVCreatorState(state,kv,options={}){
   state.market.storageReads.push({shops:afterShops-beforeShops,nfts:afterNfts-beforeNfts});
   return state;
 }function applyCollectionMedia(state){for(const c of state.collections){const pinataImage=c.pinata&&c.pinata.image?c.pinata.image.ipfsUri:'';if(c.source==='creator-pinata'||c.status==='registered'){const shopImage=c.shopImage||c.image||pinataImage||'';c.image=shopImage;c.banner=c.shopBanner||c.banner||shopImage;c.shopImage=shopImage;c.shopBanner=c.banner;continue;}if(isUsableMediaUrl(c.image||c.banner))continue;const found=state.nfts.filter(n=>n.collectionId===c.id).find(n=>resolveMediaUrl(n));if(found){c.image=(found.metadata&&found.metadata.image)||found.image||'';c.banner=c.image;}}}
-function createSeedState(wallet,creatorSeed){return{wallet:wallet||null,collections:[],nfts:[],market:{listings:[],offers:[],auctions:[],minimumNativeWei:'0',pendingBidRefundWei:'0',storageReads:[]},creator:structuredCopy(creatorSeed||emptyCreatorState()),errors:[],resolving:true};}
 async function loadBlockchainState(){
-  const loadId=++PNC_LOAD_SEQUENCE;
-  pncDebug('LOAD START',`id=${loadId} wallet=${PNC_STATE.wallet?short(PNC_STATE.wallet):'none'}`);
   const walletSnapshot=PNC_STATE.wallet||null;
   const creatorSnapshot=structuredCopy(PNC_STATE.creator||emptyCreatorState());
-  const seed=createSeedState(walletSnapshot,creatorSnapshot);
-  if(loadId===PNC_LOAD_SEQUENCE){
-    PNC_STATE=seed;
-    pncDebug('SEED RENDER',`collections=${seed.collections.length} nfts=${seed.nfts.length}`);
-    renderAll(PNC_STATE);
-  }
-  pncDebug('CREATE MARKETSTATE CALL');
+  pncDebug('LOAD START',`wallet=${walletSnapshot?short(walletSnapshot):'none'}`);
   const nextState=await createMarketState(walletSnapshot,creatorSnapshot);
-  pncDebug('CREATE MARKETSTATE RETURN',`collections=${nextState.collections.length} nfts=${nextState.nfts.length} errors=${nextState.errors.length}`,'ok');
-  if(loadId!==PNC_LOAD_SEQUENCE||lc(PNC_STATE.wallet)!==lc(walletSnapshot)){
-    console.warn('Discarded stale MarketState load:',loadId);
-    return PNC_STATE;
+  if(lc(PNC_STATE.wallet)!==lc(walletSnapshot)){
+    pncDebug('LOAD RESTART REQUIRED','Wallet changed while loading','warn');
+    PNC_REFRESH_QUEUED=true;
+    return null;
   }
   PNC_STATE=nextState;
-  pncDebug('FINAL RENDER START');
   renderAll(PNC_STATE);
   pncDebug('LOAD COMPLETE',`collections=${PNC_STATE.collections.length} nfts=${PNC_STATE.nfts.length}`,'ok');
   return PNC_STATE;
@@ -628,24 +578,16 @@ async function createMarketState(walletSnapshot,creatorSnapshot){
   pncDebug('MARKETSTATE START',`wallet=${walletSnapshot?short(walletSnapshot):'none'}`);
   const state={wallet:walletSnapshot||null,collections:[],nfts:[],market:{listings:[],offers:[],auctions:[],minimumNativeWei:'0',pendingBidRefundWei:'0',storageReads:[]},creator:structuredCopy(creatorSnapshot||emptyCreatorState()),errors:[],resolving:false};
 
-  pncDebug('GLOBAL SOURCES START');
-  const globalSources=await loadStoredStateSources(PNC_GLOBAL_MARKET_KEY);
-  pncDebug('GLOBAL SOURCES READY',`local=${!!globalSources.local} snapshot=${!!globalSources.snapshot} remote=${!!globalSources.remote}`,'ok');
-  state.market.globalSources=globalSources;
-  for(const source of [globalSources.local,globalSources.snapshot,globalSources.remote]){
-    if(source&&typeof source==='object') applyKVCreatorState(state,source,{requireWalletMatch:false});
-  }
-
-  pncDebug('GLOBAL MERGE DONE',`collections=${state.collections.length} nfts=${state.nfts.length}`,'ok');
+  pncDebug('GLOBAL KV START');
+  const globalState=await loadRemoteKVState(PNC_GLOBAL_MARKET_KEY);
+  if(globalState)applyKVCreatorState(state,globalState,{requireWalletMatch:false});
+  pncDebug('GLOBAL KV COMPLETE',`collections=${state.collections.length} nfts=${state.nfts.length}`,'ok');
 
   if(state.wallet){
-    pncDebug('WALLET SOURCES START',short(state.wallet));
-    const walletSources=await loadStoredStateSources(state.wallet);
-    pncDebug('WALLET SOURCES READY',`local=${!!walletSources.local} snapshot=${!!walletSources.snapshot} remote=${!!walletSources.remote}`,'ok');
-    state.market.walletSources=walletSources;
-    for(const source of [walletSources.local,walletSources.snapshot,walletSources.remote]){
-      if(source&&typeof source==='object') applyKVCreatorState(state,source,{requireWalletMatch:false});
-    }
+    pncDebug('WALLET KV START',short(state.wallet));
+    const walletState=await loadRemoteKVState(state.wallet);
+    if(walletState)applyKVCreatorState(state,walletState,{requireWalletMatch:false});
+    pncDebug('WALLET KV COMPLETE',`collections=${state.collections.length} nfts=${state.nfts.length}`,'ok');
   }
 
   applyCreatorRegisteredShops(state);
@@ -710,9 +652,9 @@ async function createMarketState(walletSnapshot,creatorSnapshot){
 function walletModalHtmlConnected(){return`<button class="wallet-option" onclick="disconnectWallet()">Logout</button>`;}function walletModalHtmlDisconnected(){return`<button class="wallet-option" onclick="connectMetaMask()">🦊 MetaMask</button><button class="wallet-option" onclick="piWalletComingSoon()">Pi Wallet <span class="meta">Coming soon</span></button>`;}function openWalletModal(){const modal=$('walletModal'),status=$('walletModalStatus'),actions=$('walletModalActions'),title=modal?.querySelector('h2');if(PNC_STATE.wallet){if(title)title.textContent=PNC_TEXT.wallet.modalConnectedTitle;if(status)status.textContent=short(PNC_STATE.wallet);if(actions)actions.innerHTML=walletModalHtmlConnected();}else{if(title)title.textContent=PNC_TEXT.wallet.modalConnectTitle;if(status)status.textContent=PNC_TEXT.wallet.modalChooseProvider;if(actions)actions.innerHTML=walletModalHtmlDisconnected();}modal?.classList.add('show');}function closeWalletModal(){$('walletModal')?.classList.remove('show');}function piWalletComingSoon(){alert(PNC_TEXT.wallet.piComingSoon);}function isMetaMaskPendingError(e){return e&&e.code===-32002;}function isMetaMaskUserRejected(e){return e&&e.code===4001;}
 async function resetMetaMaskAccountPermission(){if(!window.ethereum)throw new Error('MetaMask not found');try{await ethereum.request({method:'wallet_revokePermissions',params:[{eth_accounts:{}}]});}catch(e){if(isMetaMaskPendingError(e))throw e;console.warn('wallet_revokePermissions skipped:',e);}}
 async function requestSelectedMetaMaskAccount(){if(!window.ethereum)throw new Error('MetaMask not found');await resetMetaMaskAccountPermission();await ethereum.request({method:'wallet_requestPermissions',params:[{eth_accounts:{}}]});const accounts=await ethereum.request({method:'eth_accounts'});if(accounts&&accounts[0])return accounts[0];const requested=await ethereum.request({method:'eth_requestAccounts'});return requested&&requested[0]?requested[0]:null;}
-async function connectMetaMask(){if(!window.ethereum){alert(PNC_TEXT.wallet.metamaskNotFound);return;}if(PNC_WALLET_CONNECTING)return;PNC_WALLET_CONNECTING=true;try{const selected=await requestSelectedMetaMaskAccount();if(!selected)throw new Error('No account selected');PNC_STATE.wallet=selected;try{await ethereum.request({method:'wallet_switchEthereumChain',params:[{chainId:PNC_CONFIG.network.chainId}]});}catch(e){console.warn('Network switch skipped:',e);}closeWalletModal();await refreshPlatform();}catch(e){if(isMetaMaskPendingError(e))alert(PNC_TEXT.wallet.metamaskPending);else if(!isMetaMaskUserRejected(e))alert(PNC_TEXT.wallet.connectFailed);console.warn(e);}finally{PNC_WALLET_CONNECTING=false;}}
-async function disconnectWallet(){PNC_STATE.wallet=null;closeWalletModal();await refreshPlatform();}
-function installWalletListeners(){if(!window.ethereum||window.__PNC_WALLET_LISTENERS__)return;window.__PNC_WALLET_LISTENERS__=true;ethereum.on?.('accountsChanged',async accounts=>{const nextWallet=accounts&&accounts[0]?accounts[0]:null;if(lc(nextWallet)===lc(PNC_STATE.wallet))return;PNC_STATE.wallet=nextWallet;await refreshPlatform();});ethereum.on?.('chainChanged',async()=>{await refreshPlatform();});}
+async function connectMetaMask(){if(!window.ethereum){alert(PNC_TEXT.wallet.metamaskNotFound);return;}if(PNC_WALLET_CONNECTING)return;PNC_WALLET_CONNECTING=true;try{const selected=await requestSelectedMetaMaskAccount();if(!selected)throw new Error('No account selected');PNC_STATE.wallet=selected;renderAll(PNC_STATE);try{await ethereum.request({method:'wallet_switchEthereumChain',params:[{chainId:PNC_CONFIG.network.chainId}]});}catch(e){console.warn('Network switch skipped:',e);}closeWalletModal();await refreshPlatform();}catch(e){if(isMetaMaskPendingError(e))alert(PNC_TEXT.wallet.metamaskPending);else if(!isMetaMaskUserRejected(e))alert(PNC_TEXT.wallet.connectFailed);console.warn(e);}finally{PNC_WALLET_CONNECTING=false;}}
+async function disconnectWallet(){PNC_STATE.wallet=null;renderAll(PNC_STATE);closeWalletModal();await refreshPlatform();}
+function installWalletListeners(){if(!window.ethereum||window.__PNC_WALLET_LISTENERS__)return;window.__PNC_WALLET_LISTENERS__=true;ethereum.on?.('accountsChanged',async accounts=>{const nextWallet=accounts&&accounts[0]?accounts[0]:null;if(lc(nextWallet)===lc(PNC_STATE.wallet))return;PNC_STATE.wallet=nextWallet;renderAll(PNC_STATE);await refreshPlatform();});ethereum.on?.('chainChanged',async()=>{await refreshPlatform();});}
 function setRefreshButtonState(mode){
   const btn=$('platformRefreshBtn');
   if(!btn)return;
@@ -723,24 +665,36 @@ function setRefreshButtonState(mode){
   btn.title=mode==='loading'?'Updating…':mode==='ok'?'Updated':mode==='error'?'Update failed':'Refresh platform';
 }
 async function refreshPlatform(options={}){
-  if(PNC_REFRESHING)return PNC_STATE;
-  PNC_REFRESHING=true;
-  setRefreshButtonState('loading');
-  try{
-    const result=await loadBlockchainState();
-    setRefreshButtonState('ok');
-    if(options.feedback)console.info('PNC platform updated.');
-    setTimeout(()=>setRefreshButtonState('idle'),900);
-    return result;
-  }catch(e){
-    setRefreshButtonState('error');
-    setTimeout(()=>setRefreshButtonState('idle'),1800);
-    console.warn('Platform refresh failed:',e);
-    if(options.feedback)alert('Update failed. The existing data structure was not changed.');
-    throw e;
-  }finally{
-    PNC_REFRESHING=false;
+  if(PNC_REFRESHING){
+    PNC_REFRESH_QUEUED=true;
+    return PNC_REFRESH_PROMISE||Promise.resolve(PNC_STATE);
   }
+  PNC_REFRESHING=true;
+  PNC_REFRESH_QUEUED=false;
+  setRefreshButtonState('loading');
+  PNC_REFRESH_PROMISE=(async()=>{
+    try{
+      let result=null;
+      do{
+        PNC_REFRESH_QUEUED=false;
+        result=await loadBlockchainState();
+      }while(PNC_REFRESH_QUEUED);
+      setRefreshButtonState('ok');
+      if(options.feedback)console.info('PNC platform updated.');
+      setTimeout(()=>setRefreshButtonState('idle'),900);
+      return result||PNC_STATE;
+    }catch(e){
+      setRefreshButtonState('error');
+      setTimeout(()=>setRefreshButtonState('idle'),1800);
+      console.warn('Platform refresh failed:',e);
+      if(options.feedback)alert('Update failed. The current screen was kept.');
+      throw e;
+    }finally{
+      PNC_REFRESHING=false;
+      PNC_REFRESH_PROMISE=null;
+    }
+  })();
+  return PNC_REFRESH_PROMISE;
 }
 function ensureCreatorState(){if(!PNC_STATE.creator)PNC_STATE.creator=emptyCreatorState();if(!Array.isArray(PNC_STATE.creator.registeredShops))PNC_STATE.creator.registeredShops=[];if(!Array.isArray(PNC_STATE.creator.mintedNfts))PNC_STATE.creator.mintedNfts=[];if(!('shopDraft'in PNC_STATE.creator))PNC_STATE.creator.shopDraft=null;if(!('nftDraft'in PNC_STATE.creator))PNC_STATE.creator.nftDraft=null;return PNC_STATE.creator;}function creatorOwnedCollections(state){const wallet=lc(state.wallet);return wallet?state.collections.filter(c=>lc(c.creator)===wallet):[];}function creatorCreatedNFTs(state){const wallet=lc(state.wallet);return wallet?state.nfts.filter(n=>lc(n.creator)===wallet):[];}function walletManagedNFTs(state){const wallet=lc(state.wallet);return wallet?state.nfts.filter(n=>lc(n.owner)===wallet||(n.auction&&n.auction.active&&lc(n.auction.seller)===wallet)):[];}function setCreatorTab(tab){PNC_CREATOR_TAB=tab||'dashboard';renderCreatorCenter(PNC_STATE);}function requireWallet(){if(PNC_STATE.wallet)return true;alert(PNC_TEXT.wallet.connectRequired);return false;}function lockedCreatorPanel(){return`<div class="card"><h2>${esc(PNC_TEXT.creator.lockedTitle)}</h2><p class="meta">${esc(PNC_TEXT.creator.lockedBody)}</p></div>`;}function creatorTabButton(tab,label){const active=PNC_CREATOR_TAB===tab?'active':'';const locked=!PNC_STATE.wallet&&tab!=='dashboard';return`<button class="creator-tab ${active} ${locked?'locked':''}" onclick="${locked?'alert(PNC_TEXT.wallet.connectRequired)':`setCreatorTab('${tab}')`}">${label}</button>`;}
 function collectionItems(state,collectionId){return state.nfts.filter(n=>n.collectionId===collectionId);}function collectionNameById(id){return(PNC_STATE.collections.find(c=>c.id===id)||{}).name||id||'-';}function chainLabel(n){return lc(n.contractAddress)===lc(PNC_CONFIG.contracts.nft)?'ERC721 On-chain':'Legacy';}function statusLabel(n){return n.status==='auction'?'Auction':(n.status==='listed'?'Listed':(n.status==='market_read_error'?'Read error':(chainLabel(n)==='Legacy'?'Legacy':'Not for sale')));}function statusClass(n){return n.status==='auction'?'status-auction':(n.status==='listed'?'status-listed':(n.status==='market_read_error'?'status-read-error':(chainLabel(n)==='Legacy'?'status-legacy':'status-not-for-sale')));}function uiIconPi(){return `<img class="pnc-price-icon" src="${PNC_UI_ICONS.pi}" alt="Pi Network">`;}function priceLine(n){const value=n.status==='auction'?esc((n.auction&&BigInt(n.auction.highestBidWei||'0')>0n?n.auction.highestBidEth:n.auction?.reservePriceEth)||'-'):(n.status==='listed'?esc(n.priceEth||'-'):esc(n.status==='market_read_error'?'Read error':'Not for sale'));return`<div class="price-block"><span class="price-label">Price</span><span class="price-line">${uiIconPi()}<span class="price-wrap"><span>${value}</span><span class="price-unit">${esc(currencyUnit())}</span></span></span></div>`;}function mediaBox(item,cls){const img=mediaUrlFrom(item);return img?`<div class="${cls} has-image" style="background-image:url('${esc(img)}')"></div>`:`<div class="${cls}">${esc(item.icon||'🖼')}</div>`;}function infoRow(label,value){return`<div class="info-row"><span>${esc(label)}</span><span>${esc(value||'-')}</span></div>`;}
@@ -1565,7 +1519,7 @@ function closeLegal(event){
 function openCollection(collectionId){renderCollectionPage(PNC_STATE,collectionId);showPage('collectionPage');}function showDetailById(id){const n=PNC_STATE.nfts.find(x=>x.id===id);if(!n)return;const c=PNC_STATE.collections.find(x=>x.id===n.collectionId)||{};const desc=n.description||(n.metadata&&n.metadata.description)||'';$('nftDetailBox').innerHTML=`<div class="detail-toolbar"><button class="detail-close" onclick="closeNftDetail()">×</button></div><div class="detail-head">${renderNFTMedia(n,'detail')}<div class="detail-summary"><div class="detail-title">${esc(n.name)}</div><div class="meta">${esc(c.name||n.collectionName||'-')} ${c.verified?'<span class="badge">✔</span>':''}</div>${priceLine(n)}${shopSocialHtml(c)}<div class="badge-row"><span class="badge ${statusClass(n)}">${esc(statusLabel(n))}</span><span class="chain-badge">${esc(chainLabel(n))}</span></div></div></div>${desc?`<div class="detail-section"><div class="detail-section-title">Description</div><div class="meta">${esc(desc)}</div></div>`:''}<div class="detail-section"><div class="detail-section-title">NFT Information</div><div class="detail-info-grid"><div>${infoRow('NFT ID',n.id)}${infoRow('Media Type',resolveNFTMedia(n).mediaType==='video'?'Video NFT':'Image NFT')}${infoRow('Token ID',n.tokenId||'-')}${infoRow('Collection',c.name||n.collectionName||'-')}${infoRow('Contract',displayAddress(n.contractAddress))}</div><div>${infoRow('Owner',displayAddress(n.owner))}${infoRow('Creator',displayAddress(n.creator))}${infoRow('Primary Sale',n.primarySaleCompleted?'Completed':'Not completed')}${infoRow('Seller',displayAddress(n.seller))}${infoRow('Listing ID',n.listingId||'-')}${infoRow('Active Offers',(n.offers||[]).length)}${n.auction?infoRow('Auction ID',n.auction.auctionId):''}${n.auction?infoRow('Auction Seller',displayAddress(n.auction.seller)):''}</div></div></div><div class="detail-section"><div class="detail-section-title">Offers</div>${offerListHtml(n)}</div><div class="detail-section"><div class="detail-section-title">Auction</div>${auctionListHtml(n)}</div>${bidRefundHtml()}${detailActionButtons(n)}`;$('nftDetailOverlay').classList.add('show');}function closeNftDetail(ev){if(ev&&ev.target&&ev.target.id!=='nftDetailOverlay')return;$('nftDetailOverlay')?.classList.remove('show');}function searchPNC(){const q=lc($('searchInput').value).trim(),box=$('searchResults');if(!q){box.classList.remove('show');box.innerHTML='';return;}const cs=PNC_STATE.collections.filter(c=>lc(c.name).includes(q));const ns=PNC_STATE.nfts.filter(n=>lc(n.name).includes(q));box.innerHTML=cs.map(c=>`<div class="search-item" onclick="openCollection('${esc(c.id)}')">🏪 ${esc(c.name)}<div class="meta">Collection</div></div>`).join('')+ns.map(n=>`<div class="search-item" onclick="showDetailById('${esc(n.id)}')">🖼 ${esc(n.name)}<div class="meta">NFT</div></div>`).join('');box.classList.toggle('show',!!box.innerHTML);}
 document.addEventListener('keydown',event=>{if(event.key==='Escape'){closeLegal();closeNftDetail();closeWalletModal();}});
 document.addEventListener('DOMContentLoaded',async()=>{
-  pncDebug('DOM READY',`readyState=${document.readyState}; debugRuntime=v1.6.9`,'ok');
+  pncDebug('DOM READY',`readyState=${document.readyState}; debugRuntime=v1.6.10`,'ok');
   try{
     applyPNCBrandIcon();
     pncDebug('BRAND ICON OK','','ok');
