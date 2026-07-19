@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pi NFT Center v1.6.8 Mobile Debug Edition</title>
+<title>Pi NFT Center v1.6.9 KV Structure Diagnostic Edition</title>
 <style>
 :root{--purple:#5b2d82;--gold:#f5b041;--bg:#111017;--card:#1d1826;--text:#f7f1ff;--muted:#b7a9c6;--border:#3b2c4c;--green:#2ecc71;--red:#ff5c5c;--blue:#2f80ed;--soft:rgba(255,255,255,.055)}
 body.light{--bg:#f7f4fb;--card:#fff;--text:#19151f;--muted:#70647c;--border:#e5d8ef;--soft:rgba(91,45,130,.055)}
@@ -89,7 +89,7 @@ body.light .carousel-btn{background:rgba(255,255,255,.9)}
 
 <div class="pnc-debug-panel" id="pncDebugPanel" aria-live="polite">
   <div class="pnc-debug-head">
-    <div class="pnc-debug-title">📱 PNC v1.6.8 Mobile Diagnostic</div>
+    <div class="pnc-debug-title">📱 PNC v1.6.9 KV Structure Diagnostic</div>
     <div class="pnc-debug-actions">
       <button type="button" onclick="pncDebugCopy()">Copy</button>
       <button type="button" onclick="pncDebugClear()">Clear</button>
@@ -103,7 +103,7 @@ body.light .carousel-btn{background:rgba(255,255,255,.9)}
 </div>
 
 <main>
-  <div class="page show" id="homePage"><div class="hero"><h1>Pi NFT Center <span class="beta">v1.6.8 Mobile Debug</span></h1><p>New NFTs glides automatically and pauses only while you interact with it. Every marketplace row supports smooth free scrolling.</p></div><section class="section"><div class="section-title">🏆 Top Collections</div><div class="collection-list" id="topCollections"></div></section><section class="section carousel-section"><div class="carousel-header"><div class="section-title">🔥 Hot NFTs</div><div class="carousel-controls"><button class="carousel-btn" type="button" data-carousel-prev="hotNfts" aria-label="Scroll 🔥 Hot NFTs left">◀</button><button class="carousel-btn" type="button" data-carousel-next="hotNfts" aria-label="Scroll 🔥 Hot NFTs right">▶</button></div></div><div class="carousel-shell"><span class="carousel-edge left"></span><div class="grid carousel-track" id="hotNfts" tabindex="0"></div><span class="carousel-edge right"></span></div></section><section class="section carousel-section"><div class="carousel-header"><div class="section-title">🔨 Live Auctions</div><div class="carousel-controls"><button class="carousel-btn" type="button" data-carousel-prev="liveAuctions" aria-label="Scroll 🔨 Live Auctions left">◀</button><button class="carousel-btn" type="button" data-carousel-next="liveAuctions" aria-label="Scroll 🔨 Live Auctions right">▶</button></div></div><div class="carousel-shell"><span class="carousel-edge left"></span><div class="grid carousel-track" id="liveAuctions" tabindex="0"></div><span class="carousel-edge right"></span></div></section><section class="section carousel-section"><div class="carousel-header"><div class="section-title">🆕 New NFTs</div><div class="carousel-controls"><button class="carousel-btn" type="button" data-carousel-prev="newNfts" aria-label="Scroll 🆕 New NFTs left">◀</button><button class="carousel-btn" type="button" data-carousel-next="newNfts" aria-label="Scroll 🆕 New NFTs right">▶</button></div></div><div class="carousel-shell"><span class="carousel-edge left"></span><div class="grid carousel-track" id="newNfts" tabindex="0"></div><span class="carousel-edge right"></span></div></section><section class="section carousel-section"><div class="carousel-header"><div class="section-title">🆕 New Collections</div><div class="carousel-controls"><button class="carousel-btn" type="button" data-carousel-prev="newCollections" aria-label="Scroll 🆕 New Collections left">◀</button><button class="carousel-btn" type="button" data-carousel-next="newCollections" aria-label="Scroll 🆕 New Collections right">▶</button></div></div><div class="carousel-shell"><span class="carousel-edge left"></span><div class="grid carousel-track" id="newCollections" tabindex="0"></div><span class="carousel-edge right"></span></div></section><section class="section carousel-section"><div class="carousel-header"><div class="section-title">⭐ Featured Collections</div><div class="carousel-controls"><button class="carousel-btn" type="button" data-carousel-prev="featuredCollections" aria-label="Scroll ⭐ Featured Collections left">◀</button><button class="carousel-btn" type="button" data-carousel-next="featuredCollections" aria-label="Scroll ⭐ Featured Collections right">▶</button></div></div><div class="carousel-shell"><span class="carousel-edge left"></span><div class="grid carousel-track" id="featuredCollections" tabindex="0"></div><span class="carousel-edge right"></span></div></section></div>
+  <div class="page show" id="homePage"><div class="hero"><h1>Pi NFT Center <span class="beta">v1.6.9 KV Structure Diagnostic</span></h1><p>New NFTs glides automatically and pauses only while you interact with it. Every marketplace row supports smooth free scrolling.</p></div><section class="section"><div class="section-title">🏆 Top Collections</div><div class="collection-list" id="topCollections"></div></section><section class="section carousel-section"><div class="carousel-header"><div class="section-title">🔥 Hot NFTs</div><div class="carousel-controls"><button class="carousel-btn" type="button" data-carousel-prev="hotNfts" aria-label="Scroll 🔥 Hot NFTs left">◀</button><button class="carousel-btn" type="button" data-carousel-next="hotNfts" aria-label="Scroll 🔥 Hot NFTs right">▶</button></div></div><div class="carousel-shell"><span class="carousel-edge left"></span><div class="grid carousel-track" id="hotNfts" tabindex="0"></div><span class="carousel-edge right"></span></div></section><section class="section carousel-section"><div class="carousel-header"><div class="section-title">🔨 Live Auctions</div><div class="carousel-controls"><button class="carousel-btn" type="button" data-carousel-prev="liveAuctions" aria-label="Scroll 🔨 Live Auctions left">◀</button><button class="carousel-btn" type="button" data-carousel-next="liveAuctions" aria-label="Scroll 🔨 Live Auctions right">▶</button></div></div><div class="carousel-shell"><span class="carousel-edge left"></span><div class="grid carousel-track" id="liveAuctions" tabindex="0"></div><span class="carousel-edge right"></span></div></section><section class="section carousel-section"><div class="carousel-header"><div class="section-title">🆕 New NFTs</div><div class="carousel-controls"><button class="carousel-btn" type="button" data-carousel-prev="newNfts" aria-label="Scroll 🆕 New NFTs left">◀</button><button class="carousel-btn" type="button" data-carousel-next="newNfts" aria-label="Scroll 🆕 New NFTs right">▶</button></div></div><div class="carousel-shell"><span class="carousel-edge left"></span><div class="grid carousel-track" id="newNfts" tabindex="0"></div><span class="carousel-edge right"></span></div></section><section class="section carousel-section"><div class="carousel-header"><div class="section-title">🆕 New Collections</div><div class="carousel-controls"><button class="carousel-btn" type="button" data-carousel-prev="newCollections" aria-label="Scroll 🆕 New Collections left">◀</button><button class="carousel-btn" type="button" data-carousel-next="newCollections" aria-label="Scroll 🆕 New Collections right">▶</button></div></div><div class="carousel-shell"><span class="carousel-edge left"></span><div class="grid carousel-track" id="newCollections" tabindex="0"></div><span class="carousel-edge right"></span></div></section><section class="section carousel-section"><div class="carousel-header"><div class="section-title">⭐ Featured Collections</div><div class="carousel-controls"><button class="carousel-btn" type="button" data-carousel-prev="featuredCollections" aria-label="Scroll ⭐ Featured Collections left">◀</button><button class="carousel-btn" type="button" data-carousel-next="featuredCollections" aria-label="Scroll ⭐ Featured Collections right">▶</button></div></div><div class="carousel-shell"><span class="carousel-edge left"></span><div class="grid carousel-track" id="featuredCollections" tabindex="0"></div><span class="carousel-edge right"></span></div></section></div>
   <div class="page" id="collectionsPage"><div class="hero"><h1>Collections</h1><p>All collections are rendered from MarketState only.</p></div><section class="section"><div class="grid" id="allCollections"></div></section></div>
   <div class="page" id="collectionPage"><div id="collectionDetail"></div></div>
   <div class="page" id="vaultPage"><div class="hero vault-hero"><h1>My Vault</h1><p id="vaultStats">Connect wallet to load ownerOf-based vault.</p><div class="vault-tabs" role="tablist" aria-label="My Vault"><button class="vault-tab active" id="vaultTabOwned" type="button" onclick="setVaultTab('owned')">Owned NFTs</button><button class="vault-tab" id="vaultTabSend" type="button" onclick="setVaultTab('send')">Send</button><button class="vault-tab" id="vaultTabReceive" type="button" onclick="setVaultTab('receive')">Receive</button></div></div><section class="section"><div id="vaultContent"></div></section></div>
@@ -163,7 +163,7 @@ function pncDebugToggle(){document.getElementById('pncDebugPanel')?.classList.to
 function pncDebugClear(){PNC_DEBUG.entries=[];pncDebug('LOG CLEARED','','warn');}
 async function pncDebugCopy(){
   const report=[
-    'PNC v1.6.8 Mobile Diagnostic',
+    'PNC v1.6.9 KV Structure Diagnostic',
     `URL: ${location.href}`,
     `UA: ${navigator.userAgent}`,
     `Online: ${navigator.onLine}`,
@@ -179,7 +179,7 @@ window.addEventListener('online',()=>pncDebug('NETWORK','online','ok'));
 window.addEventListener('offline',()=>pncDebug('NETWORK','offline','error'));
 pncDebug('SCRIPT START',navigator.userAgent,'ok');
 
-const PNC_CONFIG={app:{version:'v1.6.8-mobile-debug'},network:{chainId:'0xaa36a7',name:'Sepolia Testnet'},contracts:{nft:'0x63C8AbE6a0e7867B7812A1237a2781D460702382',marketplace:'0x6151447c07Fa68b5A90E4DdD0c04e46aaa8EB5dc',feeWallet:'0x4a45Cd6Aa78C7AB51b0d9ba0e36E035A47a0BC1b'},pinata:{gateway:'https://gateway.pinata.cloud/ipfs/'},currency:{activeSymbol:'SepoliaETH',futureSymbol:'Pi'},marketRules:{initialSale:{seller:95,pncFee:5},resale:{seller:85,creatorRoyalty:10,pncFee:5},examplePrice:1000},links:{x:'https://x.com/picoreteam?s=21&t=OEh4osxhpQf_YpLWZaL1kQ',telegram:'https://t.me/PiAnnouncements'},performance:{readChainBeforeWalletConnect:true}};
+const PNC_CONFIG={app:{version:'v1.6.9-kv-structure-diagnostic'},network:{chainId:'0xaa36a7',name:'Sepolia Testnet'},contracts:{nft:'0x63C8AbE6a0e7867B7812A1237a2781D460702382',marketplace:'0x6151447c07Fa68b5A90E4DdD0c04e46aaa8EB5dc',feeWallet:'0x4a45Cd6Aa78C7AB51b0d9ba0e36E035A47a0BC1b'},pinata:{gateway:'https://gateway.pinata.cloud/ipfs/'},currency:{activeSymbol:'SepoliaETH',futureSymbol:'Pi'},marketRules:{initialSale:{seller:95,pncFee:5},resale:{seller:85,creatorRoyalty:10,pncFee:5},examplePrice:1000},links:{x:'https://x.com/picoreteam?s=21&t=OEh4osxhpQf_YpLWZaL1kQ',telegram:'https://t.me/PiAnnouncements'},performance:{readChainBeforeWalletConnect:true}};
 const PNC_FOOTER={
   navigation:{title:'PNC',items:[
     {label:'Home',kind:'page',target:'homePage'},
@@ -494,17 +494,63 @@ function readLocalState(walletKey){try{const key=walletKey===PNC_GLOBAL_MARKET_K
 function writeLocalState(walletKey,state){try{const key=walletKey===PNC_GLOBAL_MARKET_KEY?PNC_LOCAL_GLOBAL_KEY:localWalletKey(walletKey);localStorage.setItem(key,JSON.stringify(state));}catch(e){console.warn(e);}}
 function readRestoreSnapshot(){try{const raw=localStorage.getItem(PNC_LOCAL_SNAPSHOT_KEY);return raw?JSON.parse(raw):null;}catch(e){return null;}}
 function writeRestoreSnapshot(creatorState){try{localStorage.setItem(PNC_LOCAL_SNAPSHOT_KEY,JSON.stringify({at:Date.now(),version:PNC_CONFIG.app.version,creator:creatorState||emptyCreatorState()}));}catch(e){console.warn(e);}}
+function pncObjectKeys(value){
+  return value&&typeof value==='object'&&!Array.isArray(value)?Object.keys(value):[];
+}
+function pncValueType(value){
+  if(value===null)return'null';
+  if(Array.isArray(value))return`array(${value.length})`;
+  return typeof value;
+}
+function pncSafePreview(value,max=280){
+  let text='';
+  try{text=typeof value==='string'?value:JSON.stringify(value);}catch(e){text=String(value);}
+  return String(text||'').replace(/\s+/g,' ').slice(0,max);
+}
+function pncTryParseJSONText(value){
+  if(typeof value!=='string')return value;
+  const text=value.trim();
+  if(!text||(!text.startsWith('{')&&!text.startsWith('[')))return value;
+  try{return JSON.parse(text);}catch(e){return value;}
+}
+function pncInspectKVCandidate(label,path,value){
+  const parsed=pncTryParseJSONText(value);
+  const keys=pncObjectKeys(parsed);
+  const creator=extractCreatorStorage(parsed);
+  pncDebug('KV CANDIDATE',`${label} ${path} type=${pncValueType(value)} parsed=${pncValueType(parsed)} keys=${keys.length?keys.join(','):'-'} shops=${creator.registeredShops.length} nfts=${creator.mintedNfts.length}`,creator.registeredShops.length||creator.mintedNfts.length?'ok':'info');
+  return parsed;
+}
 async function loadRemoteKVState(wallet){
   if(!wallet)return null;
   const label=wallet===PNC_GLOBAL_MARKET_KEY?'GLOBAL':short(wallet);
-  pncDebug('KV FETCH START',label);
+  const requestUrl='/api/load-state?walletAddress='+encodeURIComponent(wallet);
+  pncDebug('KV FETCH START',`${label} key=${wallet}`);
+  pncDebug('KV REQUEST',requestUrl);
   try{
-    const r=await fetch('/api/load-state?walletAddress='+encodeURIComponent(wallet),{cache:'no-store'});
-    pncDebug('KV HTTP',`${label} status=${r.status}`,r.ok?'ok':'warn');
+    const r=await fetch(requestUrl,{cache:'no-store'});
+    pncDebug('KV HTTP',`${label} status=${r.status} ok=${r.ok} content-type=${r.headers.get('content-type')||'-'}`,r.ok?'ok':'warn');
     const raw=await r.text();
+    pncDebug('KV RAW',`${label} bytes=${raw.length} preview=${pncSafePreview(raw,320)}`,raw?'info':'warn');
     let j=null;
-    try{j=JSON.parse(raw);}catch(parseError){pncDebug('KV JSON ERROR',`${label}: ${parseError.message}; body=${raw.slice(0,160)}`,'error');return null;}
-    const state=j&&j.ok?j.state:null;
+    try{j=JSON.parse(raw);}catch(parseError){
+      pncDebug('KV JSON ERROR',`${label}: ${parseError.message}; body=${pncSafePreview(raw,320)}`,'error');
+      return null;
+    }
+
+    const topKeys=pncObjectKeys(j);
+    pncDebug('KV TOP LEVEL',`${label} type=${pncValueType(j)} keys=${topKeys.length?topKeys.join(','):'-'} ok=${String(j&&j.ok)} schema=${String(j&&j.schema||'-')} version=${String(j&&j.version||'-')} revision=${String(j&&j.revision||'-')}`,'info');
+
+    const inspected={
+      state:pncInspectKVCandidate(label,'j.state',j&&j.state),
+      data:pncInspectKVCandidate(label,'j.data',j&&j.data),
+      result:pncInspectKVCandidate(label,'j.result',j&&j.result),
+      value:pncInspectKVCandidate(label,'j.value',j&&j.value)
+    };
+    if(inspected.data&&typeof inspected.data==='object')pncInspectKVCandidate(label,'j.data.state',inspected.data.state);
+    if(inspected.result&&typeof inspected.result==='object')pncInspectKVCandidate(label,'j.result.state',inspected.result.state);
+
+    const state=j&&j.ok?inspected.state:null;
+    pncDebug('KV SELECTED PATH',`${label} selected=${state?'j.state':'null'} because ok=${String(j&&j.ok)} stateType=${pncValueType(inspected.state)}`,state?'ok':'warn');
     const c=extractCreatorStorage(state);
     pncDebug('KV FETCH DONE',`${label} shops=${c.registeredShops.length} nfts=${c.mintedNfts.length}`,state?'ok':'warn');
     return state;
@@ -1519,7 +1565,7 @@ function closeLegal(event){
 function openCollection(collectionId){renderCollectionPage(PNC_STATE,collectionId);showPage('collectionPage');}function showDetailById(id){const n=PNC_STATE.nfts.find(x=>x.id===id);if(!n)return;const c=PNC_STATE.collections.find(x=>x.id===n.collectionId)||{};const desc=n.description||(n.metadata&&n.metadata.description)||'';$('nftDetailBox').innerHTML=`<div class="detail-toolbar"><button class="detail-close" onclick="closeNftDetail()">×</button></div><div class="detail-head">${renderNFTMedia(n,'detail')}<div class="detail-summary"><div class="detail-title">${esc(n.name)}</div><div class="meta">${esc(c.name||n.collectionName||'-')} ${c.verified?'<span class="badge">✔</span>':''}</div>${priceLine(n)}${shopSocialHtml(c)}<div class="badge-row"><span class="badge ${statusClass(n)}">${esc(statusLabel(n))}</span><span class="chain-badge">${esc(chainLabel(n))}</span></div></div></div>${desc?`<div class="detail-section"><div class="detail-section-title">Description</div><div class="meta">${esc(desc)}</div></div>`:''}<div class="detail-section"><div class="detail-section-title">NFT Information</div><div class="detail-info-grid"><div>${infoRow('NFT ID',n.id)}${infoRow('Media Type',resolveNFTMedia(n).mediaType==='video'?'Video NFT':'Image NFT')}${infoRow('Token ID',n.tokenId||'-')}${infoRow('Collection',c.name||n.collectionName||'-')}${infoRow('Contract',displayAddress(n.contractAddress))}</div><div>${infoRow('Owner',displayAddress(n.owner))}${infoRow('Creator',displayAddress(n.creator))}${infoRow('Primary Sale',n.primarySaleCompleted?'Completed':'Not completed')}${infoRow('Seller',displayAddress(n.seller))}${infoRow('Listing ID',n.listingId||'-')}${infoRow('Active Offers',(n.offers||[]).length)}${n.auction?infoRow('Auction ID',n.auction.auctionId):''}${n.auction?infoRow('Auction Seller',displayAddress(n.auction.seller)):''}</div></div></div><div class="detail-section"><div class="detail-section-title">Offers</div>${offerListHtml(n)}</div><div class="detail-section"><div class="detail-section-title">Auction</div>${auctionListHtml(n)}</div>${bidRefundHtml()}${detailActionButtons(n)}`;$('nftDetailOverlay').classList.add('show');}function closeNftDetail(ev){if(ev&&ev.target&&ev.target.id!=='nftDetailOverlay')return;$('nftDetailOverlay')?.classList.remove('show');}function searchPNC(){const q=lc($('searchInput').value).trim(),box=$('searchResults');if(!q){box.classList.remove('show');box.innerHTML='';return;}const cs=PNC_STATE.collections.filter(c=>lc(c.name).includes(q));const ns=PNC_STATE.nfts.filter(n=>lc(n.name).includes(q));box.innerHTML=cs.map(c=>`<div class="search-item" onclick="openCollection('${esc(c.id)}')">🏪 ${esc(c.name)}<div class="meta">Collection</div></div>`).join('')+ns.map(n=>`<div class="search-item" onclick="showDetailById('${esc(n.id)}')">🖼 ${esc(n.name)}<div class="meta">NFT</div></div>`).join('');box.classList.toggle('show',!!box.innerHTML);}
 document.addEventListener('keydown',event=>{if(event.key==='Escape'){closeLegal();closeNftDetail();closeWalletModal();}});
 document.addEventListener('DOMContentLoaded',async()=>{
-  pncDebug('DOM READY',`readyState=${document.readyState}; debugRuntime=v1.6.8`,'ok');
+  pncDebug('DOM READY',`readyState=${document.readyState}; debugRuntime=v1.6.9`,'ok');
   try{
     applyPNCBrandIcon();
     pncDebug('BRAND ICON OK','','ok');
