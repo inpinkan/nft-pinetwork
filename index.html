@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pi NFT Center v1.6.13 Unified Forward Loop Carousel</title>
+<title>Pi NFT Center v1.6.14 Mobile Debug Edition</title>
 <style>
 :root{--purple:#5b2d82;--gold:#f5b041;--bg:#111017;--card:#1d1826;--text:#f7f1ff;--muted:#b7a9c6;--border:#3b2c4c;--green:#2ecc71;--red:#ff5c5c;--blue:#2f80ed;--soft:rgba(255,255,255,.055)}
 body.light{--bg:#f7f4fb;--card:#fff;--text:#19151f;--muted:#70647c;--border:#e5d8ef;--soft:rgba(91,45,130,.055)}
@@ -75,6 +75,10 @@ body.light .carousel-btn{background:rgba(255,255,255,.9)}
 
 
 
+/* v1.6.14 Mobile Debug Edition */
+.pnc-mobile-debug{position:fixed;left:8px;right:8px;bottom:8px;z-index:160;background:rgba(8,8,12,.96);color:#eaf7ff;border:1px solid rgba(245,176,65,.75);border-radius:14px;box-shadow:0 12px 35px rgba(0,0,0,.55);font-family:Consolas,monospace;font-size:11px;max-height:43vh;overflow:hidden}
+.pnc-mobile-debug.is-collapsed .pnc-debug-body{display:none}.pnc-debug-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 10px;background:rgba(91,45,130,.82);font-family:Arial,sans-serif}.pnc-debug-title{font-weight:950;color:var(--gold)}.pnc-debug-actions{display:flex;gap:6px}.pnc-debug-actions button{border:1px solid rgba(255,255,255,.28);border-radius:8px;background:rgba(255,255,255,.08);color:#fff;padding:4px 7px;font-size:10px}.pnc-debug-body{padding:7px}.pnc-debug-status{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;margin-bottom:7px}.pnc-debug-cell{border:1px solid rgba(255,255,255,.12);border-radius:7px;padding:4px;background:rgba(255,255,255,.04);overflow:hidden}.pnc-debug-cell span{display:block;color:#9fb0c6;font-size:9px}.pnc-debug-cell strong{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.pnc-debug-log{height:170px;overflow:auto;border:1px solid rgba(255,255,255,.12);border-radius:8px;padding:5px;background:#050508;white-space:pre-wrap;word-break:break-word}.pnc-debug-line{padding:2px 0;border-bottom:1px solid rgba(255,255,255,.05)}.pnc-debug-line.warn{color:#ffd166}.pnc-debug-line.reset{color:#ff6b6b;font-weight:900;background:rgba(255,92,92,.1)}.pnc-debug-line.ok{color:#70e6a0}@media(max-width:520px){.pnc-mobile-debug{left:4px;right:4px;bottom:4px;font-size:10px;max-height:48vh}.pnc-debug-status{grid-template-columns:repeat(3,minmax(0,1fr))}.pnc-debug-log{height:145px}}
+
 </style>
 </head>
 <body>
@@ -85,7 +89,7 @@ body.light .carousel-btn{background:rgba(255,255,255,.9)}
 </header>
 
 <main>
-  <div class="page show" id="homePage"><div class="hero"><h1>Pi NFT Center <span class="beta">v1.6.13 Unified Forward Loop Carousel</span></h1><p>New NFTs glides automatically and pauses only while you interact with it. Every marketplace row supports smooth free scrolling.</p></div><section class="section"><div class="section-title">🏆 Top Collections</div><div class="collection-list" id="topCollections"></div></section><section class="section carousel-section"><div class="carousel-header"><div class="section-title">🔥 Hot NFTs</div><div class="carousel-controls"><button class="carousel-btn" type="button" data-carousel-prev="hotNfts" aria-label="Scroll 🔥 Hot NFTs left">◀</button><button class="carousel-btn" type="button" data-carousel-next="hotNfts" aria-label="Scroll 🔥 Hot NFTs right">▶</button></div></div><div class="carousel-shell"><span class="carousel-edge left"></span><div class="grid carousel-track" id="hotNfts" tabindex="0"></div><span class="carousel-edge right"></span></div></section><section class="section carousel-section"><div class="carousel-header"><div class="section-title">🔨 Live Auctions</div><div class="carousel-controls"><button class="carousel-btn" type="button" data-carousel-prev="liveAuctions" aria-label="Scroll 🔨 Live Auctions left">◀</button><button class="carousel-btn" type="button" data-carousel-next="liveAuctions" aria-label="Scroll 🔨 Live Auctions right">▶</button></div></div><div class="carousel-shell"><span class="carousel-edge left"></span><div class="grid carousel-track" id="liveAuctions" tabindex="0"></div><span class="carousel-edge right"></span></div></section><section class="section carousel-section"><div class="carousel-header"><div class="section-title">🆕 New NFTs</div><div class="carousel-controls"><button class="carousel-btn" type="button" data-carousel-prev="newNfts" aria-label="Scroll 🆕 New NFTs left">◀</button><button class="carousel-btn" type="button" data-carousel-next="newNfts" aria-label="Scroll 🆕 New NFTs right">▶</button></div></div><div class="carousel-shell"><span class="carousel-edge left"></span><div class="grid carousel-track" id="newNfts" tabindex="0"></div><span class="carousel-edge right"></span></div></section><section class="section carousel-section"><div class="carousel-header"><div class="section-title">🆕 New Collections</div><div class="carousel-controls"><button class="carousel-btn" type="button" data-carousel-prev="newCollections" aria-label="Scroll 🆕 New Collections left">◀</button><button class="carousel-btn" type="button" data-carousel-next="newCollections" aria-label="Scroll 🆕 New Collections right">▶</button></div></div><div class="carousel-shell"><span class="carousel-edge left"></span><div class="grid carousel-track" id="newCollections" tabindex="0"></div><span class="carousel-edge right"></span></div></section><section class="section carousel-section"><div class="carousel-header"><div class="section-title">⭐ Featured Collections</div><div class="carousel-controls"><button class="carousel-btn" type="button" data-carousel-prev="featuredCollections" aria-label="Scroll ⭐ Featured Collections left">◀</button><button class="carousel-btn" type="button" data-carousel-next="featuredCollections" aria-label="Scroll ⭐ Featured Collections right">▶</button></div></div><div class="carousel-shell"><span class="carousel-edge left"></span><div class="grid carousel-track" id="featuredCollections" tabindex="0"></div><span class="carousel-edge right"></span></div></section></div>
+  <div class="page show" id="homePage"><div class="hero"><h1>Pi NFT Center <span class="beta">v1.6.14 Mobile Debug Edition</span></h1><p>Mobile investigation build: New NFTs scroll, timers, touch events, rendering, visibility, and reset timing are recorded in the Debug Panel.</p></div><section class="section"><div class="section-title">🏆 Top Collections</div><div class="collection-list" id="topCollections"></div></section><section class="section carousel-section"><div class="carousel-header"><div class="section-title">🔥 Hot NFTs</div><div class="carousel-controls"><button class="carousel-btn" type="button" data-carousel-prev="hotNfts" aria-label="Scroll 🔥 Hot NFTs left">◀</button><button class="carousel-btn" type="button" data-carousel-next="hotNfts" aria-label="Scroll 🔥 Hot NFTs right">▶</button></div></div><div class="carousel-shell"><span class="carousel-edge left"></span><div class="grid carousel-track" id="hotNfts" tabindex="0"></div><span class="carousel-edge right"></span></div></section><section class="section carousel-section"><div class="carousel-header"><div class="section-title">🔨 Live Auctions</div><div class="carousel-controls"><button class="carousel-btn" type="button" data-carousel-prev="liveAuctions" aria-label="Scroll 🔨 Live Auctions left">◀</button><button class="carousel-btn" type="button" data-carousel-next="liveAuctions" aria-label="Scroll 🔨 Live Auctions right">▶</button></div></div><div class="carousel-shell"><span class="carousel-edge left"></span><div class="grid carousel-track" id="liveAuctions" tabindex="0"></div><span class="carousel-edge right"></span></div></section><section class="section carousel-section"><div class="carousel-header"><div class="section-title">🆕 New NFTs</div><div class="carousel-controls"><button class="carousel-btn" type="button" data-carousel-prev="newNfts" aria-label="Scroll 🆕 New NFTs left">◀</button><button class="carousel-btn" type="button" data-carousel-next="newNfts" aria-label="Scroll 🆕 New NFTs right">▶</button></div></div><div class="carousel-shell"><span class="carousel-edge left"></span><div class="grid carousel-track" id="newNfts" tabindex="0"></div><span class="carousel-edge right"></span></div></section><section class="section carousel-section"><div class="carousel-header"><div class="section-title">🆕 New Collections</div><div class="carousel-controls"><button class="carousel-btn" type="button" data-carousel-prev="newCollections" aria-label="Scroll 🆕 New Collections left">◀</button><button class="carousel-btn" type="button" data-carousel-next="newCollections" aria-label="Scroll 🆕 New Collections right">▶</button></div></div><div class="carousel-shell"><span class="carousel-edge left"></span><div class="grid carousel-track" id="newCollections" tabindex="0"></div><span class="carousel-edge right"></span></div></section><section class="section carousel-section"><div class="carousel-header"><div class="section-title">⭐ Featured Collections</div><div class="carousel-controls"><button class="carousel-btn" type="button" data-carousel-prev="featuredCollections" aria-label="Scroll ⭐ Featured Collections left">◀</button><button class="carousel-btn" type="button" data-carousel-next="featuredCollections" aria-label="Scroll ⭐ Featured Collections right">▶</button></div></div><div class="carousel-shell"><span class="carousel-edge left"></span><div class="grid carousel-track" id="featuredCollections" tabindex="0"></div><span class="carousel-edge right"></span></div></section></div>
   <div class="page" id="collectionsPage"><div class="hero"><h1>Collections</h1><p>All collections are rendered from MarketState only.</p></div><section class="section"><div class="grid" id="allCollections"></div></section></div>
   <div class="page" id="collectionPage"><div id="collectionDetail"></div></div>
   <div class="page" id="vaultPage"><div class="hero vault-hero"><h1>My Vault</h1><p id="vaultStats">Connect wallet to load ownerOf-based vault.</p><div class="vault-tabs" role="tablist" aria-label="My Vault"><button class="vault-tab active" id="vaultTabOwned" type="button" onclick="setVaultTab('owned')">Owned NFTs</button><button class="vault-tab" id="vaultTabSend" type="button" onclick="setVaultTab('send')">Send</button><button class="vault-tab" id="vaultTabReceive" type="button" onclick="setVaultTab('receive')">Receive</button></div></div><section class="section"><div id="vaultContent"></div></section></div>
@@ -95,12 +99,20 @@ body.light .carousel-btn{background:rgba(255,255,255,.9)}
 <div class="detail-overlay" id="nftDetailOverlay" onclick="closeNftDetail(event)"><div class="detail-box" id="nftDetailBox"></div></div>
 <div class="wallet-modal" id="walletModal"><div class="wallet-box"><h2>Connect Wallet</h2><p class="meta" id="walletModalStatus">Choose a wallet provider.</p><div id="walletModalActions"></div><button class="close-btn" onclick="closeWalletModal()">Close</button></div></div>
 <div class="legal-modal" id="legalModal" onclick="closeLegal(event)"><div class="legal-box" id="legalBox" role="dialog" aria-modal="true" aria-labelledby="legalTitle"></div></div>
+<div class="pnc-mobile-debug" id="pncMobileDebug" aria-live="polite">
+  <div class="pnc-debug-head"><div class="pnc-debug-title">v1.6.14 New NFTs Debug</div><div class="pnc-debug-actions"><button type="button" onclick="pncDebugCopy()">Copy</button><button type="button" onclick="pncDebugClear()">Clear</button><button type="button" onclick="pncDebugToggle()">Hide</button></div></div>
+  <div class="pnc-debug-body">
+    <div class="pnc-debug-status" id="pncDebugStatus"></div>
+    <div class="pnc-debug-log" id="pncDebugLog"></div>
+  </div>
+</div>
+
 <script>
 'use strict';
 
 
 
-const PNC_CONFIG={app:{version:'v1.6.13-unified-forward-loop-carousel'},network:{chainId:'0xaa36a7',name:'Sepolia Testnet'},contracts:{nft:'0x63C8AbE6a0e7867B7812A1237a2781D460702382',marketplace:'0x6151447c07Fa68b5A90E4DdD0c04e46aaa8EB5dc',feeWallet:'0x4a45Cd6Aa78C7AB51b0d9ba0e36E035A47a0BC1b'},pinata:{gateway:'https://gateway.pinata.cloud/ipfs/'},currency:{activeSymbol:'SepoliaETH',futureSymbol:'Pi'},marketRules:{initialSale:{seller:95,pncFee:5},resale:{seller:85,creatorRoyalty:10,pncFee:5},examplePrice:1000},links:{x:'https://x.com/picoreteam?s=21&t=OEh4osxhpQf_YpLWZaL1kQ',telegram:'https://t.me/PiAnnouncements'},performance:{readChainBeforeWalletConnect:true}};
+const PNC_CONFIG={app:{version:'v1.6.14-mobile-debug-edition'},network:{chainId:'0xaa36a7',name:'Sepolia Testnet'},contracts:{nft:'0x63C8AbE6a0e7867B7812A1237a2781D460702382',marketplace:'0x6151447c07Fa68b5A90E4DdD0c04e46aaa8EB5dc',feeWallet:'0x4a45Cd6Aa78C7AB51b0d9ba0e36E035A47a0BC1b'},pinata:{gateway:'https://gateway.pinata.cloud/ipfs/'},currency:{activeSymbol:'SepoliaETH',futureSymbol:'Pi'},marketRules:{initialSale:{seller:95,pncFee:5},resale:{seller:85,creatorRoyalty:10,pncFee:5},examplePrice:1000},links:{x:'https://x.com/picoreteam?s=21&t=OEh4osxhpQf_YpLWZaL1kQ',telegram:'https://t.me/PiAnnouncements'},performance:{readChainBeforeWalletConnect:true}};
 const PNC_FOOTER={
   navigation:{title:'PNC',items:[
     {label:'Home',kind:'page',target:'homePage'},
@@ -1118,257 +1130,86 @@ const PNC_AUTO_CAROUSEL_ID='newNfts';
 const PNC_AUTO_SCROLL_TICK_MS=25;
 const PNC_AUTO_SCROLL_SPEED=0.7;
 const PNC_AUTO_RESUME_DELAY_MS=900;
+const PNC_DEBUG_MAX_LINES=160;
+const PNC_DEBUG_STATE={lines:[],lastScrollLeft:null,lastWriter:'native/unknown',lastHeartbeat:0,heartbeatTimer:0,statusTimer:0};
 
-function carouselStep(track){
-  return Math.max(160,Math.round(track.clientWidth*.62));
+function pncDebugTime(){const d=new Date();return d.toLocaleTimeString('ja-JP',{hour12:false})+'.'+String(d.getMilliseconds()).padStart(3,'0');}
+function pncDebugSnapshot(track=$(PNC_AUTO_CAROUSEL_ID)){
+  if(!track)return{left:'-',client:'-',width:'-',max:'-',paused:'-',auto:'-',resume:'-',hidden:String(document.hidden),bound:'-',cards:'-'};
+  return{left:Math.round(track.scrollLeft*100)/100,client:track.clientWidth,width:track.scrollWidth,max:Math.max(0,track.scrollWidth-track.clientWidth),paused:track.dataset.carouselPaused||'unset',auto:track._carouselAutoTimer?'alive':'stopped',resume:track._carouselResumeTimer?'waiting':'none',hidden:String(document.hidden),bound:track.dataset.carouselBound||'0',cards:track.children.length};
 }
-function updateCarouselControls(track){
-  const prev=document.querySelector(`[data-carousel-prev="${track.id}"]`);
-  const next=document.querySelector(`[data-carousel-next="${track.id}"]`);
-  const overflow=track.scrollWidth>track.clientWidth+4;
-  if(prev)prev.disabled=!overflow;
-  if(next)next.disabled=!overflow;
+function pncDebugRenderStatus(){
+  const box=$('pncDebugStatus');if(!box)return;const x=pncDebugSnapshot();
+  box.innerHTML=Object.entries(x).map(([k,v])=>`<div class="pnc-debug-cell"><span>${esc(k)}</span><strong>${esc(v)}</strong></div>`).join('');
 }
-function cancelCarouselAnimation(track){
-  if(!track)return;
-  if(track._carouselAnimationFrame)cancelAnimationFrame(track._carouselAnimationFrame);
-  track._carouselAnimationFrame=0;
-  track.classList.remove('is-animating');
+function pncDebugLog(event,detail='',level=''){
+  const track=$(PNC_AUTO_CAROUSEL_ID),snap=pncDebugSnapshot(track);
+  const text=`${pncDebugTime()} ${event}${detail?' | '+detail:''} | left=${snap.left} max=${snap.max} paused=${snap.paused} auto=${snap.auto} hidden=${snap.hidden}`;
+  PNC_DEBUG_STATE.lines.push({text,level});
+  if(PNC_DEBUG_STATE.lines.length>PNC_DEBUG_MAX_LINES)PNC_DEBUG_STATE.lines.splice(0,PNC_DEBUG_STATE.lines.length-PNC_DEBUG_MAX_LINES);
+  const box=$('pncDebugLog');
+  if(box){box.innerHTML=PNC_DEBUG_STATE.lines.map(x=>`<div class="pnc-debug-line ${esc(x.level)}">${esc(x.text)}</div>`).join('');box.scrollTop=box.scrollHeight;}
+  pncDebugRenderStatus();
+  console.log('[PNC CAROUSEL DEBUG]',text);
 }
-function clearCarouselResumeTimer(track){
-  if(!track||!track._carouselResumeTimer)return;
-  clearTimeout(track._carouselResumeTimer);
-  track._carouselResumeTimer=0;
+function pncDebugClear(){PNC_DEBUG_STATE.lines=[];PNC_DEBUG_STATE.lastScrollLeft=null;const box=$('pncDebugLog');if(box)box.innerHTML='';pncDebugLog('DEBUG_CLEAR');}
+function pncDebugToggle(){const panel=$('pncMobileDebug');if(!panel)return;panel.classList.toggle('is-collapsed');const btn=panel.querySelector('.pnc-debug-actions button:last-child');if(btn)btn.textContent=panel.classList.contains('is-collapsed')?'Show':'Hide';}
+async function pncDebugCopy(){const text=PNC_DEBUG_STATE.lines.map(x=>x.text).join('\n');try{await navigator.clipboard.writeText(text);pncDebugLog('COPY_OK',`${PNC_DEBUG_STATE.lines.length} lines`,'ok');}catch(e){pncDebugLog('COPY_FAILED',e.message||String(e),'warn');}}
+function pncSetScrollLeft(track,value,writer){if(!track)return;PNC_DEBUG_STATE.lastWriter=writer;const before=track.scrollLeft;track.scrollLeft=value;const after=track.scrollLeft;if(track.id===PNC_AUTO_CAROUSEL_ID&&(Math.abs(after-before)>=1||after===0))pncDebugLog('WRITE_SCROLLLEFT',`${writer}: ${before.toFixed(2)} -> ${after.toFixed(2)}`,after===0&&before>4?'reset':'');}
+function pncDebugStartMonitors(){
+  if(PNC_DEBUG_STATE.heartbeatTimer)return;
+  PNC_DEBUG_STATE.heartbeatTimer=setInterval(()=>{const track=$(PNC_AUTO_CAROUSEL_ID);if(!track)return;pncDebugLog('HEARTBEAT',track._carouselAutoTimer?'timer alive':'timer stopped',track._carouselAutoTimer?'ok':'warn');},900);
+  PNC_DEBUG_STATE.statusTimer=setInterval(pncDebugRenderStatus,250);
+  pncDebugLog('MONITOR_START',navigator.userAgent);
 }
-function setAutoCarouselPaused(track,paused){
-  if(!track||track.id!==PNC_AUTO_CAROUSEL_ID)return;
-  track.dataset.carouselPaused=paused?'1':'0';
-  track.classList.toggle('is-auto-scrolling',!paused&&!document.hidden);
-}
-function pauseCarouselAuto(track){
-  if(!track||track.id!==PNC_AUTO_CAROUSEL_ID)return;
-  clearCarouselResumeTimer(track);
-  setAutoCarouselPaused(track,true);
-}
-function resumeCarouselAuto(track,delay=PNC_AUTO_RESUME_DELAY_MS){
-  if(!track||track.id!==PNC_AUTO_CAROUSEL_ID)return;
-  clearCarouselResumeTimer(track);
-  track._carouselResumeTimer=setTimeout(()=>{
-    track._carouselResumeTimer=0;
-    setAutoCarouselPaused(track,false);
-    startCarouselAuto(track);
-  },Math.max(0,delay));
-}
-function stopCarouselAuto(track){
-  if(!track)return;
-  clearCarouselResumeTimer(track);
-  if(track._carouselAutoTimer){
-    clearInterval(track._carouselAutoTimer);
-    track._carouselAutoTimer=0;
-  }
-  track.classList.remove('is-auto-scrolling');
-}
+function carouselStep(track){return Math.max(160,Math.round(track.clientWidth*.62));}
+function updateCarouselControls(track){const prev=document.querySelector(`[data-carousel-prev="${track.id}"]`);const next=document.querySelector(`[data-carousel-next="${track.id}"]`);const overflow=track.scrollWidth>track.clientWidth+4;if(prev)prev.disabled=!overflow;if(next)next.disabled=!overflow;if(track.id===PNC_AUTO_CAROUSEL_ID)pncDebugLog('UPDATE_CONTROLS',`overflow=${overflow}`);}
+function cancelCarouselAnimation(track){if(!track)return;if(track._carouselAnimationFrame)cancelAnimationFrame(track._carouselAnimationFrame);track._carouselAnimationFrame=0;track.classList.remove('is-animating');if(track.id===PNC_AUTO_CAROUSEL_ID)pncDebugLog('CANCEL_ANIMATION');}
+function clearCarouselResumeTimer(track){if(!track||!track._carouselResumeTimer)return;clearTimeout(track._carouselResumeTimer);track._carouselResumeTimer=0;if(track.id===PNC_AUTO_CAROUSEL_ID)pncDebugLog('CLEAR_RESUME_TIMER');}
+function setAutoCarouselPaused(track,paused){if(!track||track.id!==PNC_AUTO_CAROUSEL_ID)return;track.dataset.carouselPaused=paused?'1':'0';track.classList.toggle('is-auto-scrolling',!paused&&!document.hidden);pncDebugLog('SET_PAUSED',String(paused));}
+function pauseCarouselAuto(track){if(!track||track.id!==PNC_AUTO_CAROUSEL_ID)return;clearCarouselResumeTimer(track);setAutoCarouselPaused(track,true);pncDebugLog('PAUSE_AUTO');}
+function resumeCarouselAuto(track,delay=PNC_AUTO_RESUME_DELAY_MS){if(!track||track.id!==PNC_AUTO_CAROUSEL_ID)return;clearCarouselResumeTimer(track);pncDebugLog('RESUME_SCHEDULE',`delay=${delay}`);track._carouselResumeTimer=setTimeout(()=>{track._carouselResumeTimer=0;setAutoCarouselPaused(track,false);pncDebugLog('RESUME_FIRE');startCarouselAuto(track);},Math.max(0,delay));}
+function stopCarouselAuto(track){if(!track)return;clearCarouselResumeTimer(track);if(track._carouselAutoTimer){clearInterval(track._carouselAutoTimer);track._carouselAutoTimer=0;}track.classList.remove('is-auto-scrolling');if(track.id===PNC_AUTO_CAROUSEL_ID)pncDebugLog('STOP_AUTO');}
 function startCarouselAuto(track){
   if(!track||track.id!==PNC_AUTO_CAROUSEL_ID)return;
-  if(track._carouselAutoTimer)return;
+  if(track._carouselAutoTimer){pncDebugLog('START_AUTO_SKIPPED','timer already alive');return;}
   if(!track.dataset.carouselPaused)track.dataset.carouselPaused='0';
+  pncDebugLog('START_AUTO',`tick=${PNC_AUTO_SCROLL_TICK_MS} speed=${PNC_AUTO_SCROLL_SPEED}`);
   track._carouselAutoTimer=setInterval(()=>{
     const max=Math.max(0,track.scrollWidth-track.clientWidth);
     const blocked=document.hidden||track.dataset.carouselPaused==='1'||track.classList.contains('is-dragging')||track.classList.contains('is-animating')||max<4;
     track.classList.toggle('is-auto-scrolling',!blocked);
     if(blocked)return;
-    if(track.scrollLeft>=max-1){
-      track.scrollLeft=0;
-      return;
-    }
-    track.scrollLeft=Math.min(max,track.scrollLeft+PNC_AUTO_SCROLL_SPEED);
+    if(track.scrollLeft>=max-1){pncDebugLog('END_CHECK_TRUE',`left=${track.scrollLeft.toFixed(2)} max=${max}`,'reset');pncSetScrollLeft(track,0,'startCarouselAuto:end-reset');return;}
+    pncSetScrollLeft(track,Math.min(max,track.scrollLeft+PNC_AUTO_SCROLL_SPEED),'startCarouselAuto:tick');
   },PNC_AUTO_SCROLL_TICK_MS);
 }
-function animateCarouselTo(track,target,duration=720){
-  if(!track)return;
-  cancelCarouselAnimation(track);
-  const max=Math.max(0,track.scrollWidth-track.clientWidth);
-  const from=track.scrollLeft;
-  const to=Math.max(0,Math.min(max,target));
-  const distance=to-from;
-  if(Math.abs(distance)<1)return;
-  const started=performance.now();
-  track.classList.add('is-animating');
-  const ease=t=>1-Math.pow(1-t,3);
-  const frame=now=>{
-    const progress=Math.min(1,(now-started)/duration);
-    track.scrollLeft=from+(distance*ease(progress));
-    if(progress<1){
-      track._carouselAnimationFrame=requestAnimationFrame(frame);
-    }else{
-      track._carouselAnimationFrame=0;
-      track.classList.remove('is-animating');
-      resumeCarouselAuto(track);
-    }
-  };
-  track._carouselAnimationFrame=requestAnimationFrame(frame);
-}
-function moveCarousel(id,direction){
-  const track=$(id);
-  if(!track)return;
-  pauseCarouselAuto(track);
-  animateCarouselTo(track,track.scrollLeft+(direction*carouselStep(track)),760);
-}
-function applyDesktopMomentum(track,velocity){
-  cancelCarouselAnimation(track);
-  let v=velocity;
-  let previous=performance.now();
-  track.classList.add('is-animating');
-  const frame=now=>{
-    const dt=Math.min(32,now-previous);
-    previous=now;
-    track.scrollLeft-=v*dt;
-    v*=Math.pow(.94,dt/16.67);
-    const max=Math.max(0,track.scrollWidth-track.clientWidth);
-    if(track.scrollLeft<=0||track.scrollLeft>=max)v*=.45;
-    if(Math.abs(v)>.02){
-      track._carouselAnimationFrame=requestAnimationFrame(frame);
-    }else{
-      track._carouselAnimationFrame=0;
-      track.classList.remove('is-animating');
-      resumeCarouselAuto(track);
-    }
-  };
-  track._carouselAnimationFrame=requestAnimationFrame(frame);
-}
+function animateCarouselTo(track,target,duration=720){if(!track)return;cancelCarouselAnimation(track);const max=Math.max(0,track.scrollWidth-track.clientWidth);const from=track.scrollLeft;const to=Math.max(0,Math.min(max,target));const distance=to-from;if(Math.abs(distance)<1)return;const started=performance.now();track.classList.add('is-animating');if(track.id===PNC_AUTO_CAROUSEL_ID)pncDebugLog('ANIMATE_START',`${from.toFixed(2)} -> ${to.toFixed(2)}`);const ease=t=>1-Math.pow(1-t,3);const frame=now=>{const progress=Math.min(1,(now-started)/duration);pncSetScrollLeft(track,from+(distance*ease(progress)),'animateCarouselTo');if(progress<1){track._carouselAnimationFrame=requestAnimationFrame(frame);}else{track._carouselAnimationFrame=0;track.classList.remove('is-animating');if(track.id===PNC_AUTO_CAROUSEL_ID)pncDebugLog('ANIMATE_END');resumeCarouselAuto(track);}};track._carouselAnimationFrame=requestAnimationFrame(frame);}
+function moveCarousel(id,direction){const track=$(id);if(!track)return;if(track.id===PNC_AUTO_CAROUSEL_ID)pncDebugLog('ARROW_MOVE',`direction=${direction}`);pauseCarouselAuto(track);animateCarouselTo(track,track.scrollLeft+(direction*carouselStep(track)),760);}
+function applyDesktopMomentum(track,velocity){cancelCarouselAnimation(track);let v=velocity;let previous=performance.now();track.classList.add('is-animating');if(track.id===PNC_AUTO_CAROUSEL_ID)pncDebugLog('MOMENTUM_START',`velocity=${velocity}`);const frame=now=>{const dt=Math.min(32,now-previous);previous=now;pncSetScrollLeft(track,track.scrollLeft-(v*dt),'applyDesktopMomentum');v*=Math.pow(.94,dt/16.67);const max=Math.max(0,track.scrollWidth-track.clientWidth);if(track.scrollLeft<=0||track.scrollLeft>=max)v*=.45;if(Math.abs(v)>.02){track._carouselAnimationFrame=requestAnimationFrame(frame);}else{track._carouselAnimationFrame=0;track.classList.remove('is-animating');if(track.id===PNC_AUTO_CAROUSEL_ID)pncDebugLog('MOMENTUM_END');resumeCarouselAuto(track);}};track._carouselAnimationFrame=requestAnimationFrame(frame);}
 function bindCarousel(track){
-  if(track.dataset.carouselBound==='1'){
-    updateCarouselControls(track);
-    if(track.id===PNC_AUTO_CAROUSEL_ID){
-      track.dataset.carouselPaused='0';
-      startCarouselAuto(track);
-    }
-    return;
-  }
-  track.dataset.carouselBound='1';
-  if(track.id===PNC_AUTO_CAROUSEL_ID)track.dataset.carouselPaused='0';
-
-  const prev=document.querySelector(`[data-carousel-prev="${track.id}"]`);
-  const next=document.querySelector(`[data-carousel-next="${track.id}"]`);
-  prev?.addEventListener('click',()=>moveCarousel(track.id,-1));
-  next?.addEventListener('click',()=>moveCarousel(track.id,1));
-
-  track.addEventListener('wheel',event=>{
-    if(track.scrollWidth<=track.clientWidth+4)return;
-    const delta=Math.abs(event.deltaX)>Math.abs(event.deltaY)?event.deltaX:event.deltaY;
-    if(!delta)return;
-    event.preventDefault();
-    pauseCarouselAuto(track);
-    cancelCarouselAnimation(track);
-    track.scrollLeft+=delta;
-    resumeCarouselAuto(track);
-  },{passive:false});
-
+  if(track.dataset.carouselBound==='1'){updateCarouselControls(track);if(track.id===PNC_AUTO_CAROUSEL_ID){pncDebugLog('BIND_REUSE');track.dataset.carouselPaused='0';startCarouselAuto(track);}return;}
+  track.dataset.carouselBound='1';if(track.id===PNC_AUTO_CAROUSEL_ID){track.dataset.carouselPaused='0';pncDebugLog('BIND_NEW',`cards=${track.children.length}`);}
+  const prev=document.querySelector(`[data-carousel-prev="${track.id}"]`);const next=document.querySelector(`[data-carousel-next="${track.id}"]`);prev?.addEventListener('click',()=>moveCarousel(track.id,-1));next?.addEventListener('click',()=>moveCarousel(track.id,1));
+  track.addEventListener('wheel',event=>{if(track.scrollWidth<=track.clientWidth+4)return;const delta=Math.abs(event.deltaX)>Math.abs(event.deltaY)?event.deltaX:event.deltaY;if(!delta)return;event.preventDefault();pauseCarouselAuto(track);cancelCarouselAnimation(track);pncSetScrollLeft(track,track.scrollLeft+delta,'wheel');resumeCarouselAuto(track);},{passive:false});
   let pointerActive=false,dragging=false,startX=0,startY=0,startScroll=0,moved=false,lastX=0,lastTime=0,velocity=0,activePointerId=null;
-  track.addEventListener('pointerdown',event=>{
-    pauseCarouselAuto(track);
-    if(event.pointerType==='touch')return;
-    cancelCarouselAnimation(track);
-    pointerActive=true;
-    dragging=false;
-    moved=false;
-    activePointerId=event.pointerId;
-    startX=lastX=event.clientX;
-    startY=event.clientY;
-    startScroll=track.scrollLeft;
-    lastTime=performance.now();
-    velocity=0;
-  });
-  track.addEventListener('pointermove',event=>{
-    if(!pointerActive||event.pointerId!==activePointerId)return;
-    const dx=event.clientX-startX;
-    const dy=event.clientY-startY;
-    if(!dragging){
-      if(Math.abs(dx)<7)return;
-      if(Math.abs(dy)>Math.abs(dx)){
-        pointerActive=false;
-        resumeCarouselAuto(track);
-        return;
-      }
-      dragging=true;
-      moved=true;
-      track.classList.add('is-dragging');
-      try{track.setPointerCapture(event.pointerId);}catch(_){}
-    }
-    const now=performance.now();
-    const segment=event.clientX-lastX;
-    const dt=Math.max(1,now-lastTime);
-    track.scrollLeft=startScroll-dx;
-    velocity=(velocity*.65)+((segment/dt)*.35);
-    lastX=event.clientX;
-    lastTime=now;
-  });
-  const stopDrag=event=>{
-    if(event.pointerId!==activePointerId)return;
-    const wasDragging=dragging;
-    pointerActive=false;
-    dragging=false;
-    activePointerId=null;
-    track.classList.remove('is-dragging');
-    try{track.releasePointerCapture(event.pointerId);}catch(_){}
-    if(wasDragging&&Math.abs(velocity)>.08)applyDesktopMomentum(track,velocity);
-    else resumeCarouselAuto(track);
-  };
-  track.addEventListener('pointerup',stopDrag);
-  track.addEventListener('pointercancel',stopDrag);
-  track.addEventListener('click',event=>{
-    if(!moved)return;
-    event.preventDefault();
-    event.stopPropagation();
-    moved=false;
-  },true);
-
-  const pauseForTouch=()=>{
-    cancelCarouselAnimation(track);
-    pauseCarouselAuto(track);
-  };
-  const resumeAfterTouch=()=>resumeCarouselAuto(track);
-  track.addEventListener('touchstart',pauseForTouch,{passive:true});
-  track.addEventListener('touchmove',pauseForTouch,{passive:true});
-  track.addEventListener('touchend',resumeAfterTouch,{passive:true});
-  track.addEventListener('touchcancel',resumeAfterTouch,{passive:true});
-  track.addEventListener('keydown',event=>{
-    if(event.key==='ArrowLeft'){
-      event.preventDefault();
-      moveCarousel(track.id,-1);
-    }
-    if(event.key==='ArrowRight'){
-      event.preventDefault();
-      moveCarousel(track.id,1);
-    }
-  });
-
-  updateCarouselControls(track);
-  startCarouselAuto(track);
+  track.addEventListener('pointerdown',event=>{if(track.id===PNC_AUTO_CAROUSEL_ID)pncDebugLog('POINTER_DOWN',event.pointerType);pauseCarouselAuto(track);if(event.pointerType==='touch')return;cancelCarouselAnimation(track);pointerActive=true;dragging=false;moved=false;activePointerId=event.pointerId;startX=lastX=event.clientX;startY=event.clientY;startScroll=track.scrollLeft;lastTime=performance.now();velocity=0;});
+  track.addEventListener('pointermove',event=>{if(!pointerActive||event.pointerId!==activePointerId)return;const dx=event.clientX-startX;const dy=event.clientY-startY;if(!dragging){if(Math.abs(dx)<7)return;if(Math.abs(dy)>Math.abs(dx)){pointerActive=false;resumeCarouselAuto(track);return;}dragging=true;moved=true;track.classList.add('is-dragging');try{track.setPointerCapture(event.pointerId);}catch(_){}}const now=performance.now();const segment=event.clientX-lastX;const dt=Math.max(1,now-lastTime);pncSetScrollLeft(track,startScroll-dx,'pointermove');velocity=(velocity*.65)+((segment/dt)*.35);lastX=event.clientX;lastTime=now;});
+  const stopDrag=event=>{if(event.pointerId!==activePointerId)return;const wasDragging=dragging;pointerActive=false;dragging=false;activePointerId=null;track.classList.remove('is-dragging');try{track.releasePointerCapture(event.pointerId);}catch(_){}if(wasDragging&&Math.abs(velocity)>.08)applyDesktopMomentum(track,velocity);else resumeCarouselAuto(track);};track.addEventListener('pointerup',stopDrag);track.addEventListener('pointercancel',stopDrag);track.addEventListener('click',event=>{if(!moved)return;event.preventDefault();event.stopPropagation();moved=false;},true);
+  const pauseForTouch=event=>{if(track.id===PNC_AUTO_CAROUSEL_ID)pncDebugLog(event.type.toUpperCase());cancelCarouselAnimation(track);pauseCarouselAuto(track);};
+  const resumeAfterTouch=event=>{if(track.id===PNC_AUTO_CAROUSEL_ID)pncDebugLog(event.type.toUpperCase());resumeCarouselAuto(track);};
+  track.addEventListener('touchstart',pauseForTouch,{passive:true});track.addEventListener('touchmove',pauseForTouch,{passive:true});track.addEventListener('touchend',resumeAfterTouch,{passive:true});track.addEventListener('touchcancel',resumeAfterTouch,{passive:true});
+  track.addEventListener('scroll',()=>{if(track.id!==PNC_AUTO_CAROUSEL_ID)return;const now=track.scrollLeft,prev=PNC_DEBUG_STATE.lastScrollLeft;if(prev!==null&&prev-now>Math.max(80,track.clientWidth*.4))pncDebugLog('SCROLL_DROP',`${prev.toFixed(2)} -> ${now.toFixed(2)} writer=${PNC_DEBUG_STATE.lastWriter}`,'reset');PNC_DEBUG_STATE.lastScrollLeft=now;});
+  track.addEventListener('keydown',event=>{if(event.key==='ArrowLeft'){event.preventDefault();moveCarousel(track.id,-1);}if(event.key==='ArrowRight'){event.preventDefault();moveCarousel(track.id,1);}});
+  updateCarouselControls(track);startCarouselAuto(track);
 }
-function initHomeCarousels(){
-  PNC_CAROUSEL_IDS.forEach(id=>{
-    const track=$(id);
-    if(track)bindCarousel(track);
-  });
-}
-window.addEventListener('resize',()=>PNC_CAROUSEL_IDS.forEach(id=>{
-  const track=$(id);
-  if(track)updateCarouselControls(track);
-}));
-document.addEventListener('visibilitychange',()=>{
-  const track=$(PNC_AUTO_CAROUSEL_ID);
-  if(!track)return;
-  if(document.hidden){
-    track.classList.remove('is-auto-scrolling');
-  }else{
-    setAutoCarouselPaused(track,false);
-    startCarouselAuto(track);
-  }
-});
+function initHomeCarousels(){pncDebugLog('INIT_HOME_CAROUSELS');PNC_CAROUSEL_IDS.forEach(id=>{const track=$(id);if(track)bindCarousel(track);});}
+window.addEventListener('resize',()=>{pncDebugLog('WINDOW_RESIZE',`${window.innerWidth}x${window.innerHeight}`);PNC_CAROUSEL_IDS.forEach(id=>{const track=$(id);if(track)updateCarouselControls(track);});});
+document.addEventListener('visibilitychange',()=>{const track=$(PNC_AUTO_CAROUSEL_ID);pncDebugLog('VISIBILITY_CHANGE',`hidden=${document.hidden}`);if(!track)return;if(document.hidden){track.classList.remove('is-auto-scrolling');}else{setAutoCarouselPaused(track,false);startCarouselAuto(track);}});
+window.addEventListener('orientationchange',()=>pncDebugLog('ORIENTATION_CHANGE',screen.orientation?.type||String(window.orientation||'')));
 window.addEventListener('beforeunload',()=>stopCarouselAuto($(PNC_AUTO_CAROUSEL_ID)));
 
-function renderAll(state){renderHome(state);renderCollections(state);renderVault(state);renderCreatorCenter(state);renderFooter(state);if(state.activeCollectionId)renderCollectionPage(state,state.activeCollectionId);}function renderHome(state){$('topCollections').innerHTML=state.collections.slice(0,TOP_COLLECTION_LIMIT).map((c,i)=>collectionRow(c,state,i)).join('')||'<div class="meta">No collections yet. Create Shopで登録するとここに表示されます。</div>';$('hotNfts').innerHTML=state.nfts.filter(n=>n.status==='listed').map(nftCard).join('')||'<div class="panel">No listed NFTs yet.</div>';$('liveAuctions').innerHTML=state.nfts.filter(n=>n.status==='auction'&&n.auction&&n.auction.active&&auctionPhase(n.auction)!=='ended').map(nftCard).join('')||'<div class="panel">No live auctions yet.</div>';$('newNfts').innerHTML=newestNFTs(state.nfts).map(nftCard).join('')||'<div class="panel">No NFTs yet.</div>';$('newCollections').innerHTML=state.collections.map(c=>collectionCard(c,state,false)).join('')||'<div class="panel">No collections yet.</div>';$('featuredCollections').innerHTML=state.collections.filter(c=>c.verified).map(c=>collectionCard(c,state,true)).join('')||'<div class="panel">No featured collections yet.</div>';requestAnimationFrame(initHomeCarousels);}function renderCollections(state){$('allCollections').innerHTML=state.collections.map(c=>collectionCard(c,state,false)).join('')||'<div class="panel">No collections yet.</div>';}function renderCollectionPage(state,collectionId){const c=state.collections.find(x=>x.id===collectionId||lc(x.name)===lc(collectionId));if(!c)return;state.activeCollectionId=c.id;const items=collectionItems(state,c.id);$('collectionDetail').innerHTML=`${mediaBox(c,'collection-detail-banner')}<div class="hero"><h1>${esc(c.name)} ${c.verified?'<span class="badge">✔</span>':''}</h1><p>${esc(c.description||'')}</p>${shopSocialHtml(c)}${state.wallet&&lc(c.creator)===lc(state.wallet)?`<div class="toolbar"><button class="small-btn sell-btn" onclick="openEditShop('${esc(c.id)}')">Edit Shop</button></div>`:''}</div><div class="market-stats"><div class="stat"><strong>${items.length}</strong><span>Items</span></div><div class="stat"><strong>${items.filter(n=>n.status==='listed').length}</strong><span>Listed</span></div><div class="stat"><strong>${new Set(items.map(n=>lc(n.owner)).filter(Boolean)).size}</strong><span>Owners</span></div><div class="stat"><strong>-</strong><span>Floor</span></div><div class="stat"><strong>0</strong><span>Volume</span></div></div><section class="section"><div class="section-title">🖼 NFTs</div><div class="grid">${items.map(nftCard).join('')||'<div class="panel">No NFTs.</div>'}</div></section>`;}function vaultOwnedNFTs(state){
+function renderAll(state){pncDebugLog('RENDER_ALL',`nfts=${state.nfts.length} collections=${state.collections.length}`);renderHome(state);renderCollections(state);renderVault(state);renderCreatorCenter(state);renderFooter(state);if(state.activeCollectionId)renderCollectionPage(state,state.activeCollectionId);}function renderHome(state){pncDebugLog('RENDER_HOME_BEGIN');$('topCollections').innerHTML=state.collections.slice(0,TOP_COLLECTION_LIMIT).map((c,i)=>collectionRow(c,state,i)).join('')||'<div class="meta">No collections yet. Create Shopで登録するとここに表示されます。</div>';$('hotNfts').innerHTML=state.nfts.filter(n=>n.status==='listed').map(nftCard).join('')||'<div class="panel">No listed NFTs yet.</div>';$('liveAuctions').innerHTML=state.nfts.filter(n=>n.status==='auction'&&n.auction&&n.auction.active&&auctionPhase(n.auction)!=='ended').map(nftCard).join('')||'<div class="panel">No live auctions yet.</div>';$('newNfts').innerHTML=newestNFTs(state.nfts).map(nftCard).join('')||'<div class="panel">No NFTs yet.</div>';$('newCollections').innerHTML=state.collections.map(c=>collectionCard(c,state,false)).join('')||'<div class="panel">No collections yet.</div>';$('featuredCollections').innerHTML=state.collections.filter(c=>c.verified).map(c=>collectionCard(c,state,true)).join('')||'<div class="panel">No featured collections yet.</div>';pncDebugLog('RENDER_HOME_DOM_REPLACED',`newNfts children=${$('newNfts')?.children.length||0}`);requestAnimationFrame(initHomeCarousels);}function renderCollections(state){$('allCollections').innerHTML=state.collections.map(c=>collectionCard(c,state,false)).join('')||'<div class="panel">No collections yet.</div>';}function renderCollectionPage(state,collectionId){const c=state.collections.find(x=>x.id===collectionId||lc(x.name)===lc(collectionId));if(!c)return;state.activeCollectionId=c.id;const items=collectionItems(state,c.id);$('collectionDetail').innerHTML=`${mediaBox(c,'collection-detail-banner')}<div class="hero"><h1>${esc(c.name)} ${c.verified?'<span class="badge">✔</span>':''}</h1><p>${esc(c.description||'')}</p>${shopSocialHtml(c)}${state.wallet&&lc(c.creator)===lc(state.wallet)?`<div class="toolbar"><button class="small-btn sell-btn" onclick="openEditShop('${esc(c.id)}')">Edit Shop</button></div>`:''}</div><div class="market-stats"><div class="stat"><strong>${items.length}</strong><span>Items</span></div><div class="stat"><strong>${items.filter(n=>n.status==='listed').length}</strong><span>Listed</span></div><div class="stat"><strong>${new Set(items.map(n=>lc(n.owner)).filter(Boolean)).size}</strong><span>Owners</span></div><div class="stat"><strong>-</strong><span>Floor</span></div><div class="stat"><strong>0</strong><span>Volume</span></div></div><section class="section"><div class="section-title">🖼 NFTs</div><div class="grid">${items.map(nftCard).join('')||'<div class="panel">No NFTs.</div>'}</div></section>`;}function vaultOwnedNFTs(state){
   const wallet=lc(state.wallet);
   return wallet?state.nfts.filter(n=>lc(n.owner)===wallet||(n.auction&&n.auction.active&&lc(n.auction.seller)===wallet)):[];
 }
@@ -1491,6 +1332,8 @@ function closeLegal(event){
 function clearSearchUI(){const input=$('searchInput'),box=$('searchResults');if(input){input.value='';input.blur();}if(box){box.classList.remove('show');box.innerHTML='';}}function selectSearchCollection(collectionId){clearSearchUI();openCollection(collectionId);}function selectSearchNFT(id){clearSearchUI();showDetailById(id);}function openCollection(collectionId){renderCollectionPage(PNC_STATE,collectionId);showPage('collectionPage');}function showDetailById(id){const n=PNC_STATE.nfts.find(x=>x.id===id);if(!n)return;const c=PNC_STATE.collections.find(x=>x.id===n.collectionId)||{};const desc=n.description||(n.metadata&&n.metadata.description)||'';$('nftDetailBox').innerHTML=`<div class="detail-toolbar"><button class="detail-close" onclick="closeNftDetail()">×</button></div><div class="detail-head">${renderNFTMedia(n,'detail')}<div class="detail-summary"><div class="detail-title">${esc(n.name)}</div><div class="meta">${esc(c.name||n.collectionName||'-')} ${c.verified?'<span class="badge">✔</span>':''}</div>${priceLine(n)}${shopSocialHtml(c)}<div class="badge-row"><span class="badge ${statusClass(n)}">${esc(statusLabel(n))}</span><span class="chain-badge">${esc(chainLabel(n))}</span></div></div></div>${desc?`<div class="detail-section"><div class="detail-section-title">Description</div><div class="meta">${esc(desc)}</div></div>`:''}<div class="detail-section"><div class="detail-section-title">NFT Information</div><div class="detail-info-grid"><div>${infoRow('NFT ID',n.id)}${infoRow('Media Type',resolveNFTMedia(n).mediaType==='video'?'Video NFT':'Image NFT')}${infoRow('Token ID',n.tokenId||'-')}${infoRow('Collection',c.name||n.collectionName||'-')}${infoRow('Contract',displayAddress(n.contractAddress))}</div><div>${infoRow('Owner',displayAddress(n.owner))}${infoRow('Creator',displayAddress(n.creator))}${infoRow('Primary Sale',n.primarySaleCompleted?'Completed':'Not completed')}${infoRow('Seller',displayAddress(n.seller))}${infoRow('Listing ID',n.listingId||'-')}${infoRow('Active Offers',(n.offers||[]).length)}${n.auction?infoRow('Auction ID',n.auction.auctionId):''}${n.auction?infoRow('Auction Seller',displayAddress(n.auction.seller)):''}</div></div></div><div class="detail-section"><div class="detail-section-title">Offers</div>${offerListHtml(n)}</div><div class="detail-section"><div class="detail-section-title">Auction</div>${auctionListHtml(n)}</div>${bidRefundHtml()}${detailActionButtons(n)}`;$('nftDetailOverlay').classList.add('show');}function closeNftDetail(ev){if(ev&&ev.target&&ev.target.id!=='nftDetailOverlay')return;$('nftDetailOverlay')?.classList.remove('show');}function searchPNC(){const q=lc($('searchInput').value).trim(),box=$('searchResults');if(!q){box.classList.remove('show');box.innerHTML='';return;}const cs=PNC_STATE.collections.filter(c=>lc(c.name).includes(q));const ns=PNC_STATE.nfts.filter(n=>lc(n.name).includes(q));box.innerHTML=cs.map(c=>`<div class="search-item" onclick="selectSearchCollection('${esc(c.id)}')">🏪 ${esc(c.name)}<div class="meta">Collection</div></div>`).join('')+ns.map(n=>`<div class="search-item" onclick="selectSearchNFT('${esc(n.id)}')">🖼 ${esc(n.name)}<div class="meta">NFT</div></div>`).join('');box.classList.toggle('show',!!box.innerHTML);}
 document.addEventListener('keydown',event=>{if(event.key==='Escape'){closeLegal();closeNftDetail();closeWalletModal();}});
 document.addEventListener('DOMContentLoaded',async()=>{
+  pncDebugStartMonitors();
+  pncDebugLog('DOMContentLOADED');
   try{
     applyPNCBrandIcon();
     installWalletListeners();
