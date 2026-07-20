@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pi NFT Center v1.8.4 Phase 2 Feedback Motion</title>
+<title>Pi NFT Center v1.8.5 Theme Foundation & Mobile Menu Scroll</title>
 <style>
 :root{--purple:#5b2d82;--gold:#f5b041;--bg:#111017;--card:#1d1826;--text:#f7f1ff;--muted:#b7a9c6;--border:#3b2c4c;--green:#2ecc71;--red:#ff5c5c;--blue:#2f80ed;--soft:rgba(255,255,255,.055)}
 body.light{--bg:#f7f4fb;--card:#fff;--text:#19151f;--muted:#70647c;--border:#e5d8ef;--soft:rgba(91,45,130,.055)}
@@ -78,7 +78,7 @@ body.light .carousel-btn{background:rgba(255,255,255,.9)}
 
 
 /* =========================================================
-   PNC v1.8.4 — PHASE 2 FEEDBACK MOTION
+   PNC v1.8.5 — THEME FOUNDATION & MOBILE MENU SCROLL
    Visual rules only. Marketplace / wallet logic is unchanged.
    ========================================================= */
 :root{
@@ -197,7 +197,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,
 
 
 /* =========================================================
-   PNC v1.8.4 — COMPONENT POLISH + FEEDBACK MOTION
+   PNC v1.8.5 — COMPONENT POLISH + FEEDBACK MOTION
    NFT/Shop cards, modals, toast, loading and empty states.
    ========================================================= */
 :root{
@@ -314,6 +314,124 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,
 @keyframes pncLoadingSweep{0%,20%{transform:translateX(-110%)}75%,100%{transform:translateX(110%)}}
 @media (prefers-reduced-motion:reduce){.menu,.menu.show,.pnc-toast,.pnc-loading{transition:none!important;animation:none!important}.pnc-loading::after{display:none}}
 
+
+/* =========================================================
+   PNC v1.8.5 — LIGHT THEME FOUNDATION / MOBILE MENU SCROLL
+   One theme path, one menu path. Dark behavior is preserved.
+   ========================================================= */
+body.light{
+  color-scheme:light;
+  --bg:#f6f3f9;
+  --card:#ffffff;
+  --text:#211829;
+  --muted:#665a70;
+  --border:#d9cee2;
+  --soft:rgba(91,45,130,.065);
+  --green:#16834d;
+  --red:#c93636;
+  --blue:#226cc5;
+  --pnc-shadow-card:0 8px 24px rgba(54,35,68,.10);
+  --pnc-shadow-float:0 14px 36px rgba(54,35,68,.18);
+}
+body:not(.light){color-scheme:dark}
+
+/* Light surfaces and readable content */
+body.light main,
+body.light .page,
+body.light .detail-box,
+body.light .wallet-box,
+body.light .legal-box{color:var(--text)}
+body.light .panel,
+body.light .card,
+body.light .collection-list,
+body.light .detail-box,
+body.light .wallet-box,
+body.light .legal-box,
+body.light footer,
+body.light .search-results{background:var(--card);border-color:var(--border)}
+body.light .detail-section,
+body.light .offer-item,
+body.light .auction-item,
+body.light .auction-stat,
+body.light .stat,
+body.light .status-box,
+body.light .creator-list-item,
+body.light .draft-card,
+body.light .note,
+body.light .media-type-fields,
+body.light .legal-section{background:var(--soft);border-color:var(--border)}
+body.light .auction-stat{background:rgba(91,45,130,.055)}
+body.light .info-row{border-top-color:rgba(91,45,130,.13)}
+body.light .detail-title,
+body.light .name,
+body.light .nft-name,
+body.light .collection-name,
+body.light .info-row span:last-child,
+body.light .auction-stat strong,
+body.light .offer-head,
+body.light .footer-title,
+body.light .footer-accordion summary{color:var(--text)}
+body.light .meta,
+body.light .price-label,
+body.light .price-unit,
+body.light .info-row span:first-child,
+body.light .auction-stat span,
+body.light .legal-section p,
+body.light .legal-updated,
+body.light .legal-notice,
+body.light footer,
+body.light .footer-item{color:var(--muted)}
+body.light .badge,
+body.light .status-badge,
+body.light .chain-badge,
+body.light .ghost-btn,
+body.light .detail-close,
+body.light .legal-close,
+body.light .wallet-option,
+body.light .creator-tab{color:var(--text);border-color:var(--border)}
+body.light .form input,
+body.light .form textarea,
+body.light .form select,
+body.light .search-row input{background:#fff;color:#17121c;border:1px solid var(--border)}
+body.light .form input::placeholder,
+body.light .form textarea::placeholder,
+body.light .search-row input::placeholder{color:#8c8293}
+body.light .delete-btn{background:#5e5565;color:#fff}
+body.light .footer-accordion{border-bottom-color:rgba(91,45,130,.13)}
+body.light .search-item:hover{background:rgba(245,176,65,.15)}
+
+/* The purple header/menu intentionally remains brand-dark in both themes. */
+body.light header{color:#fff}
+body.light header .menu{background:rgba(255,255,255,.09)}
+body.light header .menu button{color:#fff}
+body.light header .menu .language-option span{color:#d9cde5}
+body.light header .menu .language-option.is-active{background:rgba(84,208,143,.12)}
+
+/* Scrollable menu: dynamic viewport, momentum scroll and safe-area room. */
+.menu-inner{min-height:0}
+.menu.show{overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;scrollbar-gutter:stable}
+@supports (height:100dvh){
+  .menu.show{max-height:calc(100dvh - 156px)}
+}
+@media (max-width:759px){
+  .menu.show{
+    max-height:calc(100vh - 150px);
+    padding-bottom:calc(14px + env(safe-area-inset-bottom))!important;
+    touch-action:pan-y;
+  }
+  @supports (height:100dvh){.menu.show{max-height:calc(100dvh - 150px)}}
+  .menu-title{margin:8px 0 4px}
+  .menu button{margin:5px 0;padding:9px 10px;min-height:42px}
+  .language-list{gap:5px}
+}
+@media (max-width:390px), (max-height:700px){
+  .menu.show{max-height:calc(100vh - 142px)}
+  @supports (height:100dvh){.menu.show{max-height:calc(100dvh - 142px)}}
+  .menu-title{margin:6px 0 3px;font-size:13px}
+  .menu button{margin:4px 0;padding:8px 9px;min-height:38px;font-size:13px}
+  .menu .language-option span{font-size:10px}
+}
+
 </style>
 </head>
 <body>
@@ -324,7 +442,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,
 </header>
 
 <main>
-  <div class="page show" id="homePage"><div class="hero"><h1>Pi NFT Center <span class="beta">v1.8.4</span></h1><p>A creator-focused NFT marketplace with clear guides, fees, and service information.</p></div><section class="section"><div class="section-title">🏆 Top Collections</div><div class="collection-list" id="topCollections"></div></section><section class="section carousel-section"><div class="carousel-header"><div class="section-title">🔥 Hot NFTs</div><div class="carousel-controls"><button class="carousel-btn" type="button" data-carousel-prev="hotNfts" aria-label="Scroll 🔥 Hot NFTs left">◀</button><button class="carousel-btn" type="button" data-carousel-next="hotNfts" aria-label="Scroll 🔥 Hot NFTs right">▶</button></div></div><div class="carousel-shell"><span class="carousel-edge left"></span><div class="grid carousel-track" id="hotNfts" tabindex="0"></div><span class="carousel-edge right"></span></div></section><section class="section carousel-section"><div class="carousel-header"><div class="section-title">🔨 Live Auctions</div><div class="carousel-controls"><button class="carousel-btn" type="button" data-carousel-prev="liveAuctions" aria-label="Scroll 🔨 Live Auctions left">◀</button><button class="carousel-btn" type="button" data-carousel-next="liveAuctions" aria-label="Scroll 🔨 Live Auctions right">▶</button></div></div><div class="carousel-shell"><span class="carousel-edge left"></span><div class="grid carousel-track" id="liveAuctions" tabindex="0"></div><span class="carousel-edge right"></span></div></section><section class="section carousel-section"><div class="carousel-header"><div class="section-title">🆕 New NFTs</div><div class="carousel-controls"><button class="carousel-btn" type="button" data-carousel-prev="newNfts" aria-label="Scroll 🆕 New NFTs left">◀</button><button class="carousel-btn" type="button" data-carousel-next="newNfts" aria-label="Scroll 🆕 New NFTs right">▶</button></div></div><div class="carousel-shell"><span class="carousel-edge left"></span><div class="grid carousel-track" id="newNfts" tabindex="0"></div><span class="carousel-edge right"></span></div></section><section class="section carousel-section"><div class="carousel-header"><div class="section-title">🆕 New Collections</div><div class="carousel-controls"><button class="carousel-btn" type="button" data-carousel-prev="newCollections" aria-label="Scroll 🆕 New Collections left">◀</button><button class="carousel-btn" type="button" data-carousel-next="newCollections" aria-label="Scroll 🆕 New Collections right">▶</button></div></div><div class="carousel-shell"><span class="carousel-edge left"></span><div class="grid carousel-track" id="newCollections" tabindex="0"></div><span class="carousel-edge right"></span></div></section><section class="section carousel-section"><div class="carousel-header"><div class="section-title">⭐ Featured Collections</div><div class="carousel-controls"><button class="carousel-btn" type="button" data-carousel-prev="featuredCollections" aria-label="Scroll ⭐ Featured Collections left">◀</button><button class="carousel-btn" type="button" data-carousel-next="featuredCollections" aria-label="Scroll ⭐ Featured Collections right">▶</button></div></div><div class="carousel-shell"><span class="carousel-edge left"></span><div class="grid carousel-track" id="featuredCollections" tabindex="0"></div><span class="carousel-edge right"></span></div></section></div>
+  <div class="page show" id="homePage"><div class="hero"><h1>Pi NFT Center <span class="beta">v1.8.5</span></h1><p>A creator-focused NFT marketplace with clear guides, fees, and service information.</p></div><section class="section"><div class="section-title">🏆 Top Collections</div><div class="collection-list" id="topCollections"></div></section><section class="section carousel-section"><div class="carousel-header"><div class="section-title">🔥 Hot NFTs</div><div class="carousel-controls"><button class="carousel-btn" type="button" data-carousel-prev="hotNfts" aria-label="Scroll 🔥 Hot NFTs left">◀</button><button class="carousel-btn" type="button" data-carousel-next="hotNfts" aria-label="Scroll 🔥 Hot NFTs right">▶</button></div></div><div class="carousel-shell"><span class="carousel-edge left"></span><div class="grid carousel-track" id="hotNfts" tabindex="0"></div><span class="carousel-edge right"></span></div></section><section class="section carousel-section"><div class="carousel-header"><div class="section-title">🔨 Live Auctions</div><div class="carousel-controls"><button class="carousel-btn" type="button" data-carousel-prev="liveAuctions" aria-label="Scroll 🔨 Live Auctions left">◀</button><button class="carousel-btn" type="button" data-carousel-next="liveAuctions" aria-label="Scroll 🔨 Live Auctions right">▶</button></div></div><div class="carousel-shell"><span class="carousel-edge left"></span><div class="grid carousel-track" id="liveAuctions" tabindex="0"></div><span class="carousel-edge right"></span></div></section><section class="section carousel-section"><div class="carousel-header"><div class="section-title">🆕 New NFTs</div><div class="carousel-controls"><button class="carousel-btn" type="button" data-carousel-prev="newNfts" aria-label="Scroll 🆕 New NFTs left">◀</button><button class="carousel-btn" type="button" data-carousel-next="newNfts" aria-label="Scroll 🆕 New NFTs right">▶</button></div></div><div class="carousel-shell"><span class="carousel-edge left"></span><div class="grid carousel-track" id="newNfts" tabindex="0"></div><span class="carousel-edge right"></span></div></section><section class="section carousel-section"><div class="carousel-header"><div class="section-title">🆕 New Collections</div><div class="carousel-controls"><button class="carousel-btn" type="button" data-carousel-prev="newCollections" aria-label="Scroll 🆕 New Collections left">◀</button><button class="carousel-btn" type="button" data-carousel-next="newCollections" aria-label="Scroll 🆕 New Collections right">▶</button></div></div><div class="carousel-shell"><span class="carousel-edge left"></span><div class="grid carousel-track" id="newCollections" tabindex="0"></div><span class="carousel-edge right"></span></div></section><section class="section carousel-section"><div class="carousel-header"><div class="section-title">⭐ Featured Collections</div><div class="carousel-controls"><button class="carousel-btn" type="button" data-carousel-prev="featuredCollections" aria-label="Scroll ⭐ Featured Collections left">◀</button><button class="carousel-btn" type="button" data-carousel-next="featuredCollections" aria-label="Scroll ⭐ Featured Collections right">▶</button></div></div><div class="carousel-shell"><span class="carousel-edge left"></span><div class="grid carousel-track" id="featuredCollections" tabindex="0"></div><span class="carousel-edge right"></span></div></section></div>
   <div class="page" id="collectionsPage"><div class="hero"><h1>Collections</h1><p>All collections are rendered from MarketState only.</p></div><section class="section"><div class="grid" id="allCollections"></div></section></div>
   <div class="page" id="collectionPage"><div id="collectionDetail"></div></div>
   <div class="page" id="vaultPage"><div class="hero vault-hero"><h1>My Vault</h1><p id="vaultStats">Connect wallet to load ownerOf-based vault.</p><div class="vault-tabs" role="tablist" aria-label="My Vault"><button class="vault-tab active" id="vaultTabOwned" type="button" onclick="setVaultTab('owned')">Owned NFTs</button><button class="vault-tab" id="vaultTabSend" type="button" onclick="setVaultTab('send')">Send</button><button class="vault-tab" id="vaultTabReceive" type="button" onclick="setVaultTab('receive')">Receive</button></div></div><section class="section"><div id="vaultContent"></div></section></div>
@@ -362,7 +480,7 @@ function emptyStateHtml(icon,title,body){return`<div class="empty-state"><span c
 
 
 
-const PNC_CONFIG={app:{version:'v1.8.4-phase-2-feedback-motion'},network:{chainId:'0xaa36a7',name:'Sepolia Testnet'},contracts:{nft:'0x63C8AbE6a0e7867B7812A1237a2781D460702382',marketplace:'0x6151447c07Fa68b5A90E4DdD0c04e46aaa8EB5dc',feeWallet:'0x4a45Cd6Aa78C7AB51b0d9ba0e36E035A47a0BC1b'},pinata:{gateway:'https://gateway.pinata.cloud/ipfs/'},currency:{activeSymbol:'SepoliaETH',futureSymbol:'Pi'},marketRules:{initialSale:{seller:95,pncFee:5},resale:{seller:85,creatorRoyalty:10,pncFee:5},examplePrice:1000},links:{x:'https://x.com/picoreteam?s=21&t=OEh4osxhpQf_YpLWZaL1kQ',telegram:'https://t.me/PiAnnouncements'},performance:{readChainBeforeWalletConnect:true}};
+const PNC_CONFIG={app:{version:'v1.8.5-phase-2-feedback-motion'},network:{chainId:'0xaa36a7',name:'Sepolia Testnet'},contracts:{nft:'0x63C8AbE6a0e7867B7812A1237a2781D460702382',marketplace:'0x6151447c07Fa68b5A90E4DdD0c04e46aaa8EB5dc',feeWallet:'0x4a45Cd6Aa78C7AB51b0d9ba0e36E035A47a0BC1b'},pinata:{gateway:'https://gateway.pinata.cloud/ipfs/'},currency:{activeSymbol:'SepoliaETH',futureSymbol:'Pi'},marketRules:{initialSale:{seller:95,pncFee:5},resale:{seller:85,creatorRoyalty:10,pncFee:5},examplePrice:1000},links:{x:'https://x.com/picoreteam?s=21&t=OEh4osxhpQf_YpLWZaL1kQ',telegram:'https://t.me/PiAnnouncements'},performance:{readChainBeforeWalletConnect:true}};
 const PNC_FOOTER={
   marketplace:{title:'Marketplace',items:[
     {label:'Home',kind:'page',target:'homePage'},
