@@ -548,8 +548,10 @@ function normalizeLanguageCode(language){
   return PNC_SUPPORTED_LANGUAGES.includes(code)?code:PNC_DEFAULT_LANGUAGE;
 }
 function readStoredLanguage(){
-  try{return normalizeLanguageCode(localStorage.getItem(PNC_LANGUAGE_STORAGE_KEY));}
-  catch(e){return PNC_DEFAULT_LANGUAGE;}
+  try{
+    const stored=normalizeLanguageCode(localStorage.getItem(PNC_LANGUAGE_STORAGE_KEY));
+    return PNC_AVAILABLE_LANGUAGES.includes(stored)?stored:PNC_DEFAULT_LANGUAGE;
+  }catch(e){return PNC_DEFAULT_LANGUAGE;}
 }
 function persistLanguage(language){
   try{localStorage.setItem(PNC_LANGUAGE_STORAGE_KEY,language);}
