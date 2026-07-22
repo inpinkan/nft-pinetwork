@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pi NFT Center v1.9.4 Network & Transaction Safety Edition</title>
+<title>Pi NFT Center v1.9.5 Language UX Edition</title>
 <style>
 :root{--purple:#5b2d82;--gold:#f5b041;--bg:#111017;--card:#1d1826;--text:#f7f1ff;--muted:#b7a9c6;--border:#3b2c4c;--green:#2ecc71;--red:#ff5c5c;--blue:#2f80ed;--soft:rgba(255,255,255,.055)}
 body.light{--bg:#f7f4fb;--card:#fff;--text:#19151f;--muted:#70647c;--border:#e5d8ef;--soft:rgba(91,45,130,.055)}
@@ -78,7 +78,7 @@ body.light .carousel-btn{background:rgba(255,255,255,.9)}
 
 
 /* =========================================================
-   PNC v1.9.4 — NETWORK & TRANSACTION SAFETY
+   PNC v1.9.5 — NETWORK & TRANSACTION SAFETY
    ---------------------------------------------------------
    Purpose:
    - Keep Safe UI and Transaction UI strings on one t() lookup path.
@@ -278,6 +278,23 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,
 .pnc-toast.error{border-color:rgba(255,102,119,.7)}
 @keyframes pncToastIn{to{opacity:1;transform:translateY(0)}}
 
+/* PNC v1.9.5 — Language UX */
+.language-panel{display:grid;gap:8px}
+.language-current-summary{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 11px;border:1px solid rgba(245,176,65,.28);border-radius:12px;background:rgba(245,176,65,.06)}
+.language-current-summary span{font-size:12px;color:var(--muted)}
+.language-current-summary strong{font-size:13px;color:var(--text)}
+.language-list{display:grid;gap:6px}
+.menu .language-option{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0;padding:10px 11px;border:1px solid transparent;border-radius:12px}
+.language-option-main{display:flex;align-items:center;gap:9px;min-width:0}
+.language-option-label{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.language-option-status{flex:0 0 auto;padding:3px 7px;border-radius:999px;font-size:10px;font-weight:800;letter-spacing:.02em}
+.language-option.is-current{border-color:rgba(84,208,143,.48);background:rgba(84,208,143,.08)}
+.language-option.is-current .language-option-status{color:#bdf5d6;background:rgba(84,208,143,.16)}
+body.light .language-option.is-current .language-option-status{color:#1d6b45}
+.language-option.is-preparing,.language-option:disabled{cursor:not-allowed;opacity:.62}
+.language-option.is-preparing .language-option-status{color:var(--muted);background:var(--pnc-muted-bg)}
+.language-option:disabled:hover{transform:none;background:transparent;border-color:transparent}
+
 .pnc-loading{display:flex;align-items:center;justify-content:center;gap:10px;min-height:92px;padding:18px;border:1px solid var(--pnc-card-border);border-radius:16px;background:var(--pnc-muted-bg);color:var(--muted)}
 .pnc-spinner{width:20px;height:20px;border:2px solid rgba(255,255,255,.2);border-top-color:var(--accent);border-radius:50%;animation:pncSpin .75s linear infinite}
 @keyframes pncSpin{to{transform:rotate(360deg)}}
@@ -452,10 +469,10 @@ body.light header .menu .language-option.is-active{background:rgba(84,208,143,.1
 <header>
   <div class="topbar"><div class="logo" onclick="showPage('homePage')">PI NFT CENTER</div><div class="topbar-actions"><button class="refresh-btn" id="platformRefreshBtn" type="button" onclick="refreshPlatform({feedback:true})">↻</button><button class="menu-btn" id="menuToggleBtn" type="button" onclick="toggleMenu()" aria-controls="menu" aria-expanded="false">☰</button></div></div>
   <div class="search-row"><input id="searchInput" oninput="searchPNC()"><button class="wallet-btn" id="walletConnectBtn" onclick="openWalletModal()"></button><div class="search-results" id="searchResults"></div></div>
-  <div class="menu" id="menu" aria-hidden="true"><div class="menu-inner"><div class="menu-title" data-i18n="nav.title"></div><button onclick="showPage('homePage')">🏠 <span data-i18n="nav.home"></span></button><button onclick="showPage('collectionsPage')">🏪 <span data-i18n="nav.collections"></span></button><button onclick="showPage('vaultPage')">🏦 <span data-i18n="nav.vault"></span></button><button onclick="showPage('creatorPage')">🎨 <span data-i18n="nav.creator"></span></button><div class="menu-title" data-i18n="appearance.title"></div><button onclick="setTheme('light')">☀️ <span data-i18n="appearance.light"></span></button><button onclick="setTheme('dark')">🌙 <span data-i18n="appearance.dark"></span></button><div class="menu-title" data-i18n="language.title"></div><div class="language-list" role="group"><button class="language-option is-active" type="button" onclick="selectLanguage('en')">🇺🇸 English <span data-i18n="language.current"></span></button><button class="language-option" type="button" onclick="selectLanguage('ja')">🇯🇵 日本語 <span data-i18n="language.preparing"></span></button><button class="language-option" type="button" onclick="selectLanguage('ko')">🇰🇷 한국어 <span data-i18n="language.preparing"></span></button><button class="language-option" type="button" onclick="selectLanguage('ru')">🇷🇺 Русский <span data-i18n="language.preparing"></span></button></div></div></div>
+  <div class="menu" id="menu" aria-hidden="true"><div class="menu-inner"><div class="menu-title" data-i18n="nav.title"></div><button onclick="showPage('homePage')">🏠 <span data-i18n="nav.home"></span></button><button onclick="showPage('collectionsPage')">🏪 <span data-i18n="nav.collections"></span></button><button onclick="showPage('vaultPage')">🏦 <span data-i18n="nav.vault"></span></button><button onclick="showPage('creatorPage')">🎨 <span data-i18n="nav.creator"></span></button><div class="menu-title" data-i18n="appearance.title"></div><button onclick="setTheme('light')">☀️ <span data-i18n="appearance.light"></span></button><button onclick="setTheme('dark')">🌙 <span data-i18n="appearance.dark"></span></button><div class="menu-title" data-i18n="language.title"></div><div class="language-panel"><div class="language-current-summary"><span data-i18n="language.currentLanguage"></span><strong id="currentLanguageName">English</strong></div><div class="language-list" role="group"><button class="language-option" type="button" data-language="en" onclick="selectLanguage('en')"><span class="language-option-main"><span aria-hidden="true">🇺🇸</span><span class="language-option-label">English</span></span><span class="language-option-status"></span></button><button class="language-option" type="button" data-language="ja" disabled aria-disabled="true"><span class="language-option-main"><span aria-hidden="true">🇯🇵</span><span class="language-option-label">日本語</span></span><span class="language-option-status"></span></button><button class="language-option" type="button" data-language="ko" disabled aria-disabled="true"><span class="language-option-main"><span aria-hidden="true">🇰🇷</span><span class="language-option-label">한국어</span></span><span class="language-option-status"></span></button><button class="language-option" type="button" data-language="ru" disabled aria-disabled="true"><span class="language-option-main"><span aria-hidden="true">🇷🇺</span><span class="language-option-label">Русский</span></span><span class="language-option-status"></span></button></div></div></div></div>
 </header>
 <main>
-  <div class="page show" id="homePage"><div class="hero"><h1>Pi NFT Center <span class="beta">v1.9.4</span></h1><p data-i18n="home.hero"></p></div><section class="section"><div class="section-title" data-i18n="home.topCollections"></div><div class="collection-list" id="topCollections"></div></section><section class="section carousel-section"><div class="carousel-header"><div class="section-title" data-i18n="home.hotNfts"></div><div class="carousel-controls"><button class="carousel-btn" type="button" data-carousel-prev="hotNfts">◀</button><button class="carousel-btn" type="button" data-carousel-next="hotNfts">▶</button></div></div><div class="carousel-shell"><span class="carousel-edge left"></span><div class="grid carousel-track" id="hotNfts" tabindex="0"></div><span class="carousel-edge right"></span></div></section><section class="section carousel-section"><div class="carousel-header"><div class="section-title" data-i18n="home.liveAuctions"></div><div class="carousel-controls"><button class="carousel-btn" type="button" data-carousel-prev="liveAuctions">◀</button><button class="carousel-btn" type="button" data-carousel-next="liveAuctions">▶</button></div></div><div class="carousel-shell"><span class="carousel-edge left"></span><div class="grid carousel-track" id="liveAuctions" tabindex="0"></div><span class="carousel-edge right"></span></div></section><section class="section carousel-section"><div class="carousel-header"><div class="section-title" data-i18n="home.newNfts"></div><div class="carousel-controls"><button class="carousel-btn" type="button" data-carousel-prev="newNfts">◀</button><button class="carousel-btn" type="button" data-carousel-next="newNfts">▶</button></div></div><div class="carousel-shell"><span class="carousel-edge left"></span><div class="grid carousel-track" id="newNfts" tabindex="0"></div><span class="carousel-edge right"></span></div></section><section class="section carousel-section"><div class="carousel-header"><div class="section-title" data-i18n="home.newCollections"></div><div class="carousel-controls"><button class="carousel-btn" type="button" data-carousel-prev="newCollections">◀</button><button class="carousel-btn" type="button" data-carousel-next="newCollections">▶</button></div></div><div class="carousel-shell"><span class="carousel-edge left"></span><div class="grid carousel-track" id="newCollections" tabindex="0"></div><span class="carousel-edge right"></span></div></section><section class="section carousel-section"><div class="carousel-header"><div class="section-title" data-i18n="home.featuredCollections"></div><div class="carousel-controls"><button class="carousel-btn" type="button" data-carousel-prev="featuredCollections">◀</button><button class="carousel-btn" type="button" data-carousel-next="featuredCollections">▶</button></div></div><div class="carousel-shell"><span class="carousel-edge left"></span><div class="grid carousel-track" id="featuredCollections" tabindex="0"></div><span class="carousel-edge right"></span></div></section></div>
+  <div class="page show" id="homePage"><div class="hero"><h1>Pi NFT Center <span class="beta">v1.9.5</span></h1><p data-i18n="home.hero"></p></div><section class="section"><div class="section-title" data-i18n="home.topCollections"></div><div class="collection-list" id="topCollections"></div></section><section class="section carousel-section"><div class="carousel-header"><div class="section-title" data-i18n="home.hotNfts"></div><div class="carousel-controls"><button class="carousel-btn" type="button" data-carousel-prev="hotNfts">◀</button><button class="carousel-btn" type="button" data-carousel-next="hotNfts">▶</button></div></div><div class="carousel-shell"><span class="carousel-edge left"></span><div class="grid carousel-track" id="hotNfts" tabindex="0"></div><span class="carousel-edge right"></span></div></section><section class="section carousel-section"><div class="carousel-header"><div class="section-title" data-i18n="home.liveAuctions"></div><div class="carousel-controls"><button class="carousel-btn" type="button" data-carousel-prev="liveAuctions">◀</button><button class="carousel-btn" type="button" data-carousel-next="liveAuctions">▶</button></div></div><div class="carousel-shell"><span class="carousel-edge left"></span><div class="grid carousel-track" id="liveAuctions" tabindex="0"></div><span class="carousel-edge right"></span></div></section><section class="section carousel-section"><div class="carousel-header"><div class="section-title" data-i18n="home.newNfts"></div><div class="carousel-controls"><button class="carousel-btn" type="button" data-carousel-prev="newNfts">◀</button><button class="carousel-btn" type="button" data-carousel-next="newNfts">▶</button></div></div><div class="carousel-shell"><span class="carousel-edge left"></span><div class="grid carousel-track" id="newNfts" tabindex="0"></div><span class="carousel-edge right"></span></div></section><section class="section carousel-section"><div class="carousel-header"><div class="section-title" data-i18n="home.newCollections"></div><div class="carousel-controls"><button class="carousel-btn" type="button" data-carousel-prev="newCollections">◀</button><button class="carousel-btn" type="button" data-carousel-next="newCollections">▶</button></div></div><div class="carousel-shell"><span class="carousel-edge left"></span><div class="grid carousel-track" id="newCollections" tabindex="0"></div><span class="carousel-edge right"></span></div></section><section class="section carousel-section"><div class="carousel-header"><div class="section-title" data-i18n="home.featuredCollections"></div><div class="carousel-controls"><button class="carousel-btn" type="button" data-carousel-prev="featuredCollections">◀</button><button class="carousel-btn" type="button" data-carousel-next="featuredCollections">▶</button></div></div><div class="carousel-shell"><span class="carousel-edge left"></span><div class="grid carousel-track" id="featuredCollections" tabindex="0"></div><span class="carousel-edge right"></span></div></section></div>
   <div class="page" id="collectionsPage"><div class="hero"><h1 data-i18n="nav.collections"></h1><p data-i18n="collections.hero"></p></div><section class="section"><div class="grid" id="allCollections"></div></section></div>
   <div class="page" id="collectionPage"><div id="collectionDetail"></div></div>
   <div class="page" id="vaultPage"><div class="hero vault-hero"><h1 data-i18n="nav.vault"></h1><p id="vaultStats"></p><div class="vault-tabs" role="tablist"><button class="vault-tab active" id="vaultTabOwned" type="button" onclick="setVaultTab('owned')"></button><button class="vault-tab" id="vaultTabSend" type="button" onclick="setVaultTab('send')"></button><button class="vault-tab" id="vaultTabReceive" type="button" onclick="setVaultTab('receive')"></button></div></div><section class="section"><div id="vaultContent"></div></section></div>
@@ -471,11 +488,11 @@ body.light header .menu .language-option.is-active{background:rgba(84,208,143,.1
 'use strict';
 
 /* =========================================================
-   PNC v1.9.4 — NETWORK & TRANSACTION SAFETY
+   PNC v1.9.5 — LANGUAGE UX EDITION
    ---------------------------------------------------------
    Runtime language state is added here as one isolated path.
    Safe UI remains on the established t() path.
-   Transaction UI remains consolidated. Network validation and transaction preflight are centralized in v1.9.4.
+   Language UX is updated while the v1.9.4 network validation and transaction preflight architecture remains unchanged.
 
    Translation exclusions remain unchanged:
    - Blockchain / Marketplace / Pinata / Storage logic
@@ -493,13 +510,14 @@ body.light header .menu .language-option.is-active{background:rgba(84,208,143,.1
 const PNC_LANGUAGE_STORAGE_KEY='PNC_LANGUAGE';
 const PNC_DEFAULT_LANGUAGE='en';
 const PNC_SUPPORTED_LANGUAGES=Object.freeze(['en','ja','ko','ru']);
+const PNC_AVAILABLE_LANGUAGES=Object.freeze(['en']);
 const PNC_LOCALES=Object.freeze({en:'en-US',ja:'ja-JP',ko:'ko-KR',ru:'ru-RU'});
 const PNC_I18N=Object.freeze({
   en:Object.freeze({
     common:Object.freeze({languageName:'English',close:'Close',cancel:'Cancel',loading:'Loading…',nothingHere:'Nothing here yet',current:'Current',creator:'Creator',owner:'Owner',status:'Status',chain:'Chain',contract:'Contract',tokenId:'Token ID',noFile:'No file selected',shop:'Shop',nft:'NFT'}),
     nav:Object.freeze({title:'Navigation',home:'Home',collections:'Collections',vault:'My Vault',creator:'Creator Center'}),
     appearance:Object.freeze({title:'Appearance',light:'Light',dark:'Dark',lightSelected:'Light appearance selected.',darkSelected:'Dark appearance selected.'}),
-    language:Object.freeze({title:'Language',current:'Current',preparing:'Preparing',englishSelected:'English is already selected.',preparingMessage:'{language} is being prepared. English remains active.'}),
+    language:Object.freeze({title:'Language',current:'Current',currentLanguage:'Current language',preparing:'Preparing',englishSelected:'English is already selected.',changed:'Language changed to {language}.',preparingMessage:'{language} is being prepared. English remains active.'}),
     header:Object.freeze({searchPlaceholder:'Search NFTs or Collections',refresh:'Refresh platform',updating:'Updating…',updated:'Updated',updateFailed:'Update failed',openMenu:'Open menu',closeMenu:'Close menu'}),wallet:Object.freeze({connectButton:'Connect',connectTitle:'Connect Wallet',connectedTitle:'Wallet Connected',chooseProvider:'Choose a wallet provider.',logout:'Logout',comingSoon:'Coming soon'}),
     home:Object.freeze({hero:'A creator-focused NFT marketplace with clear guides, fees, and service information.',topCollections:'🏆 Top Collections',hotNfts:'🔥 Hot NFTs',liveAuctions:'🔨 Live Auctions',newNfts:'🆕 New NFTs',newCollections:'🆕 New Collections',featuredCollections:'⭐ Featured Collections'}),
     collections:Object.freeze({hero:'All collections are rendered from MarketState only.',items:'Items',listed:'Listed',owners:'Owners',floor:'Floor',volume:'Volume',nfts:'🖼 NFTs'}),
@@ -566,6 +584,7 @@ function applySafeUITranslations(){
   const refresh=$('platformRefreshBtn');if(refresh){refresh.title=t('header.refresh');refresh.setAttribute('aria-label',t('header.refresh'));}
   const menuButton=$('menuToggleBtn');if(menuButton)menuButton.setAttribute('aria-label',t('header.openMenu'));
   const languageList=document.querySelector('.language-list');if(languageList)languageList.setAttribute('aria-label',t('language.title'));
+  renderLanguageMenuState();
   const carouselLabels={hotNfts:'home.hotNfts',liveAuctions:'home.liveAuctions',newNfts:'home.newNfts',newCollections:'home.newCollections',featuredCollections:'home.featuredCollections'};
   Object.entries(carouselLabels).forEach(([id,key])=>{const prev=document.querySelector(`[data-carousel-prev="${id}"]`),next=document.querySelector(`[data-carousel-next="${id}"]`),label=t(key);if(prev)prev.setAttribute('aria-label',label+' left');if(next)next.setAttribute('aria-label',label+' right');});
   const owned=$('vaultTabOwned'),send=$('vaultTabSend'),receive=$('vaultTabReceive');if(owned)owned.textContent=t('vault.ownedNfts');if(send)send.textContent=t('vault.send');if(receive)receive.textContent=t('vault.receive');
@@ -594,7 +613,7 @@ function emptyStateHtml(icon,title,body){return`<div class="empty-state"><span c
 
 
 
-const PNC_CONFIG={app:{version:'v1.9.4-network-transaction-safety'},network:{chainId:'0xaa36a7',name:'Sepolia Testnet'},contracts:{nft:'0x63C8AbE6a0e7867B7812A1237a2781D460702382',marketplace:'0x6151447c07Fa68b5A90E4DdD0c04e46aaa8EB5dc',feeWallet:'0x4a45Cd6Aa78C7AB51b0d9ba0e36E035A47a0BC1b'},pinata:{gateway:'https://gateway.pinata.cloud/ipfs/'},currency:{activeSymbol:'SepoliaETH',futureSymbol:'Pi'},marketRules:{initialSale:{seller:95,pncFee:5},resale:{seller:85,creatorRoyalty:10,pncFee:5},examplePrice:1000},links:{x:'https://x.com/picoreteam?s=21&t=OEh4osxhpQf_YpLWZaL1kQ',telegram:'https://t.me/PiAnnouncements'},performance:{readChainBeforeWalletConnect:true}};
+const PNC_CONFIG={app:{version:'v1.9.5-language-ux'},network:{chainId:'0xaa36a7',name:'Sepolia Testnet'},contracts:{nft:'0x63C8AbE6a0e7867B7812A1237a2781D460702382',marketplace:'0x6151447c07Fa68b5A90E4DdD0c04e46aaa8EB5dc',feeWallet:'0x4a45Cd6Aa78C7AB51b0d9ba0e36E035A47a0BC1b'},pinata:{gateway:'https://gateway.pinata.cloud/ipfs/'},currency:{activeSymbol:'SepoliaETH',futureSymbol:'Pi'},marketRules:{initialSale:{seller:95,pncFee:5},resale:{seller:85,creatorRoyalty:10,pncFee:5},examplePrice:1000},links:{x:'https://x.com/picoreteam?s=21&t=OEh4osxhpQf_YpLWZaL1kQ',telegram:'https://t.me/PiAnnouncements'},performance:{readChainBeforeWalletConnect:true}};
 const PNC_FOOTER={
   marketplace:{titleKey:'footer.marketplace',items:[
     {labelKey:'nav.home',kind:'page',target:'homePage'},
@@ -758,10 +777,32 @@ function setMenuOpen(open){
   if(button){button.setAttribute('aria-expanded',open?'true':'false');button.setAttribute('aria-label',open?t('header.closeMenu'):t('header.openMenu'));}
 }
 function toggleMenu(){setMenuOpen(!$('menu')?.classList.contains('show'));}
+function languageDisplayName(code){return i18nValue(PNC_I18N[code],'common.languageName')||code;}
+function renderLanguageMenuState(){
+  const current=getLanguage();
+  const currentName=$('currentLanguageName');
+  if(currentName)currentName.textContent=languageDisplayName(current);
+  document.querySelectorAll('.language-option[data-language]').forEach(button=>{
+    const code=normalizeLanguageCode(button.dataset.language);
+    const available=PNC_AVAILABLE_LANGUAGES.includes(code);
+    const active=available&&code===current;
+    button.disabled=!available;
+    button.setAttribute('aria-disabled',available?'false':'true');
+    button.setAttribute('aria-pressed',active?'true':'false');
+    button.classList.toggle('is-current',active);
+    button.classList.toggle('is-preparing',!available);
+    const status=button.querySelector('.language-option-status');
+    if(status)status.textContent=active?t('language.current'):available?'':t('language.preparing');
+  });
+}
 function selectLanguage(code){
-  if(code==='en'){showToast(t('language.englishSelected'),'info',2200);return;}
-  const names={ja:'日本語',ko:'한국어',ru:'Русский'};
-  showToast(t('language.preparingMessage',{language:names[code]||'This language'}),'info',3000);
+  const next=normalizeLanguageCode(code);
+  if(!PNC_AVAILABLE_LANGUAGES.includes(next))return;
+  const previous=getLanguage();
+  setLanguage(next);
+  applySafeUITranslations();
+  setMenuOpen(false);
+  showToast(previous===next?t('language.englishSelected'):t('language.changed',{language:languageDisplayName(next)}),'success',2200);
 }
 function setTheme(mode){document.body.className=mode==='light'?'light':'';showToast(mode==='light'?t('appearance.lightSelected'):t('appearance.darkSelected'),'success',1800);}
 function showPage(id){document.querySelectorAll('.page').forEach(p=>p.classList.remove('show'));$(id)?.classList.add('show');setMenuOpen(false);}
